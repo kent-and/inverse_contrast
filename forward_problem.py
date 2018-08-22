@@ -4,26 +4,16 @@ from fenics_adjoint import *
 set_log_level(INFO)
 
 
-def initialize_mesh(mesh_file, subdomains_file, bdy_file, load_bdy_from_file=True):
+def initialize_mesh(mesh_file): # Lars : Endret 
     # Import mesh and subdomains
-    mesh = Mesh(mesh_file)
-    subdomains = MeshFunction("size_t", mesh, subdomains_file)
+    mesh = Mesh()
 
-    # Setup boundaries
-    D = mesh.topology().dim()
-    if load_bdy_from_file:
-        # Load from file. This must be done for parallel.
-        boundaries = MeshFunction("size_t", mesh, bdy_file)
-    else:
-        # Mark boundaries and save to file. This must be done in serial.
-        boundaries = MeshFunction("size_t", mesh, D - 1)
-        mesh.init(D - 1, D)
-        boundaries.set_all(0)
-        for f in facets(mesh):
-            if len(f.entities(D)) == 1:
-                boundaries.array()[f.index()] = subdomains[int(f.entities(D))]
-        File(bdy_file) << boundaries
-
+    hdf = HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r")
+    hdf.read(mesh, "/mesh", False)  
+    subdomains = CellFunction("size_t", mesh)
+    hdf.read(subdomains, "/subdomains")
+    boundaries = FacetFunction("size_t", mesh)
+    hdf.read(boundaries, "/boundaries")
     # Define measures with subdomains
     dx = Measure("dx", domain=mesh, subdomain_data=subdomains)
     ds = Measure("ds", domain=mesh, subdomain_data=boundaries)
@@ -82,7 +72,7 @@ class Context(object):
         self.V = V
         self.D = D
         self.g_list = g_list
-        self.t = 0
+        self.t = 0                                # Lars : start tid første tau ?
         self.ic = Function(self.V)
         self.linear_solver_args = ("gmres", "amg")
 
@@ -134,7 +124,7 @@ def gradient(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0):
             self.current_g_index += 1
 
         def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]):
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): # Lars : Enklere?
                 # If t is closest to next observation then compute misfit.
                 self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
                 self.J += assemble((U - self.d) ** 2 * self.dx)
@@ -205,7 +195,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.current_g_index += 1
 
         def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]):
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars :  Enklere ? 
                 # If t is closest to next observation then compute misfit.
                 self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
                 self.J += assemble((U - self.d) ** 2 * self.dx)
@@ -261,7 +251,7 @@ def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
             self.current_g_index += 1
 
         def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]):
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): # Enklere ? 
                 self.obs_file.write(U, str(self.tau[self.next_tau]))  # Write observation
                 # Move on to next observation
                 self.next_tau += 1
@@ -317,7 +307,7 @@ if __name__ == "__main__":
     D = {1: Constant(350), 2: Constant(0.8), 3: Constant(0.8)}
     k = 20
     g = [Function(V) for _ in range(k)]
-    gfil = HDF5File(mpi_comm_world(), "g.xdmf", "r")
+    gfil = HDF5File(mpi_comm_world(), "g.xdmf", "r")  # Lars : Hvorfor ? 
     bc = DirichletBC(V, 1.0, boundaries, 1)
     tmp_i_t = 0
     tmp_i_dt = 0.1
@@ -328,7 +318,7 @@ if __name__ == "__main__":
 
     m = [D[1], D[2], D[3]] + g
 
-    tau = [0.1, 0.30000000000000004, 0.7, 1.3,
+    tau = [0.1, 0.30000000000000004, 0.7, 1.3,          # Lars : Trenger tau input
            2.0000000000000004]
     alpha = AdjFloat(1E-2)
     beta = AdjFloat(1.0)

@@ -33,10 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('--noise', default=0.0, type=float)
     parser.add_argument('--tol', default=0.001, type=float)
     parser.add_argument('--D', default=[1000, 2, 1], type=float, nargs=3)
-    parser.add_argument('--mesh', default="mesh/coarse_mesh.xml", type=str)
-    parser.add_argument("--subdomains", default="mesh/coarse_sub_corrected.xml", type=str)
-    parser.add_argument("--boundaries", default="mesh/coarse_bdy_corrected.xml", type=str)
-    parser.add_argument("--use-boundaries-file", default=True, type=bool)
+    parser.add_argument('--mesh', default="mesh_invers_contrast.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k", type=int)
     parser.add_argument("--obs-file", default="U.xdmf", type=str)
@@ -45,7 +42,8 @@ if __name__ == "__main__":
     parser.add_argument("--generate-observations", default=False, type=bool)
     Z = parser.parse_args()
 
-    mesh_config = initialize_mesh(Z.mesh, Z.subdomains, Z.boundaries, Z.use_boundaries_file)
+    mesh_config = initialize_mesh(Z.mesh)
+
     V = FunctionSpace(mesh_config["mesh"], "CG", 1)
 
     # Diffusion coefficients
@@ -83,25 +81,9 @@ if __name__ == "__main__":
         ub.append(10.0)
 
     opt_ctrls = minimize(Jhat, method="L-BFGS-B", bounds=(lb, ub), options={"disp": True, "maxiter": 1000, "gtol": 1e-02})
+
     print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     if Z.save_control_values_file is not None:
         save_control_values(opt_ctrls, Z.save_control_values_file)
 
-    """
-    No scaling: (1000, 2, 1)
-        N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
-        *****    100    116  20444     0 *****   8.228D+00   1.193D+03
-        F =   1193.1064571009999
-        [Constant(317.3507459588122), Constant(1.7717554599898975), Constant(1.0509742632920487)]
-    Scaling in CSF: (1, 2, 1)
-        N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
-        *****    100    109  20468     0 *****   8.958D+00   2.284D+02
-        F =   228.43056705566045
-        [Constant(1.0422141805744543), Constant(2.18265174334314), Constant(1.0599568116506144)]
-    Scaling all coeffs: (1, 1, 1)
-        N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
-        *****    100    113  21309     0 *****   9.097D+00   3.028D+02
-        F =   302.80726099705225
-        [Constant(1.00287263536503), Constant(1.089543701770001), Constant(1.0400841076694123)]
-    
-    """
+
