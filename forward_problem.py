@@ -3,107 +3,63 @@ from fenics_adjoint import *
 
 set_log_level(INFO)
 
-# Import mesh and subdomains
-mesh = Mesh("coarse_mesh.xml")
-subdomains = MeshFunction("size_t", mesh, "coarse_sub_corrected.xml")
 
-# Setup boundaries
-load_bdy_from_file = True
-D = mesh.topology().dim()
-if load_bdy_from_file:
-    # Load from file. This must be done for parallel.
-    boundaries = MeshFunction("size_t", mesh, "coarse_bdy_corrected.xml")
-else:
-    # Mark boundaries and save to file. This must be done in serial.
-    boundaries = MeshFunction("size_t", mesh, D - 1)
-    mesh.init(D - 1, D)
-    boundaries.set_all(0)
-    for f in facets(mesh):
-        if len(f.entities(D)) == 1:
-            boundaries.array()[f.index()] = subdomains[int(f.entities(D))]
-    File("coarse_bdy_corrected.xml") << boundaries
+def initialize_mesh(mesh_file, subdomains_file, bdy_file, load_bdy_from_file=True):
+    # Import mesh and subdomains
+    mesh = Mesh(mesh_file)
+    subdomains = MeshFunction("size_t", mesh, subdomains_file)
 
-# Define measures with subdomains
-dx = Measure("dx", domain=mesh, subdomain_data=subdomains)
-ds = Measure("ds", domain=mesh, subdomain_data=boundaries)
+    # Setup boundaries
+    D = mesh.topology().dim()
+    if load_bdy_from_file:
+        # Load from file. This must be done for parallel.
+        boundaries = MeshFunction("size_t", mesh, bdy_file)
+    else:
+        # Mark boundaries and save to file. This must be done in serial.
+        boundaries = MeshFunction("size_t", mesh, D - 1)
+        mesh.init(D - 1, D)
+        boundaries.set_all(0)
+        for f in facets(mesh):
+            if len(f.entities(D)) == 1:
+                boundaries.array()[f.index()] = subdomains[int(f.entities(D))]
+        File(bdy_file) << boundaries
 
-# Define function space
-V = FunctionSpace(mesh, "CG", 1)
+    # Define measures with subdomains
+    dx = Measure("dx", domain=mesh, subdomain_data=subdomains)
+    ds = Measure("ds", domain=mesh, subdomain_data=boundaries)
+    return {"ds": ds, "dx": dx, "boundaries": boundaries, "mesh": mesh, "subdomains": subdomains}
 
 
-def forward_problem(D, g_list, tau, alpha=0.0, beta=0.0):
-    """Compute the forward problem and return J + R.
-
-    Args:
-        D (dict or list): dict or list of diffusion coefficients,
-            with keys/index being subdomain id corresponding to that coefficient.
-        g_list (list): list of all boundary conditions.
-            Length determines amount of timesteps
-        tau (list): list of all observation time points.
-            Last time point determines stop time (T) for simulation.
-        alpha (float, optional): Regularisation parameter of boundary condition g
-        beta (float, optional): Regularisation parameter of time derivative of g
-
-    Returns:
-        float: the resulting objective functional with regularisation: J + R.
-
-    """
+def forward_problem(context):
+    V = context.V
     # Define trial and test-functions
     u = TrialFunction(V)
     v = TestFunction(V)
 
     # Solution at current and previous time
-    U = Function(V)
     U_prev = Function(V)
+    U = context.ic
 
-    # Hold index of next unused observation
-    next_tau = 0
-
-    # Set up the parameters
-    k = len(g_list)  # Amount of time steps.
-    T = tau[-1]
-    t = 0
-    dt = T / k
-
-    # Open pipe to observations file
-    obs_file = HDF5File(mpi_comm_world(), "U.xdmf", 'r')
-    # Load initial observation as initial condition
-    obs_file.read(U, "0")
-    # Define observations function, which will load data from obs_file
-    d = Function(V)
+    dt = context.dt
+    D = context.D
+    dx = context.dx
 
     # Define bilinear form, handling each subdomain 1, 2, and 3 in separate integrals.
-    a = u * v * dx + sum([dt * D[j] * inner(grad(v), grad(u)) * dx(j) for j in range(1, 4)])
+    a = u * v * dx + sum([dt * context.scale(j-1) * D[j] * inner(grad(v), grad(u)) * dx(j) for j in range(1, 4)])
     # Define linear form.
     L = U_prev * v * dx
 
-    # Impose Dirichlet boundary conditions on the boundary marked 1.
-    g = g_list[0]
-    bc = DirichletBC(V, g, boundaries, 1)
-    current_g_index = 0
-
-    # Assemble system matrix which is constant in time.
     A = assemble(a)
-    # Apply boundary conditions to A
+    bc = DirichletBC(V, 0, context.boundaries, 1)
     bc.apply(A)
-
     # Define solver. Use GMRES iterative method with AMG preconditioner.
-    solver = LinearSolver(mpi_comm_self(), "gmres", "amg")
+    solver = LinearSolver(mpi_comm_self(), *context.linear_solver_args)
     solver.set_operator(A)
-    # solver.parameters["relative_tolerance"] = 1e-14
 
-    # The functional
-    J = 0
-    import time
-    while next_tau < len(tau):
-        # Advance one timestep in time.
-        U_prev.assign(U)  # Set newest U to previous U
-        t += dt  # Increment time
-        # Advance boundary condition function in time
-        g_prev = g
-        g = g_list[current_g_index]
-        current_g_index += 1
-        bc = DirichletBC(V, g, boundaries, 1)
+    while not context.should_stop():
+        U_prev.assign(U)
+        context.advance_time()
+        bc = context.next_bc()
 
         # Assemble RHS and apply DirichletBC
         b = assemble(L)
@@ -111,49 +67,219 @@ def forward_problem(D, g_list, tau, alpha=0.0, beta=0.0):
         bc.apply(b)
 
         # Solve linear system for this timestep
-        s1 = time.clock()
-        hmm = solver.solve(U.vector(), b)
-        s2 = time.clock()
-        print("hmm: ", hmm)
-        print("Forward solve: ", s2 - s1)
-        # list_timings(True, [TimingType_wall])
+        solver.solve(U.vector(), b)
 
-        if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):
-            # If t is closest to next observation then compute misfit.
-            obs_file.read(d, str(tau[next_tau]))  # Read observation
-            J += assemble((U - d) ** 2 * dx)
+        context.handle_solution(U)
 
-            # Move on to next observation
-            next_tau += 1
+    return context.return_value()
 
-        # Choose time integral weights
-        if t <= dt or next_tau >= len(tau):
-            # If endpoints use 0.5 weight
-            weight = 0.5
-        else:
-            # Otherwise 1.0 weight
-            weight = 1.0
 
-        # Add regularisation
-        J += 1 / 2 * weight * dt * assemble(g ** 2 * ds(1)) * alpha
-        if current_g_index > 1:
-            J += 1 / 2 * weight * dt * assemble(((g - g_prev) / dt) ** 2 * ds(1)) * beta
+class Context(object):
+    def __init__(self, mesh_config, V, D, g_list):
+        self.ds = mesh_config["ds"]
+        self.dx = mesh_config["dx"]
+        self.boundaries = mesh_config["boundaries"]
+        self.V = V
+        self.D = D
+        self.g_list = g_list
+        self.t = 0
+        self.ic = Function(self.V)
+        self.linear_solver_args = ("gmres", "amg")
 
-    # We are done with reading observations
-    obs_file.close()
+    def scale(self, i):
+        return 1.0
 
-    # Assert that all g are used.
-    assert len(g_list[:current_g_index]) == len(g_list)
+    def should_stop(self):
+        """Return True if the solve loop should stop."""
+        raise NotImplementedError
 
-    return J
+    def advance_time(self):
+        """Advance time by one timestep"""
+        raise NotImplementedError
 
-results_folder_load = "results-1e-2-1e-0-iter100-n2-tnc100"
-results_folder_save = "results-1e-2-1e-0-iter100-n2-tnc500"
+    def handle_solution(self, U):
+        """Handle the solution U at this timestep."""
+        raise NotImplementedError
 
-def save_control_values(m):
-    h5file = HDF5File(mpi_comm_world(), "results/forward-problem/{}/opt_ctrls.xdmf".format(results_folder_save), 'w')
+    def next_bc(self):
+        """Return the next bc to be used in solve"""
+        raise NotImplementedError
+
+    def return_value(self):
+        return None
+
+
+def gradient(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0):
+    class GradientContext(Context):
+        def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0):
+            super(GradientContext, self).__init__(mesh_config, V, D, g_list)
+            self.tau = tau
+            self.next_tau = 0
+            self.g = None
+            self.current_g_index = 0
+            self.J = 0.0
+            self.d = Function(self.V)
+            self.alpha = alpha
+            self.beta = beta
+            self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
+            self.dt = tau[-1]/float(len(g_list))
+            self.obs_file.read(self.ic, "0")
+
+        def should_stop(self):
+            return not self.next_tau < len(self.tau)
+
+        def advance_time(self):
+            self.t += self.dt
+            self.g = self.g_list[self.current_g_index]
+            self.current_g_index += 1
+
+        def handle_solution(self, U):
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]):
+                # If t is closest to next observation then compute misfit.
+                self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
+                self.J += assemble((U - self.d) ** 2 * self.dx)
+
+                # Move on to next observation
+                self.next_tau += 1
+
+            # Choose time integral weights
+            if self.t <= self.dt or self.next_tau >= len(self.tau):
+                # If endpoints use 0.5 weight
+                weight = 0.5
+            else:
+                # Otherwise 1.0 weight
+                weight = 1.0
+
+            # Add regularisation
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1)) * self.alpha
+            if self.current_g_index > 1:
+                g_prev = self.g_list[self.current_g_index - 1]
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
+
+        def next_bc(self):
+            return DirichletBC(self.V, self.g, self.boundaries, 1)
+
+        def return_value(self):
+            self.obs_file.close()
+            return self.J
+
+    context = GradientContext(mesh_config, V, D, g_list, tau, obs_file, alpha, beta)
+    J = forward_problem(context)
+    ctrls = ([Control(D[i]) for i in range(1, 4)]
+             + [Control(g_i) for g_i in g_list])
+    Jhat = ReducedFunctional(J, ctrls)
+    Jhat.optimize()
+    dJdm = Jhat.derivative()
+    set_working_tape(Tape())
+    return dJdm
+
+
+def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
+    class FunctionalContext(Context):
+        def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
+            super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
+            self.tau = tau
+            self.next_tau = 0
+            self.g = None
+            self.current_g_index = 0
+            self.J = 0.0
+            self.d = Function(self.V)
+            self.alpha = alpha
+            self.beta = beta
+            self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
+            self.dt = tau[-1]/float(len(g_list))
+            self.obs_file.read(self.ic, "0")
+            self.gradient = [1.0, 1.0, 1.0]
+
+        def scale(self, i):
+            if self.gradient is not None:
+                return abs(float(self.gradient[i]))
+            return 1.0
+
+        def should_stop(self):
+            return not self.next_tau < len(self.tau)
+
+        def advance_time(self):
+            self.t += self.dt
+            self.g = self.g_list[self.current_g_index]
+            self.current_g_index += 1
+
+        def handle_solution(self, U):
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]):
+                # If t is closest to next observation then compute misfit.
+                self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
+                self.J += assemble((U - self.d) ** 2 * self.dx)
+
+                # Move on to next observation
+                self.next_tau += 1
+
+            # Choose time integral weights
+            if self.t <= self.dt or self.next_tau >= len(self.tau):
+                # If endpoints use 0.5 weight
+                weight = 0.5
+            else:
+                # Otherwise 1.0 weight
+                weight = 1.0
+
+            # Add regularisation
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1)) * self.alpha
+            if self.current_g_index > 1:
+                g_prev = self.g_list[self.current_g_index - 1]
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
+
+        def next_bc(self):
+            return DirichletBC(self.V, self.g, self.boundaries, 1)
+
+        def return_value(self):
+            self.obs_file.close()
+            return self.J
+
+    context = FunctionalContext(mesh_config, V, D, g_list, tau, obs_file, alpha, beta, gradient)
+    return forward_problem(context)
+
+
+def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
+    class ObservationsContext(Context):
+        def __init__(self, mesh_config, V, D, g_list, ic, tau, obs_file):
+            super(ObservationsContext, self).__init__(mesh_config, V, D, g_list)
+            self.tau = tau
+            self.next_tau = 0
+            self.g = None
+            self.current_g_index = 0
+            self.J = 0.0
+            self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'w')
+            self.dt = tau[-1]/float(len(g_list))
+            self.ic = ic
+            self.obs_file.write(ic, "0")
+
+        def should_stop(self):
+            return not self.next_tau < len(self.tau)
+
+        def advance_time(self):
+            self.t += self.dt
+            self.g = self.g_list[self.current_g_index]
+            self.current_g_index += 1
+
+        def handle_solution(self, U):
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]):
+                self.obs_file.write(U, str(self.tau[self.next_tau]))  # Write observation
+                # Move on to next observation
+                self.next_tau += 1
+
+        def next_bc(self):
+            return DirichletBC(self.V, self.g, self.boundaries, 1)
+
+        def return_value(self):
+            self.obs_file.close()
+
+    context = ObservationsContext(mesh_config, V, D, g_list, ic, tau, output_file)
+    return forward_problem(context)
+
+
+def save_control_values(m, results_folder_save):
+    h5file = HDF5File(mpi_comm_world(), "results/{}/opt_ctrls.xdmf".format(results_folder_save), 'w')
     if mpi_comm_self().rank == 0:
-        myfile = open("results/forward-problem/{}/opt_consts.txt".format(results_folder_save), "w")
+        myfile = open("results/{}/opt_consts.txt".format(results_folder_save), "w")
     for i, mi in enumerate(m):
         if isinstance(mi, Constant):
             c_list = mi.values()
@@ -166,15 +292,15 @@ def save_control_values(m):
         myfile.close()
 
 
-def load_control_values(k):
+def load_control_values(k, results_folder_load):
     m = []
-    myfile = open("results/forward-problem/{}/opt_consts.txt".format(results_folder_load), "r")
+    myfile = open("results/{}/opt_consts.txt".format(results_folder_load), "r")
     lines = myfile.readlines()
     for i in lines:
         m.append(Constant(float(i)))
     myfile.close()
 
-    h5file = HDF5File(mpi_comm_world(), "results/forward-problem/{}/opt_ctrls.xdmf".format(results_folder_load), 'r')
+    h5file = HDF5File(mpi_comm_world(), "results/{}/opt_ctrls.xdmf".format(results_folder_load), 'r')
     for i in range(k):
         mi = Function(V)
         h5file.read(mi, str(i + 3))
