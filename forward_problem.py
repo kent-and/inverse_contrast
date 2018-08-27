@@ -1,4 +1,6 @@
-from dolfin import *
+from fenics import *
+
+
 from fenics_adjoint import *
 
 set_log_level(INFO)
@@ -6,21 +8,24 @@ set_log_level(INFO)
 
 def initialize_mesh(mesh_file): # Lars : Endret 
     # Import mesh and subdomains
-    mesh = Mesh()
-
-    hdf = HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r")
-    hdf.read(mesh, "/mesh", False)  
-    subdomains = CellFunction("size_t", mesh)
-    hdf.read(subdomains, "/subdomains")
-    boundaries = FacetFunction("size_t", mesh)
-    hdf.read(boundaries, "/boundaries")
+    import dolfin as df
+    mesh = df.Mesh()
+    print df.__version__
+     
+    hdf = df.HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r",)
+    hdf.read(mesh, "/mesh", False,annotate=False)  
+    subdomains = df.CellFunction("size_t", mesh)
+    hdf.read(subdomains, "/subdomains",annotate=False)
+    boundaries = df.FacetFunction("size_t", mesh)
+    hdf.read(boundaries, "/boundaries",annotate=False)
     # Define measures with subdomains
-    dx = Measure("dx", domain=mesh, subdomain_data=subdomains)
-    ds = Measure("ds", domain=mesh, subdomain_data=boundaries)
+    dx = df.Measure("dx", domain=mesh, subdomain_data=subdomains)
+    ds = df.Measure("ds", domain=mesh, subdomain_data=boundaries)
     return {"ds": ds, "dx": dx, "boundaries": boundaries, "mesh": mesh, "subdomains": subdomains}
 
 
 def forward_problem(context):
+    
     V = context.V
     # Define trial and test-functions
     u = TrialFunction(V)
@@ -72,7 +77,7 @@ class Context(object):
         self.V = V
         self.D = D
         self.g_list = g_list
-        self.t = 0                                # Lars : start tid første tau ?
+        self.t = 0  
         self.ic = Function(self.V)
         self.linear_solver_args = ("gmres", "amg")
 
@@ -169,7 +174,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
-            self.next_tau = 1 # Lars: la tau[0] være inital betingelser
+            self.next_tau = 1 
             self.g = None
             self.current_g_index = 0
             self.J = 0.0
@@ -178,8 +183,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.beta = beta
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
             self.t = tau[0]
-            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
-            self.obs_file.read(self.ic, "0")
+            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) 
+            self.obs_file.read(self.ic,str(self.t))
             self.gradient = [1.0, 1.0, 1.0]
 
         def scale(self, i):
@@ -197,7 +202,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.current_g_index += 1
 
         def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars :  Enklere ? 
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars Enklere ? 
                 # If t is closest to next observation then compute misfit.
                 self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
                 self.J += assemble((U - self.d) ** 2 * self.dx)
@@ -301,57 +306,4 @@ def load_control_values(k, results_folder_load):
     return m
 
 
-if __name__ == "__main__":
-    import numpy as np
-    import numpy.random as rng
-
-    rng.seed(22)
-    D = {1: Constant(350), 2: Constant(0.8), 3: Constant(0.8)}
-    k = 20
-    g = [Function(V) for _ in range(k)]
-    gfil = HDF5File(mpi_comm_world(), "g.xdmf", "r")  # Lars : Hvorfor ? 
-    bc = DirichletBC(V, 1.0, boundaries, 1)
-    tmp_i_t = 0
-    tmp_i_dt = 0.1
-    for i, g_i in enumerate(g):
-        tmp_i_t += tmp_i_dt
-        g_i.vector()[:] = 0.0
-    gfil.close()
-
-    m = [D[1], D[2], D[3]] + g
-
-    tau = [0.1, 0.30000000000000004, 0.7, 1.3,          # Lars : Trenger tau input
-           2.0000000000000004]
-    alpha = AdjFloat(1E-2)
-    beta = AdjFloat(1.0)
-
-    J = forward_problem(D, g, tau, alpha=alpha, beta=beta)
-
-    ctrls = ([Control(D[i]) for i in range(1, 4)]
-             + [Control(g_i) for g_i in g])
-
-    Jhat = ReducedFunctional(J, ctrls)
-    Jhat.optimize()
-
-    load_control_values_from_file = False
-    if load_control_values_from_file:
-        m = load_control_values(k)
-        Jhat(m)
-
-    lb = [1000 * 0.1, 1 * 0.1, 2 * 0.1]
-    ub = [1000 * 10.0, 1 * 10.0, 2 * 10.0]
-
-    for i in range(3, len(ctrls)):
-        lb.append(0.0)
-        ub.append(10.0)
-
-    try:
-        opt_ctrls = minimize(Jhat, method="L-BFGS-B", bounds=(lb, ub), callback = iter_cb, options={"disp": True, "maxiter": 100, "gtol": 1e-02})
-    except RuntimeError as e:
-        print(e)
-        opt_ctrls = [itc.csf, itc.g, itc.w]
-    print("End up: {} | {} | {}".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
-    print(
-    "[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
-    save_control_values(opt_ctrls)
 
