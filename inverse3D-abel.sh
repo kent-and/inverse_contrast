@@ -31,10 +31,10 @@ cleanup "cp -r $SCRATCH/U.xdmf  $HOME/ECCM"
 echo "SCRATCH is $SCRATCH"
 
 # Copy necessary files to $SCRATCH
-cp mesh_invers_contrast.h5 forward_problem.py U.xdmf $SCRATCH
+cp mesh_invers_contrast.h5 forward_problem.py main.py U.xdmf $SCRATCH
 
 cd $SCRATCH
 ls
 echo $SCRATCH
-mpirun --bind-to none python forward_problem.py --alpha=$1 --beta=$2 --noise=$3 --num=$4 --tol=$5
+mpirun --bind-to none python main.py --alpha=$1 --beta=$2 --noise=$3 --num=$4 --tol=$5
 

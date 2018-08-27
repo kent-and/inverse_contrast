@@ -169,7 +169,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
-            self.next_tau = 0
+            self.next_tau = 1 # Lars: la tau[0] være inital betingelser
             self.g = None
             self.current_g_index = 0
             self.J = 0.0
@@ -177,7 +177,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.alpha = alpha
             self.beta = beta
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
-            self.dt = tau[-1]/float(len(g_list))
+            self.t = tau[0]
+            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
             self.obs_file.read(self.ic, "0")
             self.gradient = [1.0, 1.0, 1.0]
 
@@ -191,6 +192,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
 
         def advance_time(self):
             self.t += self.dt
+            self.obs_file.read(self.g_list[self.current_g_index], str(self.tau[self.next_tau])) # Lars Next guess ?
             self.g = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
@@ -217,7 +219,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 g_prev = self.g_list[self.current_g_index - 1]
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
 
-        def next_bc(self):
+        def next_bc(self):           
             return DirichletBC(self.V, self.g, self.boundaries, 1)
 
         def return_value(self):
