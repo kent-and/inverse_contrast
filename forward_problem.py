@@ -1,6 +1,4 @@
-from fenics import *
-
-
+from dolfin import *
 from fenics_adjoint import *
 
 set_log_level(INFO)
@@ -8,24 +6,21 @@ set_log_level(INFO)
 
 def initialize_mesh(mesh_file): # Lars : Endret 
     # Import mesh and subdomains
-    import dolfin as df
-    mesh = df.Mesh()
-    print df.__version__
-     
-    hdf = df.HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r",)
+    mesh = Mesh()
+
+    hdf = HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r")
     hdf.read(mesh, "/mesh", False,annotate=False)  
-    subdomains = df.CellFunction("size_t", mesh)
+    subdomains = CellFunction("size_t", mesh)
     hdf.read(subdomains, "/subdomains",annotate=False)
-    boundaries = df.FacetFunction("size_t", mesh)
+    boundaries = FacetFunction("size_t", mesh)
     hdf.read(boundaries, "/boundaries",annotate=False)
     # Define measures with subdomains
-    dx = df.Measure("dx", domain=mesh, subdomain_data=subdomains)
-    ds = df.Measure("ds", domain=mesh, subdomain_data=boundaries)
+    dx = Measure("dx", domain=mesh, subdomain_data=subdomains)
+    ds = Measure("ds", domain=mesh, subdomain_data=boundaries)
     return {"ds": ds, "dx": dx, "boundaries": boundaries, "mesh": mesh, "subdomains": subdomains}
 
 
 def forward_problem(context):
-    
     V = context.V
     # Define trial and test-functions
     u = TrialFunction(V)
@@ -77,7 +72,7 @@ class Context(object):
         self.V = V
         self.D = D
         self.g_list = g_list
-        self.t = 0  
+        self.t = 0                                # Lars : start tid første tau ?
         self.ic = Function(self.V)
         self.linear_solver_args = ("gmres", "amg")
 
@@ -174,7 +169,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
-            self.next_tau = 1 
+            self.next_tau = 1 # Lars: la tau[0] være inital betingelser
             self.g = None
             self.current_g_index = 0
             self.J = 0.0
@@ -183,8 +178,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.beta = beta
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
             self.t = tau[0]
-            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) 
-            self.obs_file.read(self.ic,str(self.t))
+            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
+            self.obs_file.read(self.ic, "0")
             self.gradient = [1.0, 1.0, 1.0]
 
         def scale(self, i):
@@ -202,7 +197,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.current_g_index += 1
 
         def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars Enklere ? 
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars :  Enklere ? 
                 # If t is closest to next observation then compute misfit.
                 self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
                 self.J += assemble((U - self.d) ** 2 * self.dx)
