@@ -9,11 +9,11 @@ def initialize_mesh(mesh_file): # Lars : Endret
     mesh = Mesh()
 
     hdf = HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r")
-    hdf.read(mesh, "/mesh", False)  
-    subdomains = CellFunction("size_t", mesh)
-    hdf.read(subdomains, "/subdomains")
-    boundaries = FacetFunction("size_t", mesh)
-    hdf.read(boundaries, "/boundaries")
+    hdf.read(mesh, "/mesh", False, annotate=False)
+    subdomains = MeshFunction("size_t", mesh, mesh.topology().dim())
+    hdf.read(subdomains, "/subdomains", annotate=False)
+    boundaries = MeshFunction("size_t", mesh, mesh.topology().dim() - 1)
+    hdf.read(boundaries, "/boundaries", annotate=False)
     # Define measures with subdomains
     dx = Measure("dx", domain=mesh, subdomain_data=subdomains)
     ds = Measure("ds", domain=mesh, subdomain_data=boundaries)
@@ -212,9 +212,9 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1)) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) + grad(self.g) ** 2 * self.ds(1)) * self.alpha
             if self.current_g_index > 1:
-                g_prev = self.g_list[self.current_g_index - 1]
+                g_prev = self.g_list[self.current_g_index - 2]
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
 
         def next_bc(self):
@@ -282,18 +282,19 @@ def save_control_values(m, results_folder_save):
         myfile.close()
 
 
-def load_control_values(k, results_folder_load):
+def load_control_values(k, V, results_folder_load):
     m = []
     myfile = open("results/{}/opt_consts.txt".format(results_folder_load), "r")
     lines = myfile.readlines()
     for i in lines:
         m.append(Constant(float(i)))
     myfile.close()
+    l = len(m)
 
     h5file = HDF5File(mpi_comm_world(), "results/{}/opt_ctrls.xdmf".format(results_folder_load), 'r')
     for i in range(k):
         mi = Function(V)
-        h5file.read(mi, str(i + 3))
+        h5file.read(mi, str(i + l))
         m.append(mi)
     h5file.close()
     return m
