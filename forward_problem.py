@@ -260,7 +260,7 @@ def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
 
 
         def handle_solution(self, U):
-            self.obs_file.write(U, str(self.t) ) # Write observation
+            self.obs_file.write(U, "%0.1f"%self.t ) # Write observation
             #self.pvd << (U,self.t)
         def next_bc(self):
             return DirichletBC(self.V, self.g, self.boundaries, 1)
