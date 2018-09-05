@@ -52,6 +52,81 @@ and the mathematical methodology used for determining the apparent diffusion coe
 
 \section{Methods}
 
+The model considers multiple domains.
+ 
+The sub-domains 
+
+
+The observations are taken form 
+
+
+
+
+\subsection*{Data}
+
+
+\subsection*{Mathematical Model}
+The objective function was defined as 
+\begin{equation}
+\min_{u,g} F = \quad \sum\limits_i\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)| \mathrm{d}\Omega + \frac{\alpha}{2} \int\limits_{0}\sp{T} || g ||_{L\sp{2}(\partial\Omega)} \mathrm{d}t + \frac{\beta}{2} \int\limits_{0}\sp{T} || \dot{g} ||_{L\sp{2}(\partial\Omega)}\mathrm{d}t 
+\end{equation}
+subjugated by   
+\begin{equation}
+\begin{aligned}
+\frac{\partial u}{\partial t} = \nabla \cdot  D_i \nabla u \qquad \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
+u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right) 
+\end{aligned}
+\label{Eq::PDE}
+\end{equation}
+with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the csf domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
+
+
+
+Thus the determination of noise sensitivity was conducted by adding noise to the manufactured solution. The manufactured solution was obtained by forward computation of Eq.\ref{Eq::PDE} with following Dirichlet boundary condition
+\begin{equation}
+g(t)_{\partial \Omega_1} = 0.3 + 0.01t  \qquad  0 \leq t \leq 110.0.
+\end{equation}
+and diffusion coefficients 
+\begin{equation}
+D_c = 1000 
+\end{equation}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The finite element 
+
+
+
+Dolfin adjoint was used to construct a reduced function, 
+
+The scipy optimize library was used, and minimize algorithm used L-BFGS-S.  
+
+
 
 \begin{itemize}
 \item describe the imaging, shortly with ref to JCI  
@@ -66,7 +141,7 @@ address coefficients and bc
 \caption{\comment{lars, we will need some new images since I believe this is stolen from JCI}}
 \end{figure}
 
-\comment{Lars: bilde av konkret mesh }
+\comment{Lars: bilde av konkret mesh  }
 
 \section{Results}
 \begin{itemize}
@@ -80,6 +155,15 @@ coeff
 
 
 \section{Discussion}
+
+
+
+
+The L-BFGS-B algorithm does not scale the control parameters, thus the step size . This poses a problem with a large difference in the control parameters, 
+
+
+
+
 
 \bibliographystyle{amsplain}
 \bibliography{references}

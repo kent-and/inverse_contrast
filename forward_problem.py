@@ -169,7 +169,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
-            self.next_tau = 0
+            self.next_tau = 1 # Lars: la tau[0] være inital betingelser
             self.g = None
             self.current_g_index = 0
             self.J = 0.0
@@ -177,7 +177,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.alpha = alpha
             self.beta = beta
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
-            self.dt = tau[-1]/float(len(g_list))
+            self.t = tau[0]
+            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
             self.obs_file.read(self.ic, "0")
             self.gradient = [1.0, 1.0, 1.0]
 
@@ -191,6 +192,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
 
         def advance_time(self):
             self.t += self.dt
+            self.obs_file.read(self.g_list[self.current_g_index], str(self.tau[self.next_tau])) # Lars Next guess ?
             self.g = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
@@ -217,7 +219,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 g_prev = self.g_list[self.current_g_index - 2]
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
 
-        def next_bc(self):
+        def next_bc(self):           
             return DirichletBC(self.V, self.g, self.boundaries, 1)
 
         def return_value(self):
@@ -300,57 +302,4 @@ def load_control_values(k, V, results_folder_load):
     return m
 
 
-if __name__ == "__main__":
-    import numpy as np
-    import numpy.random as rng
-
-    rng.seed(22)
-    D = {1: Constant(350), 2: Constant(0.8), 3: Constant(0.8)}
-    k = 20
-    g = [Function(V) for _ in range(k)]
-    gfil = HDF5File(mpi_comm_world(), "g.xdmf", "r")  # Lars : Hvorfor ? 
-    bc = DirichletBC(V, 1.0, boundaries, 1)
-    tmp_i_t = 0
-    tmp_i_dt = 0.1
-    for i, g_i in enumerate(g):
-        tmp_i_t += tmp_i_dt
-        g_i.vector()[:] = 0.0
-    gfil.close()
-
-    m = [D[1], D[2], D[3]] + g
-
-    tau = [0.1, 0.30000000000000004, 0.7, 1.3,          # Lars : Trenger tau input
-           2.0000000000000004]
-    alpha = AdjFloat(1E-2)
-    beta = AdjFloat(1.0)
-
-    J = forward_problem(D, g, tau, alpha=alpha, beta=beta)
-
-    ctrls = ([Control(D[i]) for i in range(1, 4)]
-             + [Control(g_i) for g_i in g])
-
-    Jhat = ReducedFunctional(J, ctrls)
-    Jhat.optimize()
-
-    load_control_values_from_file = False
-    if load_control_values_from_file:
-        m = load_control_values(k)
-        Jhat(m)
-
-    lb = [1000 * 0.1, 1 * 0.1, 2 * 0.1]
-    ub = [1000 * 10.0, 1 * 10.0, 2 * 10.0]
-
-    for i in range(3, len(ctrls)):
-        lb.append(0.0)
-        ub.append(10.0)
-
-    try:
-        opt_ctrls = minimize(Jhat, method="L-BFGS-B", bounds=(lb, ub), callback = iter_cb, options={"disp": True, "maxiter": 100, "gtol": 1e-02})
-    except RuntimeError as e:
-        print(e)
-        opt_ctrls = [itc.csf, itc.g, itc.w]
-    print("End up: {} | {} | {}".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
-    print(
-    "[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
-    save_control_values(opt_ctrls)
 
