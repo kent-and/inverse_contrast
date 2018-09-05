@@ -82,7 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("--generate-observations", default=False, type=bool)
     parser.add_argument("--maxiter", default=50, type=int)
     Z = parser.parse_args()
-
+    print Z
     mesh_config = initialize_mesh(Z.mesh)
 
     V = FunctionSpace(mesh_config["mesh"], "CG", 1)

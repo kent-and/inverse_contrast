@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dolfin import *
 from fenics_adjoint import *
 
@@ -242,22 +243,25 @@ def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'w')
             self.dt = tau[-1]/float(len(g_list))
             self.ic = ic
-            self.obs_file.write(ic, "0")
+            self.obs_file.write(ic, "0.0")
+            #self.pvd = File("sol.pvd") 
+            self.Exp = Expression("A+B*t-C*t*t", A=0.3, B=0.167,C=0.007 , t=0.0 , degree=1)
+
 
         def should_stop(self):
-            return not self.next_tau < len(self.tau)
+            return not self.t < self.tau[-1]
 
         def advance_time(self):
             self.t += self.dt
+            self.Exp.t = self.t
+            self.g_list[self.current_g_index].interpolate(self.Exp)
             self.g = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
-        def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): # Enklere ? 
-                self.obs_file.write(U, str(self.tau[self.next_tau]))  # Write observation
-                # Move on to next observation
-                self.next_tau += 1
 
+        def handle_solution(self, U):
+            self.obs_file.write(U, str(self.t) ) # Write observation
+            #self.pvd << (U,self.t)
         def next_bc(self):
             return DirichletBC(self.V, self.g, self.boundaries, 1)
 
