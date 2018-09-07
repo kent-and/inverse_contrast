@@ -37,6 +37,6 @@ echo "${@:4}"
 cd $SCRATCH
 ls
 echo $SCRATCH
-mpirun --bind-to none python3 main.py --alpha $1 --beta $2 --noise $3 --k $4 --tau "${@:4}"
+mpirun --bind-to none python3 main.py --alpha $1 --beta $2 --noise $3 --k $4 --tau "${@:5}"
 
 
