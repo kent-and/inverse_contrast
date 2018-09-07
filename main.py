@@ -17,20 +17,16 @@ def initial_condition(V, mesh_config):
     return interpolate(init, V)
 
 
-def bc(g, V):
-    l = len(g)
-    for i in range(l):
-        #p = (i + 1)/float(l)
-        #if i > l/2:
-        #    p = (l - i + 1)/l
-        #expr = Expression("sin(x[0])*sin(x[0])*cos(x[1])*cos(x[1])*sin(pi*i)", i=i/float(l), degree=1)
-        #k = interpolate(expr, V)
-        g_i = g[i]
-        #g_i.vector()[:] = k.vector()
-        if i < l/2:
-            g_i.vector()[:] = i
-        else:
-            g_i.vector()[:] = l - i
+def bc(g, V,tau,k, mesh_config):
+    t = tau[0]
+    dt = (tau[-1]-tau[0])/k
+    Exp = Expression("A+B*t-C*t*t", A=0.3, B=0.167,C=0.007 , t=0.0 , degree=1)
+    for i in range(k):
+        Exp.t= t
+        bc = DirichletBC(V, Exp, mesh_config["boundaries"], 1)
+        bc.apply(g[i].vector())
+        t+=dt
+        
     return g
 
 
@@ -57,9 +53,10 @@ def iter_cb(m):
     print("Coeffs-Iter: {} | Constant({}) | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]), float(m[2])))
     from pyadjoint.reduced_functional_numpy import ReducedFunctionalNumPy
     NumRF = ReducedFunctionalNumPy(Jhat)
+    print("Functional-value: {} | {} ".format(iter_cnt,Jhat.functional) )
     ds = mesh_config["ds"]
     fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
-    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds(1)) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds(1)) for i in range(3, len(fenics_m)) ]) ))
+    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds) for i in range(3, len(fenics_m)) ]) ))
 
 
 if __name__ == "__main__":
@@ -80,9 +77,9 @@ if __name__ == "__main__":
     parser.add_argument("--load-control-values-file", default=None, type=str)
     parser.add_argument("--save-control-values-file", default=None, type=str)
     parser.add_argument("--generate-observations", default=False, type=bool)
-    parser.add_argument("--maxiter", default=50, type=int)
+    parser.add_argument("--maxiter", default=200, type=int)
     Z = parser.parse_args()
-    print Z
+    print(Z)
     mesh_config = initialize_mesh(Z.mesh)
 
     V = FunctionSpace(mesh_config["mesh"], "CG", 1)
@@ -97,20 +94,18 @@ if __name__ == "__main__":
     k = Z.k
     g = [Function(V) for _ in range(k)]
     correct_g = [Function(V) for _ in range(k)]
-    correct_g = bc(correct_g, V)
-
+    correct_g = bc(correct_g, V,tau,k, mesh_config)
+    
     if Z.generate_observations:
         ic = initial_condition(V, mesh_config)
-        g = bc(g, V)
+        g = bc(g, V,tau,k, mesh_config)
         generate_observations(mesh_config, V, D, g, ic, tau, Z.obs_file)
         exit()
     else:
         g = bc_guess(g, Z.obs_file, tau, k)
-        #g = bc(g)
-        #for g_i in g:
-        #    g_i.vector()[:] = 10
+
         J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, None)
-        #exit()
+
     ctrls = ([Control(D[i]) for i in range(1, 4)]
              + [Control(g_i) for g_i in g])
 
@@ -129,7 +124,7 @@ if __name__ == "__main__":
         lb.append(-10.0)
         ub.append(100.0)
 
-    opt_ctrls = minimize(Jhat, method="L-BFGS-B", bounds=(lb, ub), callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1e-2})
+    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1e-2})
 
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(

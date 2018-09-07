@@ -189,11 +189,11 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             return 1.0
 
         def should_stop(self):
-            return not self.next_tau < len(self.tau)
+            return not self.next_tau <= len(self.tau)
 
         def advance_time(self):
             self.t += self.dt
-            self.obs_file.read(self.g_list[self.current_g_index], str(self.tau[self.next_tau])) # Lars Next guess ?
+            self.obs_file.read(self.g_list[self.current_g_index], str(self.tau[self.next_tau])) 
             self.g = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
@@ -215,10 +215,10 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) + grad(self.g) ** 2 * self.ds(1)) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) + grad(self.g) ** 2 * self.ds) * self.alpha
             if self.current_g_index > 1:
                 g_prev = self.g_list[self.current_g_index - 2]
-                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
 
         def next_bc(self):           
             return DirichletBC(self.V, self.g, self.boundaries, 1)
@@ -241,26 +241,27 @@ def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
             self.current_g_index = 0
             self.J = 0.0
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'w')
-            self.dt = tau[-1]/float(len(g_list))
+            self.dt = (tau[-1]-tau[0])/float(len(g_list))
             self.ic = ic
             self.obs_file.write(ic, "0.0")
             #self.pvd = File("sol.pvd") 
-            self.Exp = Expression("A+B*t-C*t*t", A=0.3, B=0.167,C=0.007 , t=0.0 , degree=1)
+            #self.Exp = Expression("A+B*t-C*t*t", A=0.3, B=0.167,C=0.007 , t=0.0 , degree=1)
 
 
         def should_stop(self):
-            return not self.t < self.tau[-1]
+            return not self.t < self.tau[-1] - self.dt/2
 
         def advance_time(self):
             self.t += self.dt
-            self.Exp.t = self.t
-            self.g_list[self.current_g_index].interpolate(self.Exp)
+            #self.Exp.t = self.t
+            #self.g_list[self.current_g_index].interpolate(self.Exp)
             self.g = self.g_list[self.current_g_index]
             self.current_g_index += 1
+           
 
 
         def handle_solution(self, U):
-            self.obs_file.write(U, "%0.1f"%self.t ) # Write observation
+            self.obs_file.write(U, "%0.2f"%self.t ) # Write observation
             #self.pvd << (U,self.t)
         def next_bc(self):
             return DirichletBC(self.V, self.g, self.boundaries, 1)
