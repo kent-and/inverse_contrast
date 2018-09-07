@@ -200,7 +200,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def handle_solution(self, U):
             if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars :  Enklere ? 
                 # If t is closest to next observation then compute misfit.
-                self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
+                self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  # Read observation
                 self.J += assemble((U - self.d) ** 2 * self.dx)
 
                 # Move on to next observation
