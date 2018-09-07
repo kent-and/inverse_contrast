@@ -22,19 +22,21 @@
 ## Set up job environment
 source /cluster/bin/jobsetup
 
-source ~johannr/pyadjoint-brain-inversion-mod-fenics-2017.1.0.abel.gnu.conf
+source ~larsmva/pyadjoint-brain-inversion-mod-fenics-2017.2.abel.intel.conf
 
 # Define what to do when job is finished (or crashes)
-cleanup "mkdir -p $HOME/results"
-cleanup "cp -r $SCRATCH/Res* $HOME/results" 
-cleanup "cp -r $SCRATCH/U.xdmf  $HOME/ECCM"
+cleanup "mkdir -p $HOME/Results"
+cleanup "cp -r $SCRATCH/slurm* $PWD" 
+echo $PWD
 echo "SCRATCH is $SCRATCH"
 
 # Copy necessary files to $SCRATCH
 cp mesh_invers_contrast.h5 forward_problem.py main.py U.xdmf $SCRATCH
 
+echo "${@:4}"
 cd $SCRATCH
 ls
 echo $SCRATCH
-mpirun --bind-to none python main.py --alpha=$1 --beta=$2 --noise=$3 --num=$4 --tol=$5
+mpirun --bind-to none python3 main.py --alpha $1 --beta $2 --noise $3 --num $4 --tol "${@:4}"
+
 
