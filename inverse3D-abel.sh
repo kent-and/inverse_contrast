@@ -26,7 +26,7 @@ source ~larsmva/pyadjoint-brain-inversion-mod-fenics-2017.2.abel.intel.conf
 
 # Define what to do when job is finished (or crashes)
 cleanup "mkdir -p $HOME/Results"
-cleanup "cp -r $SCRATCH/slurm* $PWD" 
+cleanup "cp -r $SCRATCH/slurm* $HOME" 
 echo $PWD
 echo "SCRATCH is $SCRATCH"
 
@@ -37,6 +37,6 @@ echo "${@:4}"
 cd $SCRATCH
 ls
 echo $SCRATCH
-mpirun --bind-to none python3 main.py --alpha $1 --beta $2 --noise $3 --num $4 --tol "${@:4}"
+mpirun --bind-to none python3 main.py --alpha $1 --beta $2 --noise $3 --k $4 --tau "${@:4}"
 
 
