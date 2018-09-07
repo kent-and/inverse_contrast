@@ -38,7 +38,7 @@ def bc_guess(g, obs_file, tau, k):
     t = 0.0
     for i in range(k):
         t += dt
-        obs_file.read(d, str(tau[next_tau]))
+        obs_file.read(d,"%0.2f"%(tau[next_tau]))
         g[i].vector()[:] = d.vector()[:]
 
         if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):
