@@ -180,7 +180,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
             self.t = tau[0]
             self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
-            self.obs_file.read(self.ic, "0.2%f"%(self.t) )
+            self.obs_file.read(self.ic, "%0.2f"%(self.t) )
             self.gradient = [1.0, 1.0, 1.0]
 
         def scale(self, i):
@@ -189,11 +189,11 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             return 1.0
 
         def should_stop(self):
-            return not self.next_tau <= len(self.tau)
+            return not self.next_tau < len(self.tau) -self.dt/2
 
         def advance_time(self):
             self.t += self.dt
-            self.obs_file.read(self.g_list[self.current_g_index], str(self.tau[self.next_tau])) 
+            self.obs_file.read(self.g_list[self.current_g_index], "%0.2f"%(self.tau[self.next_tau])) 
             self.g = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
