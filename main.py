@@ -53,9 +53,9 @@ def iter_cb(m):
     print("Coeffs-Iter: {} | Constant({}) | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]), float(m[2])))
     from pyadjoint.reduced_functional_numpy import ReducedFunctionalNumPy
     NumRF = ReducedFunctionalNumPy(Jhat)
-    print("Functional-value: {} | {} ".format(iter_cnt,Jhat.functional) )
     ds = mesh_config["ds"]
     fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
+    print("Functional-value: {} | {} ".format(iter_cnt, NumRF(m)) )
     print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds) for i in range(3, len(fenics_m)) ]) ))
 
 
@@ -78,6 +78,7 @@ if __name__ == "__main__":
     parser.add_argument("--save-control-values-file", default=None, type=str)
     parser.add_argument("--generate-observations", default=False, type=bool)
     parser.add_argument("--maxiter", default=200, type=int)
+    parser.add_argument("--dx", default=0.0, type=float)
     Z = parser.parse_args()
     print(Z)
     mesh_config = initialize_mesh(Z.mesh)
@@ -88,10 +89,15 @@ if __name__ == "__main__":
     D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1]), 3: Constant(Z.D[2])}
 
     # Observation timepoints
-    tau = Z.tau
+    if Z.dx!=0.0 : # dx can be simpler 
+       k = int( (Z.tau[-1] - Z.tau[0])/dx +0.5 )
+       tau =[ Z.tau[0] + dx*i for i in range(k)]   
+    else : 
+       k = Z.k
+       tau = Z.tau
 
     # Boundary conditions
-    k = Z.k
+
     g = [Function(V) for _ in range(k)]
     correct_g = [Function(V) for _ in range(k)]
     correct_g = bc(correct_g, V,tau,k, mesh_config)
@@ -111,6 +117,7 @@ if __name__ == "__main__":
 
     print("J = ", J)
     Jhat = ReducedFunctional(J, ctrls)
+    
     Jhat.optimize()
 
     if Z.load_control_values_file is not None:
@@ -124,7 +131,9 @@ if __name__ == "__main__":
         lb.append(-10.0)
         ub.append(100.0)
 
-    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1e-2})
+
+    
+    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 5.0e-2})
 
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(

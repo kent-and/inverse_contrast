@@ -24,7 +24,7 @@ def initialize_mesh(mesh_file): # Lars : Endret
 def forward_problem(context):
     V = context.V
     # Define trial and test-functions
-    u = TrialFunction(V)
+    u = TrialFunction(V,annotate=True)
     v = TestFunction(V)
 
     # Solution at current and previous time
@@ -48,7 +48,7 @@ def forward_problem(context):
     solver.set_operator(A)
 
     while not context.should_stop():
-        U_prev.assign(U)
+        U_prev.assign(U,annotate =True)
         context.advance_time()
         bc = context.next_bc()
 
@@ -58,7 +58,7 @@ def forward_problem(context):
         bc.apply(b)
 
         # Solve linear system for this timestep
-        solver.solve(U.vector(), b)
+        solver.solve(U.vector(), b,annotate =True)
 
         context.handle_solution(U)
 
@@ -194,7 +194,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def advance_time(self):
             self.t += self.dt
             self.obs_file.read(self.g_list[self.current_g_index], "%0.2f"%(self.tau[self.next_tau])) 
-            self.g = self.g_list[self.current_g_index]
+            self.g.assign(self.g_list[self.current_g_index],annotate =True)
             self.current_g_index += 1
 
         def handle_solution(self, U):
@@ -215,13 +215,13 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) + grad(self.g) ** 2 * self.ds) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds + grad(self.g) ** 2 * self.ds) * self.alpha
             if self.current_g_index > 1:
                 g_prev = self.g_list[self.current_g_index - 2]
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
 
         def next_bc(self):           
-            return DirichletBC(self.V, self.g, self.boundaries, 1)
+            return DirichletBC(self.V, self.g, "on_boundary",annotate =True)
 
         def return_value(self):
             self.obs_file.close()
