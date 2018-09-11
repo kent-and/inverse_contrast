@@ -24,7 +24,7 @@ def initialize_mesh(mesh_file): # Lars : Endret
 def forward_problem(context):
     V = context.V
     # Define trial and test-functions
-    u = TrialFunction(V,annotate=True)
+    u = TrialFunction(V)
     v = TestFunction(V)
 
     # Solution at current and previous time
@@ -74,7 +74,7 @@ class Context(object):
         self.D = D
         self.g_list = g_list
         self.t = 0                                # Lars : start tid første tau ?
-        self.ic = Function(self.V)
+        self.ic = Function(self.V,annotate=True)
         self.linear_solver_args = ("gmres", "amg")
 
     def scale(self, i):
