@@ -4,6 +4,9 @@ from fenics_adjoint import *
 
 set_log_level(INFO)
 
+class ONboundary(SubDomain):
+    def inside(self, x, on_boundary):
+        return on_boundary
 
 def initialize_mesh(mesh_file): # Lars : Endret 
     # Import mesh and subdomains
@@ -171,7 +174,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
             self.next_tau = 1 # Lars: la tau[0] være inital betingelser
-            self.g = None
+            self.g = Function(self.V)
             self.current_g_index = 0
             self.J = 0.0
             self.d = Function(self.V)
@@ -182,7 +185,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
             self.gradient = [1.0, 1.0, 1.0]
-
+           
         def scale(self, i):
             if self.gradient is not None:
                 return abs(float(self.gradient[i]))
@@ -221,7 +224,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
 
         def next_bc(self):           
-            return DirichletBC(self.V, self.g, "on_boundary",annotate =True)
+            return DirichletBC(self.V, self.g,"on_boundary")
 
         def return_value(self):
             self.obs_file.close()
