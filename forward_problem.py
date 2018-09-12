@@ -32,7 +32,8 @@ def forward_problem(context):
 
     # Solution at current and previous time
     U_prev = Function(V)
-    U = context.ic
+    U      = Function(V)
+    U.assign(context.ic)
 
     dt = context.dt
     D = context.D
@@ -64,7 +65,7 @@ def forward_problem(context):
         solver.solve(U.vector(), b,annotate =True)
 
         context.handle_solution(U)
-
+         
     return context.return_value()
 
 
@@ -118,6 +119,8 @@ def gradient(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0):
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
             self.dt = tau[-1]/float(len(g_list))
             self.obs_file.read(self.ic, "0")
+
+
 
         def should_stop(self):
             return not self.next_tau < len(self.tau)
@@ -175,6 +178,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.tau = tau
             self.next_tau = 1 
             self.g = Function(self.V)
+
+
             self.current_g_index = 0
             self.J = 0.0
             self.d = Function(self.V)
@@ -183,7 +188,10 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
             self.t = tau[0]
             self.dt =( tau[-1] - tau[0] )/float(len(g_list)) 
+
+
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
+
             self.gradient = [1.0, 1.0, 1.0]
             
         def scale(self, i):

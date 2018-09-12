@@ -32,10 +32,10 @@ def bc(g, V,tau,k, mesh_config):
 
 def bc_guess(g, obs_file, tau, k):
     d = Function(g[0].function_space())
-    dt = tau[-1]/k
+    dt = (tau[-1] -tau[0])/k
     obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
     next_tau = 0
-    t = 0.0
+    t = tau[0]
     for i in range(k):
         t += dt
         obs_file.read(d,"%0.2f"%(tau[next_tau]))
