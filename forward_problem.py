@@ -76,7 +76,7 @@ class Context(object):
         self.V = V
         self.D = D
         self.g_list = g_list
-        self.t = 0                                # Lars : start tid første tau ?
+        self.t = 0                                
         self.ic = Function(self.V,annotate=True)
         self.linear_solver_args = ("gmres", "amg")
 
@@ -173,7 +173,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
-            self.next_tau = 1 # Lars: la tau[0] være inital betingelser
+            self.next_tau = 1 
             self.g = Function(self.V)
             self.current_g_index = 0
             self.J = 0.0
@@ -182,10 +182,10 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.beta = beta
             self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
             self.t = tau[0]
-            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) # Lars : Endring for en mer generalisert metode (tau[0] = 0 )
+            self.dt =( tau[-1] - tau[0] )/float(len(g_list)) 
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
             self.gradient = [1.0, 1.0, 1.0]
-           
+            
         def scale(self, i):
             if self.gradient is not None:
                 return abs(float(self.gradient[i]))
@@ -201,10 +201,10 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.current_g_index += 1
 
         def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): #Lars :  Enklere ? 
+            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): 
                 # If t is closest to next observation then compute misfit.
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  # Read observation
-                self.J += assemble((U - self.d) ** 2 * self.dx)
+                self.J += assemble((U - self.d) ** 2 * self.dx) 
 
                 # Move on to next observation
                 self.next_tau += 1
@@ -218,13 +218,13 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds + grad(self.g) ** 2 * self.ds) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) ) * self.alpha
             if self.current_g_index > 1:
                 g_prev = self.g_list[self.current_g_index - 2]
-                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
 
         def next_bc(self):           
-            return DirichletBC(self.V, self.g,"on_boundary")
+            return DirichletBC(self.V, self.g,self.boundaries,1)
 
         def return_value(self):
             self.obs_file.close()
