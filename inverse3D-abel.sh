@@ -22,7 +22,14 @@
 ## Set up job environment
 source /cluster/bin/jobsetup
 
+#source ~johannr/pyadjoint-brain-inversion-mod-fenics-2017.1.0.abel.gnu.conf
+#source ~johannr/pyadjoint-brain-inversion-mod-fenics-2017.1.0.abel.gnu.conf
+#source ~larsmva/pyadjoint-brain-inversion-mod-fenics-2017.2.abel.intel.conf
+
 source ~larsmva/pyadjoint-brain-inversion-mod-fenics-2017.2.abel.intel.conf
+
+
+#source  ~johannr/pyadjoint-2018.03.19-fenics-2017.1.0.abel.gnu.conf
 
 # Define what to do when job is finished (or crashes)
 cleanup "mkdir -p $HOME/Results"
