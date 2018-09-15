@@ -34,7 +34,7 @@ def bc_guess(g, obs_file, tau, k):
     d = Function(g[0].function_space())
     dt = (tau[-1] -tau[0])/k
     obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
-    next_tau = 0
+    next_tau = 1
     t = tau[0]
     for i in range(k):
         t += dt
@@ -60,16 +60,17 @@ def iter_cb(m):
 
 
 if __name__ == "__main__":
-    from forward_problem import initialize_mesh, load_control_values, save_control_values, generate_observations, functional, gradient
+    from forward_problem import initialize_mesh, load_control_values, save_control_values, generate_observations, functional
     import argparse
-
+    import sys 
+    print( sys.version )
     parser = argparse.ArgumentParser()
     parser.add_argument('--alpha', default=0.0001, type=float)
     parser.add_argument('--num', default=0, type=int)
     parser.add_argument('--beta', default=0.001, type=float)
     parser.add_argument('--noise', default=0.0, type=float)
     parser.add_argument('--tol', default=0.001, type=float)
-    parser.add_argument('--D', default=[1000, 2, 1], type=float, nargs=3)
+    parser.add_argument('--D', default=[1000, 1, 1], type=float, nargs=3)
     parser.add_argument('--mesh', default="mesh_invers_contrast.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k", type=int)
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument("--load-control-values-file", default=None, type=str)
     parser.add_argument("--save-control-values-file", default=None, type=str)
     parser.add_argument("--generate-observations", default=False, type=bool)
-    parser.add_argument("--maxiter", default=200, type=int)
+    parser.add_argument("--maxiter", default=1000, type=int)
     parser.add_argument("--dx", default=0.0, type=float)
     Z = parser.parse_args()
     print(Z)
@@ -110,6 +111,7 @@ if __name__ == "__main__":
     else:
         g = bc_guess(g, Z.obs_file, tau, k)
 
+
         J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, None)
 
     ctrls = ([Control(D[i]) for i in range(1, 4)]
@@ -120,21 +122,10 @@ if __name__ == "__main__":
     
     Jhat.optimize()
 
-    if Z.load_control_values_file is not None:
-        m = load_control_values(k, V, Z.load_control_values_file)
-        Jhat(m)
-
-    lb = [100.0, 0.2, 0.1]
-    ub = [10000.0, 20.0, 10.0]
-
-    for i in range(len(lb), len(ctrls)):
-        lb.append(-10.0)
-        ub.append(100.0)
-
-
     
-    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 5.0e-2})
-
+    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-2})
+    Jhat(opt_ctrls)
+    opt_ctrls = minimize(Jhat, method="TNC", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter})
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(
     #"[Constant({}), Constant({}))]".format(float(opt_ctrls[0]), float(opt_ctrls[1])))

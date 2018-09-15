@@ -48,7 +48,7 @@ def forward_problem(context):
     bc = DirichletBC(V, 0, context.boundaries, 1)
     bc.apply(A)
     # Define solver. Use GMRES iterative method with AMG preconditioner.
-    solver = LinearSolver(mpi_comm_self(), *context.linear_solver_args)
+    solver = LinearSolver(mpi_comm_self(), "gmres")
     solver.set_operator(A)
 
     while not context.should_stop():
@@ -60,9 +60,9 @@ def forward_problem(context):
         b = assemble(L)
         A.bcs = [bc]
         bc.apply(b)
-
+    
         # Solve linear system for this timestep
-        solver.solve(U.vector(), b,annotate =True)
+        solver.solve(U.vector(), b)
 
         context.handle_solution(U)
          
@@ -103,74 +103,6 @@ class Context(object):
     def return_value(self):
         return None
 
-
-def gradient(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0):
-    class GradientContext(Context):
-        def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0):
-            super(GradientContext, self).__init__(mesh_config, V, D, g_list)
-            self.tau = tau
-            self.next_tau = 0
-            self.g = None
-            self.current_g_index = 0
-            self.J = 0.0
-            self.d = Function(self.V)
-            self.alpha = alpha
-            self.beta = beta
-            self.obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
-            self.dt = tau[-1]/float(len(g_list))
-            self.obs_file.read(self.ic, "0")
-
-
-
-        def should_stop(self):
-            return not self.next_tau < len(self.tau)
-
-        def advance_time(self):
-            self.t += self.dt
-            self.g = self.g_list[self.current_g_index]
-            self.current_g_index += 1
-
-        def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): # Lars : Enklere?
-                # If t is closest to next observation then compute misfit.
-                self.obs_file.read(self.d, str(self.tau[self.next_tau]))  # Read observation
-                self.J += assemble((U - self.d) ** 2 * self.dx)
-
-                # Move on to next observation
-                self.next_tau += 1
-
-            # Choose time integral weights
-            if self.t <= self.dt or self.next_tau >= len(self.tau):
-                # If endpoints use 0.5 weight
-                weight = 0.5
-            else:
-                # Otherwise 1.0 weight
-                weight = 1.0
-
-            # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1)) * self.alpha
-            if self.current_g_index > 1:
-                g_prev = self.g_list[self.current_g_index - 1]
-                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
-
-        def next_bc(self):
-            return DirichletBC(self.V, self.g, self.boundaries, 1)
-
-        def return_value(self):
-            self.obs_file.close()
-            return self.J
-
-    context = GradientContext(mesh_config, V, D, g_list, tau, obs_file, alpha, beta)
-    J = forward_problem(context)
-    ctrls = ([Control(D[i]) for i in range(1, 4)]
-             + [Control(g_i) for g_i in g_list])
-    Jhat = ReducedFunctional(J, ctrls)
-    Jhat.optimize()
-    dJdm = Jhat.derivative()
-    set_working_tape(Tape())
-    return dJdm
-
-
 def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
     class FunctionalContext(Context):
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
@@ -200,12 +132,11 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             return 1.0
 
         def should_stop(self):
-            return not self.next_tau < len(self.tau) -self.dt/2
+            return not self.t < self.tau[-1] - self.dt/2
 
         def advance_time(self):
             self.t += self.dt
-            self.obs_file.read(self.g_list[self.current_g_index], "%0.2f"%(self.tau[self.next_tau])) 
-            self.g.assign(self.g_list[self.current_g_index],annotate =True)
+            self.g  = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
         def handle_solution(self, U):
@@ -213,7 +144,6 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 # If t is closest to next observation then compute misfit.
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  # Read observation
                 self.J += assemble((U - self.d) ** 2 * self.dx) 
-
                 # Move on to next observation
                 self.next_tau += 1
 
@@ -231,7 +161,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 g_prev = self.g_list[self.current_g_index - 2]
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
 
-        def next_bc(self):           
+        def next_bc(self):          
             return DirichletBC(self.V, self.g,self.boundaries,1)
 
         def return_value(self):
