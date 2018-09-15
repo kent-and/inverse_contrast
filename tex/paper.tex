@@ -52,15 +52,6 @@ and the mathematical methodology used for determining the apparent diffusion coe
 
 \section{Methods}
 
-The model considers multiple domains.
- 
-The sub-domains 
-
-
-The observations are taken form 
-
-
-
 
 \subsection*{Data}
 
@@ -78,18 +69,22 @@ u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right)
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
-with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the csf domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
+with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
 
 
-
-Thus the determination of noise sensitivity was conducted by adding noise to the manufactured solution. The manufactured solution was obtained by forward computation of Eq.\ref{Eq::PDE} with following Dirichlet boundary condition
+The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
 \begin{equation}
-g(t)_{\partial \Omega_1} = 0.3 + 0.01t  \qquad  0 \leq t \leq 110.0.
+g(t)_{\partial \Omega_1} = 0.3 +0.167t - 0.007t\sp{2} \qquad  0 \leq t \leq 24.
 \end{equation}
-and diffusion coefficients 
+The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be 
 \begin{equation}
-D_c = 1000 
+D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
 \end{equation}  
+The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The forward simulation gave a total of 120 possible observation time points. These points will be denoted as $\tau$.
+
+
+
+The mesh was constructed by using the MRI of a patient diagnosed with iNPH. The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. The polyhedral surfaces was use of CGAL [?], was used to construed the the mesh. The computational requirement for the resulting mesh was significant, therefore a submesh was also constructed, see Fig. ?? . 
 
 
 
@@ -114,19 +109,21 @@ D_c = 1000
 
 
 
+P1 finite elements were used, and the dolfin adjoint [?] was used to construct a reduced function. Furthermore, the scipy optimize library was used to minimize the functional using L-BFGS-B algorithm.   
 
 
 
 
-The finite element 
+\section*{Non-linear relation}
+The MR images that are provided by Oslo University Hospital Rikshospitalet and can be seen in Fig.?? . 
 
 
+The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase due to tracer concentrations. 
 
-Dolfin adjoint was used to construct a reduced function, 
-
-The scipy optimize library was used, and minimize algorithm used L-BFGS-S.  
+The relation between intensity and concentration is non-linear, and best be de
 
 
+ 
 
 \begin{itemize}
 \item describe the imaging, shortly with ref to JCI  
@@ -143,6 +140,13 @@ address coefficients and bc
 
 \comment{Lars: bilde av konkret mesh  }
 
+\begin{figure}
+\includegraphics[width=0.3\textwidth]{mesh-eps-converted-to.pdf} 
+\label{fig1} 
+\caption{\comment{lars, we will need some new images since I believe this is stolen from JCI}}
+\end{figure}
+
+
 \section{Results}
 \begin{itemize}
 \item 2D experiments as have already been done (with and without noise/ with and without observations everywhere in time) 
@@ -154,6 +158,85 @@ coeff
 
 
 
+The results.
+
+The optimal relaxation parameters was investigated by using 10 evenly spaced time points as observations. Then estimate the corresponding controls, while varying the relaxation parameters.
+
+
+The dependency on the spacing and distribution of $tau$ was done by using the optimal relaxation parameters and consider number of time points equal to the number of observations. 
+
+
+The dependency of time steps were computed by increasing the times
+
+
+
+The dependency on noise was done by adding randomly distributed noise to the observations.
+
+There are some extreme cases that require some considerations, namely :
+
+no observations around 12, i.e. can the parameters be estimated if there exists a hole in the observations.
+
+Is estimating parameters between 2
+\begin{table}
+\centering
+\caption{ }
+\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & $\tau$ & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
+\hline
+ 1.0 & 1.0 &10 &10 & 801& 3152.55150305 & 5.66843317507 & 9.10176601537 \\
+ 1.0 & 0.1 &10 &10 & 846& 2890.10652122 & 5.8333990243 & 9.14516904881   \\
+ 1.0 & 0.01 &10 &10 & 1001& 2374.75510786 & 5.90748588887 & 9.1624514977  \\ 
+ 1.0 & 0.001 &10 &10 & 987& 3012.94145621 & 5.84828588848 & 9.14780994071 \\
+ 1.0 & 0.0001 &10 &10 & 1001& 2846.67368004 & 5.86716070687 & 9.1516059019 \\
+ 1.0 & 1e-05 &10 &10 & 1001& 2488.99687704 & 5.89553108585 & 9.16094907807 \\
+ 1.0 & 1e-06 &10 &10 & 1001& 2572.74685463 & 5.88550285289 & 9.15701445733 \\
+ 0.1 & 1.0 &10 &10 & 525& 1165.00025805 & 4.55541673123 & 8.51469574502 \\
+ 0.1 & 0.1 &10 &10 & 899& 1098.5603179 & 4.5965351918 & 8.60353462124 \\
+ 0.1 & 0.01 &10 &10 & 792& 1148.68286947 & 4.58961131725 & 8.60923608344 \\ 
+ 0.1 & 0.001 &10 &10 & 768& 1133.11485657 & 4.59512891707 & 8.61427396989 \\
+ 0.1 & 0.0001 &10 &10 & 840& 1152.61459776 & 4.5895138786 & 8.61107565287 \\
+ 0.1 & 1e-05 &10 &10 & 739& 1145.12699776 & 4.59168203791 & 8.61245925367 \\
+ 0.1 & 1e-06 &10 &10 & 697& 1127.51137739 & 4.59724924241 & 8.6163255093 \\
+ 0.01 & 1.0 &10 &10 & 130& 1000.69417631 & 4.45194182806 & 8.48016213899 \\
+ 0.01 & 0.1 &10 &10 & 204& 1001.45906364 & 4.44288397852 & 8.55964437402 \\
+ 0.01 & 0.01 &10 &10 & 384& 1004.91771072 & 4.44039285507 & 8.57773362809 \\
+ 0.01 & 0.001 &10 &10 & 455& 1006.92821746 & 4.4401364227 & 8.57964644068 \\
+ 0.01 & 0.0001 &10 &10 & 382& 1005.46132856 & 4.44059403278 & 8.58161935877 \\
+ 0.01 & 1e-05 &10 &10 & 389& 1005.48872458 & 4.44091328174 & 8.58070451064 \\
+ 0.01 & 1e-06 &10 &10 & 320& 1003.88180045 & 4.44140148563 & 8.57914151398 \\
+ 0.001 & 1.0 &10 &10 & 144& 1000.72690068 & 4.43617090765 & 8.47356658247 \\
+ 0.001 & 0.1 &10 &10 & 188& 1001.11632883 & 4.42560354452 & 8.55339645884 \\
+ 0.001 & 0.01 &10 &10 & 242& 1002.06937059 & 4.42388003439 & 8.57511846108 \\
+ 0.001 & 0.001 &10 &10 & 332& 1005.24945351 & 4.42278572482 & 8.58013052115 \\
+ 0.001 & 0.0001 &10 &10 & 432& 1008.05660576 & 4.42186842634 & 8.58305135552 \\
+ 0.001 & 1e-05 &10 &10 & 360& 1006.05061062 & 4.42295196846 & 8.57964172911 \\
+ 0.001 & 1e-06 &10 &10 & 363& 1006.70468432 & 4.42251369108 & 8.58151348789 \\
+ 0.0001 & 1.0 &10 &10 & 157& 1000.83218743 & 4.43452507573 & 8.47318916943 \\
+ 0.0001 & 0.1 &10 &10 & 131& 1000.56624899 & 4.42351929725 & 8.55256760219 \\
+ 0.0001 & 0.01 &10 &10 & 174& 1001.0091989 & 4.42260942583 & 8.57478259945 \\
+ 0.0001 & 0.001 &10 &10 & 136& 1000.57577092 & 4.4239534819 & 8.57151355191 \\
+ 0.0001 & 0.0001 &10 &10 & 283& 1003.03255695 & 4.42248562737 & 8.5786695754 \\
+ 0.0001 & 1e-05 &10 &10 & 284& 1003.54402535 & 4.42227734882 & 8.58311915306 \\
+ 0.0001 & 1e-06 &10 &10 & 289& 1003.03642353 & 4.42224580212 & 8.58006825258 \\
+ 1e-05 & 1.0 &10 &10 & 151& 1000.79310038 & 4.43448500449 & 8.47338153139 \\
+ 1e-05 & 0.1 &10 &10 & 140& 1000.70858373 & 4.42340629909 & 8.55312689863 \\
+ 1e-05 & 0.01 &10 &10 & 203& 1001.34714912 & 4.42253540005 & 8.57470943099 \\
+ 1e-05 & 0.001 &10 &10 & 215& 1001.75591211 & 4.42292580709 & 8.58079455564 \\
+ 1e-05 & 0.0001 &10 &10 & 208& 1001.41103854 & 4.42264942624 & 8.58064686718 \\
+ 1e-05 & 1e-05 &10 &10 & 218& 1001.73103534 & 4.42318548221 & 8.57843152546 \\
+ 1e-05 & 1e-06 &10 &10 & 191& 1001.33680306 & 4.42244263068 & 8.58128891831 \\
+ 1e-06 & 1.0 &10 &10 & 115& 1000.47868283 & 4.43456295486 & 8.47226911091 \\
+ 1e-06 & 0.1 &10 &10 & 158& 1000.8203239 & 4.42368702618 & 8.55236552474 \\
+ 1e-06 & 0.01 &10 &10 & 142& 1000.64224198 & 4.42327990324 & 8.57047799569 \\
+ 1e-06 & 0.001 &10 &10 & 149& 1000.64956243 & 4.42317461499 & 8.57554522252 \\
+ 1e-06 & 0.0001 &10 &10 & 179& 1001.07075407 & 4.42262619987 & 8.57788936678 \\
+ 1e-06 & 1e-05 &10 &10 & 254& 1002.49656481 & 4.42254606227 & 8.58162265954 \\
+ 1e-06 & 1e-06 &10 &10 & 228& 1001.78781526 & 4.42297193581 & 8.57946804203 \\
+\end{tabular}}
+\label{Tab::1}
+\end{table} 
+
+
 \section{Discussion}
 
 
@@ -161,6 +244,16 @@ coeff
 
 The L-BFGS-B algorithm does not scale the control parameters, thus the step size . This poses a problem with a large difference in the control parameters, 
 
+
+
+
+
+
+
+There is a need for observable change in order to estimate the parameters. But considering the magnitude difference between diffusion coefficients. It is clear that the observable change is in different timescales. This prompted that in using actual data, we will only consider a mesh with 2 subdomains that have diffusion coefficient of similar magnitude.   
+
+
+  
 
 
 
