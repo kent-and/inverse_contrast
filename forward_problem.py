@@ -46,7 +46,9 @@ def forward_problem(context):
 
     A = assemble(a)
     bc = DirichletBC(V, 0, context.boundaries, 1)
-    bc.apply(A)
+    for bc in bcs :
+        bc.apply(A)
+
     # Define solver. Use GMRES iterative method with AMG preconditioner.
     solver = LinearSolver(mpi_comm_self(), "gmres")
     solver.set_operator(A)
@@ -58,8 +60,9 @@ def forward_problem(context):
 
         # Assemble RHS and apply DirichletBC
         b = assemble(L)
-        A.bcs = [bc]
-        bc.apply(b)
+        A.bcs = bcs
+        for bc in bcs:
+            bc.apply(b)
     
         # Solve linear system for this timestep
         solver.solve(U.vector(), b)
@@ -79,7 +82,7 @@ class Context(object):
         self.g_list = g_list
         self.t = 0                                
         self.ic = Function(self.V,annotate=True)
-        self.linear_solver_args = ("gmres", "amg")
+        self.linear_solver_args = ("gmres")
 
     def scale(self, i):
         return 1.0
@@ -148,7 +151,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 self.next_tau += 1
 
             # Choose time integral weights
-            if self.t <= self.dt or self.next_tau >= len(self.tau):
+            if self.t <= self.tau[0] + self.dt or self.t > self.tau[-1] - self.dt/2 :
                 # If endpoints use 0.5 weight
                 weight = 0.5
             else:
@@ -156,13 +159,13 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) ) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds ) * self.alpha
             if self.current_g_index > 1:
                 g_prev = self.g_list[self.current_g_index - 2]
-                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
 
         def next_bc(self):          
-            return DirichletBC(self.V, self.g,self.boundaries,1)
+            return  [ DirichletBC(self.V, self.g, self.boundaries, i) for i in range(1,4)]
 
         def return_value(self):
             self.obs_file.close()
