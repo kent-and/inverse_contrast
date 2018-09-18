@@ -10,6 +10,11 @@ class InitialConditions(Expression):
             values[0] = 0
 
 
+def add_noise(noise):
+     for i in noise:
+         i.vector()[:]+=Z.noise*(0.5-random.random(i.vector().size()) )
+
+
 def initial_condition(V, mesh_config):
     subdomains = mesh_config["subdomains"]
     init = InitialConditions(degree=1)
@@ -30,7 +35,7 @@ def bc(g, V,tau,k, mesh_config):
     return g
 
 
-def bc_guess(g, obs_file, tau, k):
+def bc_guess(g, obs_file, tau, k,noise):
     d = Function(g[0].function_space())
     dt = (tau[-1] -tau[0])/k
     obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
@@ -40,6 +45,8 @@ def bc_guess(g, obs_file, tau, k):
         t += dt
         obs_file.read(d,"%0.2f"%(tau[next_tau]))
         g[i].vector()[:] = d.vector()[:]
+        if noise:
+           g[i].vector()[:]+= noise[next_tau].vector()[:]
 
         if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):
             next_tau += 1
@@ -61,6 +68,7 @@ def iter_cb(m):
 
 if __name__ == "__main__":
     from forward_problem import initialize_mesh, load_control_values, save_control_values, generate_observations, functional
+    from numpy import random
     import argparse
     import sys 
     print( sys.version )
@@ -91,7 +99,7 @@ if __name__ == "__main__":
 
     # Observation timepoints
     if Z.dx!=0.0 : # dx can be simpler 
-       k = int( (Z.tau[-1] - Z.tau[0])/dx +0.5 )
+       k = int( (Z.tau[-1] - Z.tau[0])/dx)
        tau =[ Z.tau[0] + dx*i for i in range(k)]   
     else : 
        k = Z.k
@@ -102,15 +110,23 @@ if __name__ == "__main__":
     g = [Function(V) for _ in range(k)]
     correct_g = [Function(V) for _ in range(k)]
     correct_g = bc(correct_g, V,tau,k, mesh_config)
-    
+    # Noise 
+
+    if Z.noise!=0.0:
+       noise = [ Function(V) for _ in tau]
+       add_noise(noise)
+    else : 
+       noise = None
+
+
     if Z.generate_observations:
         ic = initial_condition(V, mesh_config)
         g = bc(g, V,tau,k, mesh_config)
         generate_observations(mesh_config, V, D, g, ic, tau, Z.obs_file)
         exit()
     else:
-        g = bc_guess(g, Z.obs_file, tau, k)
-        J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, None)
+        g = bc_guess(g, Z.obs_file, tau, k, noise)
+        J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta,None, noise=noise)
 
     ctrls = ([Control(D[i]) for i in range(1, 4)]
              + [Control(g_i) for g_i in g])
@@ -122,8 +138,7 @@ if __name__ == "__main__":
 
     
     opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-2})
-    Jhat(opt_ctrls)
-    opt_ctrls = minimize(Jhat, method="TNC", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter})
+
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(
     #"[Constant({}), Constant({}))]".format(float(opt_ctrls[0]), float(opt_ctrls[1])))

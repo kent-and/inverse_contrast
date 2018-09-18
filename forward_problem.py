@@ -33,6 +33,8 @@ def forward_problem(context):
     # Solution at current and previous time
     U_prev = Function(V)
     U      = Function(V)
+
+    context.initial_conditions()
     U.assign(context.ic)
 
     dt = context.dt
@@ -107,15 +109,13 @@ class Context(object):
     def return_value(self):
         return None
 
-def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
+def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None, noise=None):
     class FunctionalContext(Context):
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
             self.tau = tau
             self.next_tau = 1 
             self.g = Function(self.V)
-
-
             self.current_g_index = 0
             self.J = 0.0
             self.d = Function(self.V)
@@ -126,10 +126,17 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.dt =( tau[-1] - tau[0] )/float(len(g_list)) 
 
 
+            self.noise = noise
+ 
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
-
             self.gradient = [100.0, 1.0, 1.0]
             
+        def initial_conditions(self):
+            self.obs_file.read(self.ic, "%0.2f"%(self.tau[0]))
+            if self.noise: 
+               self.ic.vector()[:]+=self.noise[0].vector()[:]
+
+
         def scale(self, i):
             if self.gradient is not None:
                 return abs(float(self.gradient[i]))
@@ -146,6 +153,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def handle_solution(self, U):
             if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): 
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  
+                if self.noise:
+                   self.d.vector()[:]+=self.noise[self.next_tau].vector()[:]
                 self.J += assemble((U - self.d) ** 2 * self.dx) 
                 # Move on to next observation
                 self.next_tau += 1
