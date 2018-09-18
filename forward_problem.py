@@ -45,18 +45,18 @@ def forward_problem(context):
     L = U_prev * v * dx
 
     A = assemble(a)
-    bc = DirichletBC(V, 0, context.boundaries, 1)
+    bcs = [ DirichletBC(V, 0, context.boundaries, i) for i in range(1,4)]
     for bc in bcs :
         bc.apply(A)
 
     # Define solver. Use GMRES iterative method with AMG preconditioner.
-    solver = LinearSolver(mpi_comm_self(), "gmres")
+    solver = LinearSolver(mpi_comm_self(), "gmres","hypr_amg")
     solver.set_operator(A)
 
     while not context.should_stop():
         U_prev.assign(U,annotate =True)
         context.advance_time()
-        bc = context.next_bc()
+        bcs = context.next_bc()
 
         # Assemble RHS and apply DirichletBC
         b = assemble(L)
@@ -77,6 +77,7 @@ class Context(object):
         self.ds = mesh_config["ds"]
         self.dx = mesh_config["dx"]
         self.boundaries = mesh_config["boundaries"]
+
         self.V = V
         self.D = D
         self.g_list = g_list
@@ -127,7 +128,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
 
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
 
-            self.gradient = [1.0, 1.0, 1.0]
+            self.gradient = [100.0, 1.0, 1.0]
             
         def scale(self, i):
             if self.gradient is not None:
@@ -144,8 +145,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
 
         def handle_solution(self, U):
             if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): 
-                # If t is closest to next observation then compute misfit.
-                self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  # Read observation
+                self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  
                 self.J += assemble((U - self.d) ** 2 * self.dx) 
                 # Move on to next observation
                 self.next_tau += 1

@@ -110,8 +110,6 @@ if __name__ == "__main__":
         exit()
     else:
         g = bc_guess(g, Z.obs_file, tau, k)
-
-
         J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, None)
 
     ctrls = ([Control(D[i]) for i in range(1, 4)]
