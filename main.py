@@ -10,9 +10,10 @@ class InitialConditions(Expression):
             values[0] = 0
 
 
-def add_noise(noise):
+def add_noise(noise,amp): 
+     from numpy import random
      for i in noise:
-         i.vector()[:]+=Z.noise*(0.5-random.random(i.vector().size()) )
+         i.vector().add_local( amp*(0.5-random.random(i.vector().local_size()) ) )
 
 
 def initial_condition(V, mesh_config):
@@ -68,7 +69,6 @@ def iter_cb(m):
 
 if __name__ == "__main__":
     from forward_problem import initialize_mesh, load_control_values, save_control_values, generate_observations, functional
-    from numpy import random
     import argparse
     import sys 
     print( sys.version )
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     if Z.noise!=0.0:
        noise = [ Function(V) for _ in tau]
-       add_noise(noise)
+       add_noise(noise,Z.noise)
     else : 
        noise = None
 
