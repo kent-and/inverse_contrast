@@ -12,7 +12,7 @@ def initialize_mesh(mesh_file): # Lars : Endret
     # Import mesh and subdomains
     mesh = Mesh()
 
-    hdf = HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r")
+    hdf = HDF5File(mesh.mpi_comm(), mesh_file, "r")
     hdf.read(mesh, "/mesh", False, annotate=False)
     subdomains = MeshFunction("size_t", mesh, mesh.topology().dim())
     hdf.read(subdomains, "/subdomains", annotate=False)
@@ -42,12 +42,12 @@ def forward_problem(context):
     dx = context.dx
 
     # Define bilinear form, handling each subdomain 1, 2, and 3 in separate integrals.
-    a = u * v * dx + sum([dt * context.scale(j-1) * D[j] * inner(grad(v), grad(u)) * dx(j) for j in range(1, 4)])
+    a = u * v * dx + sum([dt * context.scale(j-1) * D[j] * inner(grad(v), grad(u)) * dx(j) for j in range(1, 3)])
     # Define linear form.
     L = U_prev * v * dx
 
     A = assemble(a)
-    bcs = [ DirichletBC(V, 0, context.boundaries, i) for i in range(1,4)]
+    bcs = [ DirichletBC(V, 0, context.boundaries, i) for i in range(1,3)]
     for bc in bcs :
         bc.apply(A)
 
@@ -129,7 +129,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.noise = noise
  
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
-            self.gradient = [100.0, 1.0, 1.0]
+            self.gradient = None
             
         def initial_conditions(self):
             self.obs_file.read(self.ic, "%0.2f"%(self.tau[0]))
@@ -174,7 +174,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
 
         def next_bc(self):          
-            return  [ DirichletBC(self.V, self.g, self.boundaries, i) for i in range(1,4)]
+            return  [ DirichletBC(self.V, self.g, self.boundaries, i) for i in range(1,3)]
 
         def return_value(self):
             self.obs_file.close()

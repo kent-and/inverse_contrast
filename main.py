@@ -58,13 +58,13 @@ iter_cnt = 0
 def iter_cb(m):
     global iter_cnt
     iter_cnt += 1
-    print("Coeffs-Iter: {} | Constant({}) | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]), float(m[2])))
+    print("Coeffs-Iter: {} | Constant({}) | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]) )
     from pyadjoint.reduced_functional_numpy import ReducedFunctionalNumPy
     NumRF = ReducedFunctionalNumPy(Jhat)
     ds = mesh_config["ds"]
     fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
     print("Functional-value: {} | {} ".format(iter_cnt, NumRF(m)) )
-    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds) for i in range(3, len(fenics_m)) ]) ))
+    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds) for i in range(2, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds) for i in range(3, len(fenics_m)) ]) ))
 
 
 if __name__ == "__main__":
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=0.001, type=float)
     parser.add_argument('--noise', default=0.0, type=float)
     parser.add_argument('--tol', default=0.001, type=float)
-    parser.add_argument('--D', default=[1, 1, 1], type=float, nargs=3)
+    parser.add_argument('--D', default=[1, 1], type=float, nargs=2)
     parser.add_argument('--mesh', default="mesh_invers_contrast.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k", type=int)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     V = FunctionSpace(mesh_config["mesh"], "CG", 1)
 
     # Diffusion coefficients
-    D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1]), 3: Constant(Z.D[2])}
+    D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1])}
 
     # Observation timepoints
     if Z.dx!=0.0 : # dx can be simpler 
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         g = bc_guess(g, Z.obs_file, tau, k, noise)
         J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta,None, noise=noise)
 
-    ctrls = ([Control(D[i]) for i in range(1, 4)]
+    ctrls = ([Control(D[i]) for i in range(1, 3)]
              + [Control(g_i) for g_i in g])
 
     print("J = ", J)
