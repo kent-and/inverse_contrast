@@ -78,7 +78,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=0.001, type=float)
     parser.add_argument('--noise', default=0.0, type=float)
     parser.add_argument('--tol', default=0.001, type=float)
-    parser.add_argument('--D', default=[1000, 1, 1], type=float, nargs=3)
+    parser.add_argument('--D', default=[1, 1, 1], type=float, nargs=3)
     parser.add_argument('--mesh', default="mesh_invers_contrast.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k", type=int)
