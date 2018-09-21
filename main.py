@@ -58,7 +58,7 @@ iter_cnt = 0
 def iter_cb(m):
     global iter_cnt
     iter_cnt += 1
-    print("Coeffs-Iter: {} | Constant({}) | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]) ) )
+    print("Coeffs-Iter: {} | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]) ) )
     from pyadjoint.reduced_functional_numpy import ReducedFunctionalNumPy
     NumRF = ReducedFunctionalNumPy(Jhat)
     ds = mesh_config["ds"]
