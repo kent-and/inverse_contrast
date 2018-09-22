@@ -47,9 +47,8 @@ def forward_problem(context):
     L = U_prev * v * dx
 
     A = assemble(a)
-    bcs = [ DirichletBC(V, 0, context.boundaries, i) for i in range(1,4)]
-    for bc in bcs :
-        bc.apply(A)
+    bc = DirichletBC(V, 0, context.boundaries, 1)
+    bc.apply(A)
 
     # Define solver. Use GMRES iterative method with AMG preconditioner.
     solver = LinearSolver(mpi_comm_self(), "gmres")
@@ -65,11 +64,10 @@ def forward_problem(context):
         A.bcs = bcs
         for bc in bcs:
             bc.apply(b)
-    
         # Solve linear system for this timestep
         solver.solve(U.vector(), b)
 
-        context.handle_solution(U)
+        context.handle_solution(U,U_prev)
          
     return context.return_value()
 
@@ -129,7 +127,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.noise = noise
  
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
-            self.gradient = [100.0, 1.0, 1.0]
+            self.gradient = [1.0, 1.0, 1.0]
             
         def initial_conditions(self):
             self.obs_file.read(self.ic, "%0.2f"%(self.tau[0]))
@@ -150,15 +148,33 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.g  = self.g_list[self.current_g_index]
             self.current_g_index += 1
 
-        def handle_solution(self, U):
-            if abs(self.t - self.tau[self.next_tau]) < abs(self.t + self.dt - self.tau[self.next_tau]): 
+        def handle_observations(self,U, U_prev):
+            Dt = ( self.tau[self.next_tau] - self.t )  
+           
+            if  round(self.t,2) <= self.tau[self.next_tau] and self.tau[self.next_tau] < round(self.t+self.dt,2)  : 
+                print(self.tau[self.next_tau] - self.t)
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  
                 if self.noise:
                    self.d.vector()[:]+=self.noise[self.next_tau].vector()[:]
+
+                Ulin = Dt/self.dt*U +  (self.dt - Dt)/self.dt*U_prev       
                 self.J += assemble((U - self.d) ** 2 * self.dx) 
                 # Move on to next observation
                 self.next_tau += 1
+                # Check if there is another observations in time step
+                if  len(self.tau) > self.next_tau:
+                    self.handle_observations(U, U_prev)
 
+        def handle_solution(self, U, U_prev):
+
+           # tau > t and tau < t+dt --> t < tau < t +dt --> 0 < (tau-t) < dt
+
+           # self.t - self.tau = 0 -->  U_prev else  self.t -self.tau =dt -->  U 
+
+           #
+           # (self.t -self.tau)/dt -> 1 
+
+            self.handle_observations(U, U_prev)
             # Choose time integral weights
             if self.t <= self.tau[0] + self.dt or self.t > self.tau[-1] - self.dt/2 :
                 # If endpoints use 0.5 weight
@@ -168,13 +184,13 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds ) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) ) * self.alpha
             if self.current_g_index > 1:
                 g_prev = self.g_list[self.current_g_index - 2]
-                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
 
         def next_bc(self):          
-            return  [ DirichletBC(self.V, self.g, self.boundaries, i) for i in range(1,4)]
+            return [DirichletBC(self.V, self.g, self.boundaries, 1)]
 
         def return_value(self):
             self.obs_file.close()

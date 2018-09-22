@@ -81,7 +81,8 @@ if __name__ == "__main__":
     parser.add_argument('--D', default=[1, 1, 1], type=float, nargs=3)
     parser.add_argument('--mesh', default="mesh_invers_contrast.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
-    parser.add_argument("--k", type=int)
+    parser.add_argument("--k",default=1, type=int)
+    parser.add_argument("--K",default=0, type=int)
     parser.add_argument("--obs-file", default="U.xdmf", type=str)
     parser.add_argument("--load-control-values-file", default=None, type=str)
     parser.add_argument("--save-control-values-file", default=None, type=str)
@@ -97,22 +98,20 @@ if __name__ == "__main__":
     # Diffusion coefficients
     D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1]), 3: Constant(Z.D[2])}
 
-    # Observation timepoints
-    if Z.dx!=0.0 : # dx can be simpler 
-       k = int( (Z.tau[-1] - Z.tau[0])/dx)
-       tau =[ Z.tau[0] + dx*i for i in range(k)]   
-    else : 
-       k = Z.k
-       tau = Z.tau
-
+    tau = Z.tau
+    # Number timepoints
+    if Z.K==0:
+      k = int(len(tau)-1)*Z.k
+    else :
+      k =Z.K
     # Boundary conditions
-
+      
     g = [Function(V) for _ in range(k)]
     correct_g = [Function(V) for _ in range(k)]
     correct_g = bc(correct_g, V,tau,k, mesh_config)
     # Noise 
 
-    if Z.noise!=0.0:
+    if Z.noise!=0:
        noise = [ Function(V) for _ in tau]
        add_noise(noise,Z.noise)
     else : 
