@@ -149,16 +149,16 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.current_g_index += 1
 
         def handle_observations(self,U, U_prev):
-            Dt = ( self.tau[self.next_tau] - self.t )  
+            Dt = ( self.t - self.tau[self.next_tau])  
            
-            if  round(self.t,2) <= self.tau[self.next_tau] and self.tau[self.next_tau] < round(self.t+self.dt,2)  : 
-                print(self.tau[self.next_tau] - self.t)
+            if  round(self.t-self.dt,2) <= self.tau[self.next_tau] and self.tau[self.next_tau] < round(self.t,2)  : 
+            
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  
                 if self.noise:
                    self.d.vector()[:]+=self.noise[self.next_tau].vector()[:]
-
-                Ulin = Dt/self.dt*U +  (self.dt - Dt)/self.dt*U_prev       
-                self.J += assemble((U - self.d) ** 2 * self.dx) 
+                
+                Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U       
+                self.J += assemble((Ulin - self.d) ** 2 * self.dx) 
                 # Move on to next observation
                 self.next_tau += 1
                 # Check if there is another observations in time step
@@ -166,8 +166,8 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                     self.handle_observations(U, U_prev)
 
         def handle_solution(self, U, U_prev):
-
-           # tau > t and tau < t+dt --> t < tau < t +dt --> 0 < (tau-t) < dt
+           # advanced time 
+           # tau > t-dt and tau < t --> t-dt < tau < t --> -dt < (tau-t) < 0 -> 0< t-tau < dt
 
            # self.t - self.tau = 0 -->  U_prev else  self.t -self.tau =dt -->  U 
 
