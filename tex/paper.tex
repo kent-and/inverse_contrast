@@ -55,7 +55,6 @@ and the mathematical methodology used for determining the apparent diffusion coe
 
 \subsection*{Data}
 
-
 \subsection*{Mathematical Model}
 The objective function was defined as 
 \begin{equation}
@@ -71,7 +70,7 @@ u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right)
 \end{equation}
 with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
 
-
+\section*{Manufactured Solution}
 The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
 \begin{equation}
 g(t)_{\partial \Omega_1} = 0.3 +0.167t - 0.007t\sp{2} \qquad  0 \leq t \leq 24.
@@ -80,62 +79,64 @@ The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be
 \begin{equation}
 D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
 \end{equation}  
-The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The forward simulation gave a total of 120 possible observation time points. These points will be denoted as $\tau$.
+The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The forward simulation gave a total of 120 possible observation time points. These points 
+will be denoted as $\tau$.
+
+The mesh was constructed by using the MRI of a patient diagnosed with iNPH. The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. The polyhedral surfaces was used with CGAL[?] to construed the mesh. The computational requirement for the resulting mesh was significant, therefore a submesh was also constructed, see Fig. ??. 
 
 
+\section*{Implementation}
+The code used the FEniCS project to contruct the PDE, using backwards Euler time discretization and first order continuous galerkin finite elements. The module dolfin adjoint [?] was used to construct a reduced functional, and the optimization used the scipy optimize library to minimize the functional using L-BFGS-B algorithm.   
 
-The mesh was constructed by using the MRI of a patient diagnosed with iNPH. The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. The polyhedral surfaces was use of CGAL [?], was used to construed the the mesh. The computational requirement for the resulting mesh was significant, therefore a submesh was also constructed, see Fig. ?? . 
+The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}, and for each timestep, the next observation was used as the Dirichlet boundary conditions.  
 
-
-
-
-
-
-The first observation will be considered the initial conditions of the equation, additionally the initial conditions of the manufactured observations are not considered.  
-\begin{equation}
-\tau := \lbrace  0 < t  \leq 24.0\rbrace
-\end{equation}
-This means that the objective functional will consider one less observation. However, this can be modified by adding the initial conditions as a optimization parameter. This means the timesteps will not be the same as the manufactured solution. 
-
-This incoherence will also be investigated, and an adaptive timestep approach can be considered dependent on the results.  
-
-
-
-
-
- Furthermore, the $g$ value will be sett equal to the next observation.  
-
-
-
-
-
-
-The initial values of the optimalization was set to $1000,2,1$, 
-
-
-
-
-
-
-
-
-
-
-
-
-
-P1 finite elements were used, and the dolfin adjoint [?] was used to construct a reduced function. Furthermore, the scipy optimize library was used to minimize the functional using L-BFGS-B algorithm.   
-
-
+The initial values of the optimization algorithm was chosen to be $1,1,1$. Furthermore, to obtain faster convergence in the optimization, the diffusion coefficients was scaled to have the same magnitude, i.e.  $D_{\Omega_1}$ was scaled, so that $D_{\Omega_1} = D\sp{u}_{\Omega_1}*100$.    
 
 
 \section*{Non-linear relation}
-The MR images that are provided by Oslo University Hospital Rikshospitalet and can be seen in Fig.?? . 
+The MR images are provided by Oslo University Hospital Rikshospitalet and can be seen in Fig.??. The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase due to tracer concentrations. The tracer causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
+\begin{equation}
+\frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}*C .
+\label{EQ::contrast}
+\end{equation}
+with the superscripts indicating with contrast and without contrast and $r_1$ as the relaxivity constant for the MRI-contrast in a medium. The relation between intensity and concentration is non-linear, and is expressed with the following equations. The signal intensity $SI$ of the sequence is given by
+\begin{equation}
+SI = M_{n} \sin \theta e\sp{ - TE/T_2\sp{*} },
+\label{EQ::SI_T2}
+\end{equation}
+with  $TE$ and $\theta$ respectively denoting the echo time and the flip angle. Also $T2\sp{*}$ is transverse magnetization caused by a combination of spin-spin relaxation and magnetic field inhomogeneity. It is defined as 
+\begin{equation}
+\frac{1}{T_2\sp{*}} = \frac{1}{T_2} + \gamma \Delta B_{in} ,
+\end{equation}
+with $T2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic ratio and $\Delta B_{in}$ is the magnetic field inhomogeneity
+across a voxel. % We will assume that the field inhomogeneity is constant.
+We will simplify the expression by neglecting the T2 term in the signal,
+given that $TE <<T_2\sp{*}$ for this MRI sequence. Thus Eq. \ref{EQ::SI_T2} becomes 
+\begin{equation}
+SI = M_{n} \sin \theta.
+\label{EQ::SI}
+\end{equation}
+In article [?] term $M_n$ is the magnetization in the the n-echo given as 
+\begin{equation}
+M_{n} = M_{0}  \left[ (1-\beta)\frac{(1-(\alpha \beta)\sp{n-1} }{1-\alpha\beta} + (\alpha \beta)\sp{n-1}(1-\gamma) + \gamma ( \alpha \beta)\sp{n-1} \frac{M_{e}}{M_{0}}  \right]   
+\end{equation}
+with 
+\begin{equation}
+\frac{M_{e}}{M_{0}} = - \left[ \frac{ 1 -\delta + \alpha \delta (1-\beta ) \frac{1-\alpha\beta\sp{m}}{1-\alpha \beta} + \alpha\delta(\alpha\beta)\sp{m-1} - \alpha\sp{m}\rho}{1 +\rho \alpha\sp{m} } \right].
+\end{equation}
+Using the following definitions
+\begin{equation}
+\begin{aligned}
+\alpha &= \cos ( \theta ) \\
+\beta  &= e\sp{- \sp{T_b}/_{T_1}\sp{0} } \\
+\delta &= e\sp{- \sp{T_a}/_{T_1}\sp{0} } \\
+\gamma &= e\sp{- \sp{T_w}/_{T_1}\sp{0} } \\
+\rho   &= e\sp{- \sp{TR}/_{T_1}\sp{0} }  \\
+T_w    &= TR - T_a -T_b(m-1)       .\\
+\end{aligned}
+\end{equation}
+Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $T1$ is the longitudinal(spin-lattice) relaxation time for a given medium. The $M_0$ is a calibration constant of the magnetization. The center echo denoted as $n=\sp{m}/_2$ will be the signal that we will consider when estimating MRI-contrast.
 
-
-The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase due to tracer concentrations. 
-
-The relation between intensity and concentration is non-linear, and best be de
 
 
  
@@ -382,18 +383,6 @@ $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ 
 \section{Discussion}
 
 
-
- 0.0001 & 1.0 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 153& 999.888464905 & 4.02189206656 & 8.01937098574 \\ 
- 0.0001 & 0.1 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 82& 999.92653104 & 4.0172778853 & 8.02072488205 \\ 
- 0.0001 & 0.01 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 183& 999.601435216 & 4.0167801622 & 8.02099543744 \\ 
- 1e-05 & 1.0 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 170& 999.857251969 & 4.02183073053 & 8.0193786719 \\ 
- 1e-05 & 0.1 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 145& 999.723425171 & 4.01725503821 & 8.02073378231 \\ 
- 1e-05 & 0.01 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 189& 999.686295266 & 4.0167215691 & 8.02087841472 \\ 
- 1e-06 & 1.0 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 252& 999.744572206 & 4.02186634423 & 8.01936617912 \\ 
- 1e-06 & 0.1 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 167& 999.698939533 & 4.01722486087 & 8.02076770928 \\ 
- 1e-06 & 0.01 &20 &[0.2, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] & 145& 999.76147155 & 4.01667474386 & 8.02102893936 \\ 
- 
- 
  \begin{table}
 \centering
 \caption{ $\tau = [2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0] $}
