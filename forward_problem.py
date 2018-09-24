@@ -53,14 +53,14 @@ def forward_problem(context):
     # Define solver. Use GMRES iterative method with AMG preconditioner.
     solver = LinearSolver(mpi_comm_self(), "gmres")
     solver.set_operator(A)
-    solver.parameters['absolute_tolerance'] = 10**-6  
+    #solver.parameters['absolute_tolerance'] = 10**-6  
 
-    solver.parameters['maximum_iterations'] = 100  
-    solver.parameters['monitor_convergence'] = True  
-    solver.parameters['nonzero_initial_guess'] = False # this may be used to speed up  
+    #solver.parameters['maximum_iterations'] = 100  
+    #solver.parameters['monitor_convergence'] = True  
+    #solver.parameters['nonzero_initial_guess'] = False # this may be used to speed up  
 
-    solver.parameters['relative_tolerance'] = 10**-6
-    solver.parameters['report'] = True 
+    #solver.parameters['relative_tolerance'] = 10**-6
+    #solver.parameters['report'] = True 
     while not context.should_stop():
         U_prev.assign(U,annotate =True)
         context.advance_time()
@@ -134,8 +134,11 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.noise = noise
  
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
-            self.gradient = [1.0, 1.0, 1.0]
-            
+
+            self.gradient = gradient 
+     
+
+  
         def initial_conditions(self):
             self.obs_file.read(self.ic, "%0.2f"%(self.tau[0]))
             if self.noise: 
@@ -144,6 +147,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
 
         def scale(self, i):
             if self.gradient is not None:
+                print  ( abs(float(self.gradient[i])) ) 
                 return abs(float(self.gradient[i]))
             return 1.0
 
