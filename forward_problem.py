@@ -51,7 +51,7 @@ def forward_problem(context):
     bc.apply(A)
 
     # Define solver. Use GMRES iterative method with AMG preconditioner.
-    solver = LinearSolver(mpi_comm_self(), "gmres", "amg")
+    solver = LinearSolver(mpi_comm_self(), "gmres")
     solver.set_operator(A)
     solver.parameters['absolute_tolerance'] = 10**-6  
 
