@@ -64,7 +64,7 @@ def iter_cb(m):
     ds = mesh_config["ds"]
     fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
     print("Functional-value: {} | {} ".format(iter_cnt, NumRF(m)) )
-    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds) for i in range(3, len(fenics_m)) ]) ))
+    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds(1)) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds(1)) for i in range(3, len(fenics_m)) ]) ))
 
 
 if __name__ == "__main__":
