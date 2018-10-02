@@ -18,55 +18,52 @@
 \end{abstract}
 \section{Introduction}
 
-The discovery of the paravascular pathway in 2011~\cite{iliff2012paravascular} propose a novel component
-crucial to the metabolism of the brain which may potientially provide an explanation for the accumulation of
-waste such as amyloid beta in elderly, ultimately leading to diseases such as Alzheimer and Parkinson. 
-In the rest of our body, the lymphatic system plays an important role
-in the clearance of metabolic waste, but there are no lymphs within the brain. This fact is puzzling in particular because
-the brain requires around 10 times more energy per volume than the result of the body. The paravascular 
-pathway is proposed important to waste clearance and has therefore been named the \emph{glymphatic system}.      
+A novel pathway called the paravascular pathway was discoved in 2011~\cite{iliff2012paravascular} and later found to be particularly active during sleep~\cite{xie2013sleep}. 
 
-The pioneering works of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
-that diffusion was a governing transport mechanism in the brain. However, 
-the clearance of CSF-tracers during sleep~\cite{xie2013sleep} in mice demonstrated transportation
-much faster what could be explained by diffusion and it was proposed that arterial pulsation powered
-accelrated perivascular flow combined convective interstitial flow. Several modelling attempts
-have put the theory to the test~\cite{asgari2016glymphatic, smith2017glymphatic, holter2017interstitial}, 
-but so far computational modeling have failed to adequately described the mechanism.   
+It has been proposed that this pathway plays an important role in the waste
+clearance of the brain. In particular, since the brain lack a lymphatic system, 
+which elsewhere in our body plays a crucial role in waste clearance, the system has been called the glymphatic system~\cite{jessen2015glymphatic}.  
+The glymphatic system remains controversial and modeling attempts
+has so far mostly failed to explain the biomechanics of the system~\cite{holter2017interstitial, smith2017glymphatic}. A proper biomechanical 
+understanding of the pathway has significant potential because
+dementia such as Alzheimer´s and Parkinson´s diseases are
+associated with accumulation of metabolic waste such as
+amyloid-beta and CSF-tau.  
+In \cite{ringstad2018brain} brainwide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain wide distribution by diffusion alone was deemed unlikely by the authors (some of which are part 
+of this study as well). The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
+55 hours using the error function which is valid for planar diffusion. However, 
+the surface of the brain is folded and is around five times larger than 
+a corresponding surface of a ball with the same volume. Hence, 
+a more rigorous modeling attempt is warrented. Complicating factors
+are however that the contrast in the surrounding CSF is heterogenous
+and changes significantly during the 24 hours of the investigations. 
+Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}.  
+Our purpose in this paper is to attempt a more rigorous methodology 
+for assessing the apparent diffusion process. To this end we employ
+adjoint methods to determine the apparent diffusion coefficient 
+that would explain the tracer distribution.  
+  
 
-Transportation by diffusion is in the order of XXX\comment{Lars: hente fra R. Thorne / Nicholson}. 
-However, in \cite{xie2013sleep} a $60\%$ coverage of 3kDa Texas Red Dextran of a $200 \mu m$ cube was demostrated in approximately 
-20 minutes. As such, the transportation is XXX faster than what diffusion would provide. Furthermore, 
-in \cite{eidevalnes} it was demonstrated that X Da Gadovist was brainwide in 8 hours after injection in the lumbar region.      
-
-Paragraph about timescales etc. 
-
-The purpose of this paper is to attempt to assess transportation speed in terms of an apparent diffusion coefficient 
-by using adjoint methods provided by \cite{} for optimizing the coefficient with respect to data. As
-such a coefficient larger than commonly reported values of diffusion would suggest that at the
-timescale of minutes to hours there is indeed a glymphatic transportation which may potentially 
-be responsible for metabolic waste.     
-
-An outline of the paper is as follows. In Section 2 we describe the medical images and their modality,  
-and the mathematical methodology used for determining the apparent diffusion coefficients.  
-
-
-\section{Methods}
 
 
 \subsection*{Data}
-The data consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
-
+The data consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. Figure ~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2017glymphatic}.   
 
 
 
 \subsection*{Mathematical Model}
+In order to assess whether the contrast distribution shown 
+in Figure \ref{fig1} is governed by a diffusion process we
+aim to solve a PDE constrained optimization problem where
+the contrast distribution, boundary conditions, and apparent
+diffusion coefficient are solved for by optimizing with
+respect to the observed contrast distribution. 
 The objective function was defined as 
 \begin{equation}
 \min_{u,g} F = \quad \sum\limits_i\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)| \mathrm{d}\Omega + \frac{\alpha}{2} \int\limits_{0}\sp{T} || g ||_{L\sp{2}(\partial\Omega)} \mathrm{d}t + \frac{\beta}{2} \int\limits_{0}\sp{T} || \dot{g} ||_{L\sp{2}(\partial\Omega)}\mathrm{d}t 
 \label{EQ::objf}
 \end{equation}
-subjugated by   
+subject to   
 \begin{equation}
 \begin{aligned}
 \frac{\partial u}{\partial t} = \nabla \cdot  D_i \nabla u \qquad \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
@@ -76,7 +73,17 @@ u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right)
 \end{equation}
 with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
 
-\section*{Manufactured Solution}
+Here $u$ is the contrast distribution, $D_i$ is the apparent diffusion 
+coefficient, and $g$ is the boundary condition. Furthermore,  
+the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$. The apparent
+diffusion constant is assumed constant within the CSF, grey and 
+white matter but each region may have different constants.  
+The $\alpha$ and $\beta$ parameters are regularization parameters 
+and $u_{obs}$ are observations at certain time-points. 
+\subsection*{Manufactured Solution}
+In order to verify our strategy and test the dependency of the
+regularization paramters, we perform a test case with a
+known solution.  
 The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
 \begin{equation}
 g(t)_{\partial \Omega_1} = 0.3 +0.167t - 0.007t\sp{2} \qquad  0 \leq t \leq 24.
