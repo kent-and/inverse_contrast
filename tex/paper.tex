@@ -18,60 +18,55 @@
 \end{abstract}
 \section{Introduction}
 
-A novel pathway called the paravascular pathway was discoved in 2011~\cite{iliff2012paravascular} and later found to be particularly active during sleep~\cite{xie2013sleep}. 
-It has been proposed that this pathway plays an important role in the waste
-clearance of the brain. In particular, since the brain lack a lymphatic system, 
-which elsewhere in our body plays a crucial role in waste clearance, the system has been called the glymphatic system~\cite{jessen2015glymphatic}.  
-The glymphatic system remains controversial and modeling attempts
-has so far mostly failed to explain the biomechanics of the system~\cite{holter2017interstitial, smith2017glymphatic}. A proper biomechanical 
-understanding of the pathway has significant potential because
-dementia such as Alzheimer´s and Parkinson´s diseases are
-associated with accumulation of metabolic waste such as
-amyloid-beta and CSF-tau.  
+The discovery of the paravascular pathway in 2011~\cite{iliff2012paravascular} propose a novel component
+crucial to the metabolism of the brain which may potientially provide an explanation for the accumulation of
+waste such as amyloid beta in elderly, ultimately leading to diseases such as Alzheimer and Parkinson. 
+In the rest of our body, the lymphatic system plays an important role
+in the clearance of metabolic waste, but there are no lymphs within the brain. This fact is puzzling in particular because
+the brain requires around 10 times more energy per volume than the result of the body. The paravascular 
+pathway is proposed important to waste clearance and has therefore been named the \emph{glymphatic system}.      
 
-In \cite{ringstad2018brain} brainwide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain wide distribution by diffusion alone was deemed unlikely by the authors (some of which are part 
-of this study as well). The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
-55 hours using the error function which is valid for planar diffusion. However, 
-the surface of the brain is folded and is around five times larger than 
-a corresponding surface of a ball with the same volume. Hence, 
-a more rigorous modeling attempt is warrented. Complicating factors
-are however that the contrast in the surrounding CSF is heterogenous
-and changes significantly during the 24 hours of the investigations. 
-Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}.  
+The pioneering works of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
+that diffusion was a governing transport mechanism in the brain. However, 
+the clearance of CSF-tracers during sleep~\cite{xie2013sleep} in mice demonstrated transportation
+much faster what could be explained by diffusion and it was proposed that arterial pulsation powered
+accelrated perivascular flow combined convective interstitial flow. Several modelling attempts
+have put the theory to the test~\cite{asgari2016glymphatic, smith2017glymphatic, holter2017interstitial}, 
+but so far computational modeling have failed to adequately described the mechanism.   
 
-Our purpose in this paper is to attempt a more rigorous methodology 
-for assessing the apparent diffusion process. To this end we employ
-adjoint methods to determine the apparent diffusion coefficient 
-that would explain the tracer distribution.  
-  
+Transportation by diffusion is in the order of XXX\comment{Lars: hente fra R. Thorne / Nicholson}. 
+However, in \cite{xie2013sleep} a $60\%$ coverage of 3kDa Texas Red Dextran of a $200 \mu m$ cube was demostrated in approximately 
+20 minutes. As such, the transportation is XXX faster than what diffusion would provide. Furthermore, 
+in \cite{eidevalnes} it was demonstrated that X Da Gadovist was brainwide in 8 hours after injection in the lumbar region.      
+
+Paragraph about timescales etc. 
+
+The purpose of this paper is to attempt to assess transportation speed in terms of an apparent diffusion coefficient 
+by using adjoint methods provided by \cite{} for optimizing the coefficient with respect to data. As
+such a coefficient larger than commonly reported values of diffusion would suggest that at the
+timescale of minutes to hours there is indeed a glymphatic transportation which may potentially 
+be responsible for metabolic waste.     
+
+An outline of the paper is as follows. In Section 2 we describe the medical images and their modality,  
+and the mathematical methodology used for determining the apparent diffusion coefficients.  
 
 
-\section{Methodology}
+\section{Methods}
 
 
 \subsection*{Data}
-The data consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. Figure ~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2017glymphatic}.   
+The data consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
 
-\begin{figure}
-\includegraphics[width=0.95\textwidth]{GMRI.png} 
-\label{fig1} 
-\caption{\comment{lars, we will need some new images since I believe this is stolen from JCI. Also include a zoom on the region of interest}}
-\end{figure}
+
 
 
 \subsection*{Mathematical Model}
-In order to assess whether the contrast distribution shown 
-in Figure \ref{fig1} is governed by a diffusion process we
-aim to solve a PDE constrained optimization problem where
-the contrast distribution, boundary conditions, and apparent
-diffusion coefficition are solved for by optimizing with
-respect to the observed contrast distribution.  
 The objective function was defined as 
 \begin{equation}
 \min_{u,g} F = \quad \sum\limits_i\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)| \mathrm{d}\Omega + \frac{\alpha}{2} \int\limits_{0}\sp{T} || g ||_{L\sp{2}(\partial\Omega)} \mathrm{d}t + \frac{\beta}{2} \int\limits_{0}\sp{T} || \dot{g} ||_{L\sp{2}(\partial\Omega)}\mathrm{d}t 
 \label{EQ::objf}
 \end{equation}
-subject to 
+subjugated by   
 \begin{equation}
 \begin{aligned}
 \frac{\partial u}{\partial t} = \nabla \cdot  D_i \nabla u \qquad \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
@@ -79,18 +74,9 @@ u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right)
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
-Here $u$ is the contrast distribution, $D_i$ is the apparent diffusion 
-coefficient, and $g$ is the boundary condition. Furthermore,  
-the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$. The apparent
-diffusion constant is assumed constant within the CSF, grey and 
-white matter but each region may have different constants.  
-The $\alpha$ and $\beta$ parameters are regularization parameters 
-and $u_{obs}$ are observations at certain time-points. 
+with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
 
-\subsection*{Manufactured Solution}
-In order to verify our strategy and test the dependency of the
-regularization paramters, we perform a test case with a
-known solution.  
+\section*{Manufactured Solution}
 The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
 \begin{equation}
 g(t)_{\partial \Omega_1} = 0.3 +0.167t - 0.007t\sp{2} \qquad  0 \leq t \leq 24.
@@ -114,9 +100,9 @@ The implementation used the first observation as initial conditions of Eq.\ref{E
 
 The times in the forward simulation do not always overlap with observations times. Thus a linear interpolation of the forward problem was used to compute the difference from the observation, i.e 
 \begin{equation}
-u        d U_prev + \Delta t - dt U.
+u_{linear} = \frac{\Delta t}{dt} U_prev + \frac{dt - \Delta t }{dt} U.
 \end{equation}
-Here $dt$ is forward timestep and $\Delta t$ is the difference between ?? 
+Here $dt$ is forward timestep and $\Delta t$ is the difference between observation time and forward time. 
 The initial values of the optimization algorithm was chosen to be $1,1,1$. Furthermore, to obtain faster convergence in the optimization, the diffusion coefficients was scaled to have the same magnitude, i.e.  $D_{\Omega_1}$ was scaled, so that $D_{\Omega_1} = D\sp {s}_{\Omega_1}100$.     
 
 
@@ -197,17 +183,21 @@ address coefficients and bc
 \end{itemize}
 
 \begin{figure}
-\includegraphics[width=0.95\textwidth]{GMRI.png} 
+\includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
 \label{fig1} 
-\caption{\comment{lars, we will need some new images since I believe this is stolen from JCI}}
+\caption{Shows the percentage intensity increase from baseline at different observation times. }
 \end{figure}
 
-\comment{Lars: bilde av konkret mesh  }
+\begin{figure}
+\includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
+\label{fig1} 
+\caption{Shows the percentage intensity increase from baseline at different observation times in the area corresponding to the generated mesh that is marked red in the left panel.}
+\end{figure}
 
 \begin{figure}
 \includegraphics[width=0.3\textwidth]{mesh-eps-converted-to.pdf} 
 \label{fig1} 
-\caption{\comment{lars, we will need some new images since I believe this is stolen from JCI}}
+\caption{Shows the mesh created from the baseline MR image with 3 domains. ( wrap ?? ) }
 \end{figure}
 
 
@@ -222,6 +212,7 @@ coeff
 
 \subsection{The relaxation parameters}
 The relaxation parameters needs to be calibrated depending on the problem, and thus the diffusion parameters were computed by large range of relaxation parameters values. The results are shown in Tab.\ref{Tab::1}, and it is shown in red that $\alpha=1.0$ have large discrepancy in the parameters values of $D_{\Omega_1}$. 
+
 
 
 \subsection{The number of timessteps}
@@ -331,51 +322,11 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $
 
 
 
-\begin{table}
-\centering
-\caption{ tau = double  }
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ & wrong$g$ \\
-\hline
- 1.0e-05 	 & 1.0e-02 	 & 20 & 429 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 20 & 219 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 386 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
-\end{tabular}}
-\label{Tab::2}
-\end{table} 
-
-
-
-\begin{table}
-\centering
-\caption{ tau = double  }
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ & wrong$g$ \\
-\hline
- 1.0e-05 	 & 1.0e-03 	 & 40 & 210 	 & +0.019 & +0.005 & -0.001 & +0.002 \\ 
- 1.0e-05 	 & 1.0e-01 	 & 40 & 597 	 & +0.006 & +0.015 & -0.008 & +0.017 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 910 	 & +0.046 & +0.047 & -0.020 & +0.065 \\ 
-\end{tabular}}
-\label{Tab::2}
-\end{table} 
-
-
-
-\begin{table}
-\centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$ and number of observation $\tau$ with the resulting number of iterations and estimated optimal parameters for the diffusion coefficients. Noise 0.015 amp }
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} $ & $ D_{\Omega_2} $ & $D_{\Omega_3} $ & wrong $g$ \\
-\hline
-
-\end{tabular}}
-\label{Tab::3}
-\end{table} 
 
 \newpage
 \begin{table}
 \centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$ and number of observation $\tau$ with the resulting number of iterations and estimated optimal parameters for the diffusion coefficients. Noise 0.03 amp }
+\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.03, and $\tau =[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$ }
 \resizebox{0.8\textwidth}{!}{\begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} $ & $ D_{\Omega_2} $ & $D_{\Omega_3} $ & wrong $g$ \\
 \hline
@@ -439,7 +390,7 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} $ & $ D_{\Omega_2} $ & $D_{\Omeg
 \end{table} 
 \begin{table}[t]
 \centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$ and number of observation $\tau$ with the resulting number of iterations and estimated optimal parameters for the diffusion coefficients. Noise 0.3 amp }
+\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.3, and $\tau =[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$  }
 \resizebox{0.8\textwidth}{!}{\begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} $ & $ D_{\Omega_2} $ & $D_{\Omega_3} $ & $g$ \\
 \hline
@@ -495,49 +446,121 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1} $ & $ D_{\Omega_2} $ & $D_{\Omeg
 \end{tabular}}
 \label{Tab::5}
 \end{table} 
-%\begin{table}
-%\centering
-%\caption{ $\tau = [1.0, 1.2, 1.4, 2.8, 4.6, 9.6, 14.4, 18.6, 22.2, 24.0] $}
-%\resizebox{\textwidth}{!}{\begin{tabular}{*{7}c}
-%$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
-%\hline
-%
-%\label{Tab::1}
-%\end{table} 
-%\section{Discussion}
-%
-%
-%\begin{table}
-%\centering
-%\caption{ $\tau =[1.2, 1.4, 1.8, 2.4, 3.6, 5.4, 7.6, 17.2, 18.6, 20.4, 22.4, 24.0] $}
-%\resizebox{\textwidth}{!}{\begin{tabular}{*{7}c}
-%$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
-%\hline
-%
-%\end{tabular}}
-%\label{Tab::1}
-%\end{table} 
-\section{Discussion}
 
 
- \begin{table}
+
+\begin{table}
 \centering
-\caption{ $\tau = [0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0] $}
+\caption{ $\tau = [4.8, 9.6, 14.4, 19.2, 24.0]$}
 \resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ & $g$ \\
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
 \hline
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 161 	 & +0.081 & +0.027 & +0.049 & +0.023 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 10 & 185 	 & +0.123 & +0.046 & +0.037 & +0.021 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 265 	 & +0.160 & +0.082 & +0.033 & +0.016 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 10 & 192 	 & +0.083 & +0.026 & +0.049 & +0.023 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 10 & 223 	 & +0.118 & +0.047 & +0.037 & +0.020 \\ 
+ 1.0e-05 	 & 1.0e-02 	 & 10 & 267 	 & +0.159 & +0.084 & +0.033 & +0.016 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 176 	 & +0.082 & +0.026 & +0.049 & +0.023 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 10 & 229 	 & +0.120 & +0.046 & +0.037 & +0.021 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 253 	 & +0.156 & +0.080 & +0.033 & +0.018 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 202 	 & +0.007 & -0.050 & +0.017 & +0.028 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 20 & 336 	 & +0.028 & -0.009 & +0.009 & +0.023 \\
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 320 	 & +0.025 & +0.025 & +0.015 & +0.013 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 20 & 195 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 20 & 320 	 & +0.029 & -0.011 & +0.009 & +0.026 \\ 
+ 1.0e-05 	 & 1.0e-02 	 & 20 & 351 	 & +0.023 & +0.017 & +0.011 & +0.019 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 224 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 20 & 334 	 & +0.027 & -0.012 & +0.009 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 340 	 & +0.020 & +0.016 & +0.012 & +0.019 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 308 	 & -0.032 & -0.081 & +0.002 & +0.031 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 40 & 379 	 & -0.004 & -0.033 & -0.006 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 377 	 & +0.006 & +0.006 & -0.001 & +0.008 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 40 & 212 	 & -0.034 & -0.083 & +0.001 & +0.031 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 40 & 396 	 & -0.007 & -0.036 & -0.006 & +0.028 \\ 
+ 1.0e-05 	 & 1.0e-02 	 & 40 & 374 	 & +0.009 & +0.007 & -0.003 & +0.014 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 226 	 & -0.034 & -0.082 & +0.001 & +0.031 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 40 & 313 	 & -0.007 & -0.037 & -0.006 & +0.030 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 368 	 & +0.006 & +0.006 & -0.004 & +0.013 \\ 
+\end{tabular}}
+\end{table} 
+
+\begin{table}
+\centering
+\caption{ Shows the $\tau = [1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0] $}
+\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
+\hline
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 246 	 & -0.046 & +0.038 & +0.023 & +0.031 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 10 & 292 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 338 	 & -0.053 & +0.038 & +0.024 & +0.032 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 10 & 290 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 10 & 316 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+ 1.0e-05 	 & 1.0e-02 	 & 10 & 389 	 & -0.052 & +0.038 & +0.024 & +0.033 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 282 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 10 & 308 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 285 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 228 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 20 & 331 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 367 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 20 & 194 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 20 & 312 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
+ 1.0e-05 	 & 1.0e-02 	 & 20 & 266 	 & +0.004 & +0.018 & +0.005 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 179 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 20 & 245 	 & -0.002 & +0.018 & +0.006 & +0.006 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 362 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 279 	 & -0.007 & +0.000 & +0.003 & +0.002 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 40 & 313 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 273 	 & +0.017 & +0.006 & -0.001 & +0.001 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 40 & 238 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 40 & 317 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+ 1.0e-05 	 & 1.0e-02 	 & 40 & 336 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 261 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 40 & 318 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 375 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
+\end{tabular}}
+\end{table} 
+
+
+
+\begin{table}
+\centering
+\caption{$\tau = [0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0] $ noise 0.0}
+\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 517 	 & -0.034 & -0.006 & -0.022 & +0.058 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 40 & 660 	 & -0.045 & -0.013 & -0.024 & +0.052 \\ 
  1.0e-04 	 & 1.0e-02 	 & 40 & 283 	 & -0.059 & -0.020 & -0.027 & +0.331 \\ 
- \rowcolor{red} 1.0e-04 	 & 1.0e-03 	 & 40 & 247 	 & -0.062 & -0.023 & -0.030 & +0.407 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 40 & 588 	 & -0.034 & -0.006 & -0.022 & +0.060 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 40 & 686 	 & -0.046 & -0.013 & -0.024 & +0.067 \\ 
  1.0e-05 	 & 1.0e-02 	 & 40 & 400 	 & -0.059 & -0.020 & -0.027 & +0.260 \\ 
-\rowcolor{red}  1.0e-05 	 & 1.0e-03 	 & 40 & 183 	 & -0.063 & -0.023 & -0.029 & +0.404 \\ 
  1.0e-06 	 & 1.0e+00 	 & 40 & 618 	 & -0.034 & -0.006 & -0.022 & +0.058 \\ 
  1.0e-06 	 & 1.0e-01 	 & 40 & 826 	 & -0.046 & -0.013 & -0.024 & +0.070 \\ 
  1.0e-06 	 & 1.0e-02 	 & 40 & 632 	 & -0.058 & -0.020 & -0.027 & +0.183 \\ 
-\rowcolor{red}  1.0e-06 	 & 1.0e-03 	 & 40 & 234 	 & -0.062 & -0.023 & -0.030 & +0.398 \\ 
+
 \end{tabular}}
-\label{Tab::Incoherence}
+\label{Tab::1}
 \end{table} 
-\section{Discussion}
+\begin{table}
+\centering
+\caption{$\tau = [0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0] $ noise 0.3}
+\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1} = 1000$ & $ D_{\Omega_2} = 4.0 $ & $D_{\Omega_3} = 8.0 $ \\
+\hline
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 519 	 & +0.003 & +0.029 & +0.035 & +0.067 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 40 & 653 	 & -0.096 & +0.015 & +0.016 & +0.070 \\ 
+\rowcolor{red}  1.0e-04 	 & 1.0e-02 	 & 40 & 575 	 & -0.050 & -0.001 & +0.057 & +0.281 \\ 
+ 1.0e-05 	 & 1.0e+00 	 & 40 & 585 	 & -0.050 & -0.007 & +0.017 & +0.068 \\ 
+ 1.0e-05 	 & 1.0e-01 	 & 40 & 871 	 & -0.023 & +0.024 & +0.019 & +0.079 \\ 
+\rowcolor{red}  1.0e-05 	 & 1.0e-02 	 & 40 & 466 	 & -0.045 & +0.042 & +0.019 & +0.281 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 584 	 & -0.045 & +0.019 & +0.006 & +0.071 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 40 & 546 	 & +0.005 & +0.019 & -0.001 & +0.079 \\ 
+\rowcolor{red}  1.0e-06 	 & 1.0e-02 	 & 40 & 648 	 & -0.074 & -0.008 & +0.041 & +0.227 \\ 
+\end{tabular}}
+\label{Tab::1}
+\end{table} 
+
+
 
 
 In Tab. ?? we observe that the optimal relaxation parameters are found for $\alpha := \lbrace 1.e-4 1.e-5 1.e-6 \rbrace$ and $\beta := \lbrace 1.0 0.1 0.01 \rbrace$. This will be the region of interest for the relaxation parameters.
