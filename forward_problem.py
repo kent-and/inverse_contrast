@@ -136,7 +136,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             self.obs_file.read(self.ic, "%0.2f"%(self.t) )
 
             self.gradient = gradient 
-     
+            self.save = File( "Results-{}-{}-{}/observation.pvd".format( self.alpha, self.beta, self.noise) )
 
   
         def initial_conditions(self):
@@ -168,6 +168,10 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 if self.noise:
                    self.d.vector()[:]+=self.noise[self.next_tau].vector()[:]
                 
+
+                self.save << ( self.d , self.t)
+
+
                 Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U       
                 self.J += assemble((Ulin - self.d) ** 2 * self.dx) 
                 # Move on to next observation

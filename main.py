@@ -145,4 +145,12 @@ if __name__ == "__main__":
     if Z.save_control_values_file is not None:
         save_control_values(opt_ctrls, Z.save_control_values_file)
 
+    tape = get_working_tape()
+
+    from fenics_adjoint.solving import SolveBlock
+    s_blocks = [block for block in tape._blocks if isinstance(block, SolveBlock)]
+    states = [block.get_outputs()[0].saved_output for block in s_blocks]
+    out =        File("Results-{}-{}-{}/finalstate.pvd".format(Z.alpha,Z.beta, noise) )
+    for i in states : 
+        out << i
 

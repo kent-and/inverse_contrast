@@ -34,6 +34,7 @@ source ~larsmva/pyadjoint-brain-inversion-mod-fenics-2017.2.abel.intel.conf
 # Define what to do when job is finished (or crashes)
 cleanup "mkdir -p $HOME/Results"
 cleanup "cp -r $SCRATCH/slurm* $HOME" 
+cleanup "cp -r $SCRATCH/Res* $HOME/Results" 
 echo $PWD
 echo "SCRATCH is $SCRATCH"
 
