@@ -119,6 +119,8 @@ if __name__ == "__main__":
        noise = None
 
 
+    save = File( "Results-{}-{}-{}/observation.pvd".format( Z.alpha, Z.beta,Z.noise ) )
+
     if Z.generate_observations:
         ic = initial_condition(V, mesh_config)
         g = bc(g, V,tau,k, mesh_config)
@@ -126,7 +128,7 @@ if __name__ == "__main__":
         exit()
     else:
         g = bc_guess(g, Z.obs_file, tau, k, noise)
-        J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, noise=noise, gradient=Z.scale)
+        J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, noise=noise, gradient=Z.scale, save=save)
 
     ctrls = ([Control(D[i]) for i in range(1, 4)]
              + [Control(g_i) for g_i in g])
@@ -150,7 +152,7 @@ if __name__ == "__main__":
     from fenics_adjoint.solving import SolveBlock
     s_blocks = [block for block in tape._blocks if isinstance(block, SolveBlock)]
     states = [block.get_outputs()[0].saved_output for block in s_blocks]
-    out =        File("Results-{}-{}-{}/finalstate.pvd".format(Z.alpha,Z.beta, noise) )
+    out =        File("Results-{}-{}-{}/finalstate.pvd".format(Z.alpha,Z.beta, Z.noise) )
     for i in states : 
         out << i
 
