@@ -8,6 +8,8 @@
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
 
+\newcommand{\kam}[1]{\textcolor{blue}{#1}}
+
 \author{Lars Magnus Valnes, Sebastian K. Mitusch, Geir A. Ringstad, Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 
 
@@ -18,8 +20,7 @@
 \end{abstract}
 \section{Introduction}
 
-A novel pathway called the paravascular pathway was discoved in 2011~\cite{iliff2012paravascular} and later found to be particularly active during sleep~\cite{xie2013sleep}. 
-
+A novel pathway called the paravascular pathway was discoved in 2011~\cite{iliff2012paravascular} and later found to be particularly active during sleep~\cite{xie2013sleep}.  
 It has been proposed that this pathway plays an important role in the waste
 clearance of the brain. In particular, since the brain lack a lymphatic system, 
 which elsewhere in our body plays a crucial role in waste clearance, the system has been called the glymphatic system~\cite{jessen2015glymphatic}.  
@@ -46,8 +47,22 @@ that would explain the tracer distribution.
 
 
 
-\subsection*{Data}
-The data consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. Figure ~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2017glymphatic}.   
+\subsection*{MRI Data}
+\begin{figure}
+\includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
+\label{fig1} 
+\caption{Shows the percentage intensity increase from baseline at different observation times. }
+\end{figure}
+
+\begin{figure}
+\includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
+\label{fig2} 
+\caption{Shows the percentage intensity increase from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis.}
+\end{figure}
+Figure ~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2017glymphatic} for further information on the imaging procedure.   
+Our data (not all shown) consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
+Figure ~\ref{fig2} shows the slice selected for our computations. 
+The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. 
 
 
 
@@ -80,27 +95,9 @@ diffusion constant is assumed constant within the CSF, grey and
 white matter but each region may have different constants.  
 The $\alpha$ and $\beta$ parameters are regularization parameters 
 and $u_{obs}$ are observations at certain time-points. 
-\subsection*{Manufactured Solution}
-In order to verify our strategy and test the dependency of the
-regularization paramters, we perform a test case with a
-known solution.  
-The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
-\begin{equation}
-g(t)_{\partial \Omega_1} = 0.3 +0.167t - 0.007t\sp{2} \qquad  0 \leq t \leq 24.
-\label{EQ::DIRI}
-\end{equation}
-The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be 
-\begin{equation}
-D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
-\end{equation}  
-The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The forward simulation gave a total of 120 possible observation time points. These points 
-will be denoted as $\tau$.
-
-The mesh is patient-specific and was constructed by using the MRI of a patient diagnosed with iNPH. The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. (BrainMesh code accessibility ? ) CGAL[?] was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore a submesh was also constructed, see Fig. ??. 
-
 
 \section*{Implementation}
-The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The module dolfin adjoint [?] was used to compute the reduced functional, and the optimization used the scipy optimize library to minimize the functional using L-BFGS-B algorithm.   
+The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem via  using L-BFGS-B algorithm via scipy.   
 
 The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}, and for each timestep, the next observation was used as the Dirichlet boundary condition. The Dirichlet boundary condition was imposed on the external boundary for the domain $D_{\Omega_1}$. 
 
@@ -109,7 +106,7 @@ The times in the forward simulation do not always overlap with observations time
 \begin{equation}
 u_{linear} = \frac{\Delta t}{dt} U_prev + \frac{dt - \Delta t }{dt} U.
 \end{equation}
-Here $dt$ is forward timestep and $\Delta t$ is the difference between observation time and forward time. 
+Here $dt$ is forward timestep and $\Delta t$ is the difference between observation time and forward time. \kam{This has to be made clearer. Earlier we used $u_{obs}$ for observation. Also this also only applies if $t_i$ is close to the observations, right?} 
 The initial values of the optimization algorithm was chosen to be $1,1,1$. Furthermore, to obtain faster convergence in the optimization, the diffusion coefficients was scaled to have the same magnitude, i.e.  $D_{\Omega_1}$ was scaled, so that $D_{\Omega_1} = D\sp {s}_{\Omega_1}100$.     
 
 
@@ -119,8 +116,11 @@ The real data observations had observation times that had an unevenly distributi
 
 
 
-\section*{Non-linear relation}
-The MR images are provided by Oslo University Hospital Rikshospitalet and can be seen in Fig.??. The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. The tracer causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
+\subsection*{Contrast concentration - Image Intensity Relation}
+Below, we briefly describe the relationship between the imaging intensity 
+seen in Figures \ref{fig1} and \ref{fig2} and the underlying contrast 
+concentration. 
+The tracer causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
 \begin{equation}
 \frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}*C .
 \label{EQ::contrast}
@@ -178,34 +178,37 @@ f ( T_{1}\sp{c} ) = \frac{SI\sp{c}}{SI\sp{0}} f(T_{1}\sp{0})
 and we can then estimate concentration using Eq.\ref{EQ::contrast} if we know $T_{1}\sp{0}$. The $T_{1}\sp{0}$ was obtained using MRI.
 
 
- 
+\subsection{PDE constrained optimization algorithm} 
+
+Noen detaljer her om element methode, optimerings algoritme, prekondisjonering
+grid, osv. 
 
 
-The convergence of L-BFGS-B algorithm can be seen in Fig.??. 
-\begin{itemize}
-\item describe the imaging, shortly with ref to JCI  
-\item describe the abstract mathematical problem to be solved, ie. PDE constrained opt problem where we 
-address coefficients and bc  
-\item the details: finite element, reduced problem, BFGS,  
-\end{itemize}
+\subsection*{Manufactured Solution}
+In order to verify our strategy and test the dependency of the
+regularization paramters, we perform a test case with a
+known solution.  
+The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
+\begin{equation}
+g(t)_{\partial \Omega_1} = 0.3 +0.167t - 0.007t\sp{2} \qquad  0 \leq t \leq 24.
+\label{EQ::DIRI}
+\end{equation}
+The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be 
+\begin{equation}
+D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
+\end{equation}  
+The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The forward simulation gave a total of 120 possible observation time points. These points 
+will be denoted as $\tau$.
 
-\begin{figure}
-\includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
-\label{fig1} 
-\caption{Shows the percentage intensity increase from baseline at different observation times. }
-\end{figure}
-
-\begin{figure}
-\includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
-\label{fig1} 
-\caption{Shows the percentage intensity increase from baseline at different observation times in the area corresponding to the generated mesh that is marked red in the left panel.}
-\end{figure}
-
+The mesh is patient-specific and was constructed by using the MRI of a patient diagnosed with iNPH. The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. (BrainMesh code accessibility ? ) CGAL[?] was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore a submesh was also constructed, see Fig. ??. 
 \begin{figure}
 \includegraphics[width=0.3\textwidth]{mesh-eps-converted-to.pdf} 
-\label{fig1} 
+\label{figmesh} 
 \caption{Shows the mesh created from the baseline MR image with 3 domains. ( wrap ?? ) }
 \end{figure}
+
+
+
 
 
 \section{Results}
