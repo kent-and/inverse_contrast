@@ -169,7 +169,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                    self.d.vector()[:]+=self.noise[self.next_tau].vector()[:]
                 
                 if self.save:
-                   self.save << ( self.d , self.t)
+                   self.save << ( self.d ,self.tau[self.next_tau])
 
 
                 Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U       
