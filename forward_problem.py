@@ -162,7 +162,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
         def handle_observations(self,U, U_prev):
             Dt = ( self.t - self.tau[self.next_tau])  
            
-            if  round(self.t-self.dt,2) <= self.tau[self.next_tau] and self.tau[self.next_tau] < round(self.t,2)  : 
+            if  round(self.t-self.dt,2) < self.tau[self.next_tau] and self.tau[self.next_tau] <= round(self.t,2)  : 
             
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  
                 if self.noise:
