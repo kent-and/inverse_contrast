@@ -37,15 +37,17 @@ def bc(g, V,tau,k, mesh_config):
 
 
 def bc_guess(g, obs_file, tau, k,noise):
-    d = Function(g[0].function_space())
+    #d = Function(g[0].function_space())
+    
     dt = (tau[-1] -tau[0])/k
     obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
     next_tau = 1
     t = tau[0]
     for i in range(k):
         t += dt
-        obs_file.read(d,"%0.2f"%(tau[next_tau]))
-        g[i].vector()[:] = d.vector()[:]
+        obs_file.read(g[i],"%0.2f"%(tau[next_tau]))
+        #g[i].vector()[:] = d.vector()[:]
+
         if noise:
            g[i].vector()[:]+= noise[next_tau].vector()[:]
 
@@ -64,7 +66,6 @@ def iter_cb(m):
     ds = mesh_config["ds"]
     fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
     print("Functional-value: {} | {} ".format(iter_cnt, NumRF(m)) )
-    print("DirichletBC-Iter: {} | {}".format(iter_cnt, sum([assemble((fenics_m[i] - correct_g[i-3])**2*ds(1)) for i in range(3, len(fenics_m))])/sum([assemble(correct_g[i-3]**2*ds(1)) for i in range(3, len(fenics_m)) ]) ))
 
 
 if __name__ == "__main__":
@@ -78,9 +79,9 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=0.001, type=float)
     parser.add_argument('--noise', default=0.0, type=float)
     parser.add_argument('--tol', default=0.001, type=float)
-    parser.add_argument('--D', default=[1, 1, 1], type=float, nargs=3)
-    parser.add_argument('--scale', default=[100, 1, 1], type=float, nargs=3)
-    parser.add_argument('--mesh', default="mesh_invers_contrast.h5", type=str)
+    parser.add_argument('--D', default=[1,1, 1], type=float, nargs=2)
+    parser.add_argument('--scale', default=[100,1, 1], type=float, nargs=2)
+    parser.add_argument('--mesh', default="mesh2domain.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k",default=1, type=int)
     parser.add_argument("--K",default=0, type=int)
@@ -91,14 +92,16 @@ if __name__ == "__main__":
     parser.add_argument("--maxiter", default=1000, type=int)
     parser.add_argument("--dx", default=0.0, type=float) 
     parser.add_argument("--save",default=False, type=bool)
+    parser.add_argument("--T1map", default=None,type=str)
+    
     Z = parser.parse_args()
     print(Z)
     mesh_config = initialize_mesh(Z.mesh)
-
+    
     V = FunctionSpace(mesh_config["mesh"], "CG", 1)
 
     # Diffusion coefficients
-    D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1]), 3: Constant(Z.D[2])}
+    D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1]), 3 :Constant(Z.D[2]) }
 
     tau = Z.tau
     # Number timepoints
@@ -109,8 +112,7 @@ if __name__ == "__main__":
     # Boundary conditions
       
     g = [Function(V) for _ in range(k)]
-    correct_g = [Function(V) for _ in range(k)]
-    correct_g = bc(correct_g, V,tau,k, mesh_config)
+
     # Noise 
 
     if Z.noise!=0:
@@ -142,7 +144,7 @@ if __name__ == "__main__":
     Jhat.optimize()
 
     
-    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-1})
+    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-2})
 
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(
@@ -157,7 +159,8 @@ if __name__ == "__main__":
        from fenics_adjoint.solving import SolveBlock
        s_blocks = [block for block in tape._blocks if isinstance(block, SolveBlock)]
        states = [block.get_outputs()[0].saved_output for block in s_blocks]
-       out =        File("Results-{}-{}-{}-{}/finalstate.pvd".format(Z.alpha,Z.beta, Z.noise,k) )
-       for i in states : 
+       out =  File("Results-{}-{}-{}-{}/finalstate.pvd".format(Z.alpha,Z.beta, Z.noise,k) )
+
+       for i in states:
            out << i
 

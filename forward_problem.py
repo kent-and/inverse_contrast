@@ -12,7 +12,7 @@ def initialize_mesh(mesh_file): # Lars : Endret
     # Import mesh and subdomains
     mesh = Mesh()
 
-    hdf = HDF5File(mesh.mpi_comm(), "mesh_invers_contrast.h5", "r")
+    hdf = HDF5File(mesh.mpi_comm(), mesh_file, "r")
     hdf.read(mesh, "/mesh", False, annotate=False)
     subdomains = MeshFunction("size_t", mesh, mesh.topology().dim())
     hdf.read(subdomains, "/subdomains", annotate=False)
@@ -172,8 +172,11 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                    self.save << ( self.d ,self.tau[self.next_tau])
 
 
-                Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U       
-                self.J += assemble((Ulin - self.d) ** 2 * self.dx) 
+                Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U   
+
+    
+                self.J += assemble((Ulin - self.d) ** 2 * self.dx(2)) 
+                self.J += assemble((Ulin - self.d) ** 2 * self.dx(3)) 
                 # Move on to next observation
                 self.next_tau += 1
                 # Check if there is another observations in time step
