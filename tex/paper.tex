@@ -97,11 +97,7 @@ The $\alpha$ and $\beta$ parameters are regularization parameters
 and $u_{obs}$ are observations at certain time-points. 
 
 \section*{Implementation}
-
-
-
-
-The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm via scipy.   
+The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy.   
 
 The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}, and for each timestep, the next observation was used as the Dirichlet boundary condition. The Dirichlet boundary condition was imposed on the external boundary for the domain $D_{\Omega_1}$. 
 
@@ -148,7 +144,7 @@ with $T2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic r
 SI = M_{n} \sin \theta.
 \label{EQ::SI}
 \end{equation}
-In article [?], the term $M_n$ is defined as the magnetization for the n-echo 
+In article  \cite{MPRAGE}, the term $M_n$ is defined as the magnetization for the n-echo 
 \begin{equation}
 M_{n} = M_{0}  \left[ (1-\beta)\frac{(1-(\alpha \beta)\sp{n-1} }{1-\alpha\beta} + (\alpha \beta)\sp{n-1}(1-\gamma) + \gamma ( \alpha \beta)\sp{n-1} \frac{M_{e}}{M_{0}}  \right]   
 \end{equation}
@@ -174,19 +170,50 @@ Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the 
 We define that  
 \begin{equation}
 f(T_1) = M_{n}/M_{0} ,
-\label{FIG::F}
+\label{Eq::F}
 \end{equation}
 which gives the following relation 
 \begin{equation}
 \frac{f(T_{1}\sp{c} ) }{f(T_{1}\sp{0})}  = \frac{SI\sp{c}}{SI\sp{0}} 
 \end{equation}
+The difference in $S_0$ between observation times were adjusted for in \citep{eidevalnes}.  
 Thus we can express the $T_1$ change due to contrast as 
 \begin{equation}
 f ( T_{1}\sp{c} ) = \frac{SI\sp{c}}{SI\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
-and we can then estimate concentration using Eq.\ref{EQ::contrast} if we know $T_{1}\sp{0}$. The $T_{1}\sp{0}$ was obtained using MRI.
+and we can then estimate concentration using Eq.\ref{EQ::contrast} if we know $T_{1}\sp{0}$. The $T_{1}\sp{0}$ values were obtained by T1 mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This makes it possible to also take into account patients specific characteristic, such as tissue damage. Tissue damage, such as edema, will cause the intensity in the MRI to differ from healthy white matter tissue. Indicating that the tissue composition in the edema is different, and subsequently have different T1 relaxation times, which will give a wrong estimation of the MRI contrast. 
+
+
+
+
+In \cite{XU2011827} the concentration was computed {\color{red} not used, due to calibration requirements. But could be used.}. 
+
+In [nicholsen ], it is shown that the macroscopic diffusion in the brain can be considered a hindered diffusion with an apparent diffusion coefficient. This means that the diffusion parameters in Eq\ref{Eq::PDE}.... . The apparent diffusion coefficient  $D_{adc}$ is defined as 
+\begin{equation}
+D = D \lambda\sp{2} fill in subscript,
+\end{equation} 
+with $\lambda$ defined as tourtosity of the brain and $D_{free}$ the free diffusion coefficients.  The tourtosity is a structural parameter, ...
+
+
+In the acquired data, the MPRAGE had a high signal to noise ratio and the T1 mapping had low signal in the CSF. This made it difficult to estimate the concentration in the CSF compartment. Thus an additional mesh without the CSF compartment was constructed, see Fig. ??.     
+
+
+Thus the optimized parameters will be compared with the apparent diffusion coefficient obtained form DTI cite DTI. The DTI measure the apparent diffusion coefficient 
+Therefore the Stokes-Einstein relation [cite] can be used to estimate the apparent diffusion coefficient for whit and grey matter. 
+ 
+
+  
+
+
+
+
 
 \kam{check that all symbols are explained here}
+
+
+
+
+
 
 \subsection{PDE constrained optimization algorithm} 
 
