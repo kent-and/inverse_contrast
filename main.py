@@ -79,8 +79,8 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=0.001, type=float)
     parser.add_argument('--noise', default=0.0, type=float)
     parser.add_argument('--tol', default=0.001, type=float)
-    parser.add_argument('--D', default=[1,1, 1], type=float, nargs=2)
-    parser.add_argument('--scale', default=[100,1, 1], type=float, nargs=2)
+    parser.add_argument('--D', default=[1, 1], type=float, nargs=2)
+    parser.add_argument('--scale', default=[1, 1], type=float, nargs=2)
     parser.add_argument('--mesh', default="mesh2domain.h5", type=str)
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k",default=1, type=int)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     V = FunctionSpace(mesh_config["mesh"], "CG", 1)
 
     # Diffusion coefficients
-    D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1]), 3 :Constant(Z.D[2]) }
+    D = {1: Constant(Z.D[0]), 2: Constant(Z.D[1])}
 
     tau = Z.tau
     # Number timepoints
@@ -135,7 +135,7 @@ if __name__ == "__main__":
         g = bc_guess(g, Z.obs_file, tau, k, noise)
         J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, noise=noise, gradient=Z.scale, save=save)
 
-    ctrls = ([Control(D[i]) for i in range(1, 4)]
+    ctrls = ([Control(D[i]) for i in range(1, 3)]
              + [Control(g_i) for g_i in g])
 
     print("J = ", J)

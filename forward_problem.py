@@ -42,13 +42,14 @@ def forward_problem(context):
     dx = context.dx
 
     # Define bilinear form, handling each subdomain 1, 2, and 3 in separate integrals.
-    a = u * v * dx + sum([dt * context.scale(j-1) * D[j] * inner(grad(v), grad(u)) * dx(j) for j in range(1, 4)])
+    a = u * v * dx + sum([dt * context.scale(j-1) * D[j] * inner(grad(v), grad(u)) * dx(j) for j in range(1, 3)])
     # Define linear form.
     L = U_prev * v * dx
 
     A = assemble(a)
-    bc = DirichletBC(V, 0, context.boundaries, 1)
-    bc.apply(A)
+    bcs = [DirichletBC(V, 0, context.boundaries, 1),DirichletBC(V, 0, context.boundaries, 2)]
+    for bc in bcs: 
+        bc.apply(A)
 
     # Define solver. Use GMRES iterative method with AMG preconditioner.
     solver = LinearSolver(mpi_comm_self(), "gmres")
@@ -175,8 +176,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U   
 
     
-                self.J += assemble((Ulin - self.d) ** 2 * self.dx(2)) 
-                self.J += assemble((Ulin - self.d) ** 2 * self.dx(3)) 
+                self.J += assemble((Ulin - self.d) ** 2 * self.dx) 
                 # Move on to next observation
                 self.next_tau += 1
                 # Check if there is another observations in time step
@@ -202,13 +202,13 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                 weight = 1.0
 
             # Add regularisation
-            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds(1) ) * self.alpha
+            self.J += 1 / 2 * weight * self.dt * assemble(self.g ** 2 * self.ds ) * self.alpha
             if self.current_g_index > 1:
                 g_prev = self.g_list[self.current_g_index - 2]
-                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds(1)) * self.beta
+                self.J += 1 / 2 * weight * self.dt * assemble(((self.g - g_prev) / self.dt) ** 2 * self.ds) * self.beta
 
         def next_bc(self):          
-            return [DirichletBC(self.V, self.g, self.boundaries, 1)]
+            return [DirichletBC(self.V, self.g, self.boundaries, 1),DirichletBC(self.V, self.g, self.boundaries, 2)]
 
         def return_value(self):
             self.obs_file.close()
