@@ -39,6 +39,10 @@ def bc(g, V,tau,k, mesh_config):
 
 def contains_observation(t,tau,dt,next_tau):
  
+    if  len(tau) <= next_tau:
+        return next_tau
+
+
     if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):  
        next_tau = contains_observation(t,tau,dt,next_tau+1)
 
@@ -61,7 +65,6 @@ def bc_guess(g, obs_file, tau, k,noise):
 
         next_tau = contains_observation(t,tau,dt,next_tau)
 
-
     return g
 
 
@@ -70,7 +73,11 @@ def iter_cb(m):
     global iter_cnt
     iter_cnt += 1
     print("Coeffs-Iter: {} | Constant({}) | Constant({}) ".format(iter_cnt, float(m[0]), float(m[1])))
-
+    from pyadjoint.reduced_functional_numpy import ReducedFunctionalNumPy
+    NumRF = ReducedFunctionalNumPy(Jhat)
+    #ds = mesh_config["ds"]
+    #fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
+    print("Functional-value: {} | {} ".format(iter_cnt, NumRF(m)) )
 
 
 if __name__ == "__main__":
@@ -90,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument("--tau", nargs="+", type=float)
     parser.add_argument("--k",default=1, type=int)
     parser.add_argument("--K",default=0, type=int)
-    parser.add_argument("--obs-file", default="U.xdmf", type=str)
+    parser.add_argument("--obs-file", default="Cestimated.xdmf", type=str)
     parser.add_argument("--load-control-values-file", default=None, type=str)
     parser.add_argument("--save-control-values-file", default=None, type=str)
     parser.add_argument("--generate-observations", default=False, type=bool)

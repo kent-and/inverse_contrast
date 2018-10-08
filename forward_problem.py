@@ -54,13 +54,13 @@ def forward_problem(context):
     # Define solver. Use GMRES iterative method with AMG preconditioner.
     solver = LinearSolver(mpi_comm_self(), "gmres")
     solver.set_operator(A)
-    #solver.parameters['absolute_tolerance'] = 10**-6  
+    solver.parameters['absolute_tolerance'] = 10**-6  
 
     #solver.parameters['maximum_iterations'] = 100  
     solver.parameters['monitor_convergence'] = True  
     solver.parameters['nonzero_initial_guess'] = False # this may be used to speed up  
 
-    #solver.parameters['relative_tolerance'] = 10**-6
+    solver.parameters['relative_tolerance'] = 10**-6
     #solver.parameters['report'] = True 
     while not context.should_stop():
         U_prev.assign(U,annotate =True)
@@ -164,7 +164,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
             Dt = ( self.t - self.tau[self.next_tau])  
            
             if  round(self.t-self.dt,2) < self.tau[self.next_tau] and self.tau[self.next_tau] <= round(self.t,2)  : 
-            
+                print("Observation :", self.tau[self.next_tau] , self.t)
                 self.obs_file.read(self.d, "%0.2f"%(self.tau[self.next_tau]))  
                 if self.noise:
                    self.d.vector()[:]+=self.noise[self.next_tau].vector()[:]
