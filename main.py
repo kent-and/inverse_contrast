@@ -37,7 +37,7 @@ def bc(g, V,tau,k, mesh_config):
 
 
 def bc_guess(g, obs_file, tau, k,noise):
-    #d = Function(g[0].function_space())
+    d = Function(g[0].function_space())
     
     dt = (tau[-1] -tau[0])/k
     obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
@@ -45,11 +45,8 @@ def bc_guess(g, obs_file, tau, k,noise):
     t = tau[0]
     for i in range(k):
         t += dt
-        obs_file.read(g[i],"%0.2f"%(tau[next_tau]))
-        #g[i].vector()[:] = d.vector()[:]
-
-        if noise:
-           g[i].vector()[:]+= noise[next_tau].vector()[:]
+        obs_file.read(d,"%0.2f"%(tau[next_tau]))
+        g[i].vector()[:] = d.vector()[:]
 
         if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):
             next_tau += 1
