@@ -57,8 +57,8 @@ def forward_problem(context):
     #solver.parameters['absolute_tolerance'] = 10**-6  
 
     #solver.parameters['maximum_iterations'] = 100  
-    #solver.parameters['monitor_convergence'] = True  
-    #solver.parameters['nonzero_initial_guess'] = False # this may be used to speed up  
+    solver.parameters['monitor_convergence'] = True  
+    solver.parameters['nonzero_initial_guess'] = False # this may be used to speed up  
 
     #solver.parameters['relative_tolerance'] = 10**-6
     #solver.parameters['report'] = True 

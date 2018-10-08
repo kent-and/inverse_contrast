@@ -36,8 +36,16 @@ def bc(g, V,tau,k, mesh_config):
     return g
 
 
+
+def contains_observation(t,tau,dt,next_tau):
+ 
+    if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):  
+       next_tau = contains_observation(t,tau,dt,next_tau+1)
+
+    return next_tau
+
 def bc_guess(g, obs_file, tau, k,noise):
-    #d = Function(g[0].function_space())
+    #d = Function(g[0].function_space()) # Needs more presentable code
     
     dt = (tau[-1] -tau[0])/k
     obs_file = HDF5File(mpi_comm_world(), obs_file, 'r')
@@ -51,8 +59,9 @@ def bc_guess(g, obs_file, tau, k,noise):
         if noise:
            g[i].vector()[:]+= noise[next_tau].vector()[:]
 
-        if abs(t - tau[next_tau]) < abs(t + dt - tau[next_tau]):
-            next_tau += 1
+        next_tau = contains_observation(t,tau,dt,next_tau)
+
+
     return g
 
 
@@ -60,12 +69,8 @@ iter_cnt = 0
 def iter_cb(m):
     global iter_cnt
     iter_cnt += 1
-    print("Coeffs-Iter: {} | Constant({}) | Constant({}) | Constant({})".format(iter_cnt, float(m[0]), float(m[1]), float(m[2])))
-    from pyadjoint.reduced_functional_numpy import ReducedFunctionalNumPy
-    NumRF = ReducedFunctionalNumPy(Jhat)
-    ds = mesh_config["ds"]
-    fenics_m = NumRF.set_local([control.copy_data() for control in Jhat.controls], m)
-    print("Functional-value: {} | {} ".format(iter_cnt, NumRF(m)) )
+    print("Coeffs-Iter: {} | Constant({}) | Constant({}) ".format(iter_cnt, float(m[0]), float(m[1])))
+
 
 
 if __name__ == "__main__":
@@ -144,7 +149,7 @@ if __name__ == "__main__":
     Jhat.optimize()
 
     
-    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-2})
+    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-1})
 
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(
