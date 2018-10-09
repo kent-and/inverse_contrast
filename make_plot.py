@@ -69,7 +69,9 @@ def read_slurm(filename):
              if "Functional-value" in line:
                  array[-1][0]= float(line.split("|")[1])
              if "DirichletBC-Iter" in line:
-                 array[-1][4]= float(line.split("|")[1])
+                 print( line.split("|")[-1] )
+                 array[-1][4]= float(line.split("|")[-1])
+
              elif "Namespace" in line:
                  legend[0] =float(line[line.rfind("alpha")+6:line.find("," ,line.find("alpha"))])
                  legend[1] =float(line[line.rfind("beta")+5:line.find("," ,line.find("beta"))])
@@ -79,6 +81,17 @@ def read_slurm(filename):
                  
     return np.array(array),legend
 
+
+def half(legend):
+    return legend[3]==[4.8, 9.6, 14.4, 19.2, 24.0]
+  
+
+
+def hole2(legend):
+    return legend[3]==[0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0]
+
+def double(legend):
+    return legend[3]==[1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4, 21.6, 22.8, 24.0]
 
 def regular(legend):
     return legend[3]==[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]
@@ -110,14 +123,14 @@ if __name__=='__main__':
         
 
         for no,k in enumerate(["Functional","CSF","Grey","White","DirichletBC-Iter" ]):
-            print no
             for filename in sorted(os.listdir(sys.argv[1])):
                if filename.endswith(".out"):
+                  print  filename
                   array,legend = read_slurm(sys.argv[1]+"/"+filename)
                   
-                  if array.all() and legend[2]==40 and legend[4]==0.0 : #and legend and range_of_interrest(legend) and legend[2]<=11 and legend[2]>5 and regular(legend): 
-                    print legend
-                    print array, filename
+                  if array.all() and half(legend) and legend[4]==0.6: #and legend and range_of_interrest(legend) and legend[2]<=11 and legend[2]>5 and regular(legend): 
+                    #print legend
+                    #print  filename
                     if no==0:
                        plt.loglog(array[:,no],label=r"$\alpha=%s,\beta=%s,k=%s,\tau=%s$"%(legend[0],legend[1], legend[2],len(legend[3])) )
                        store_last_val(array,legend)
