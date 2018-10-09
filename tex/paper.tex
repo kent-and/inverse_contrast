@@ -10,7 +10,8 @@
 
 \newcommand{\kam}[1]{\textcolor{blue}{#1}}
 
-\author{Lars Magnus Valnes, Sebastian K. Mitusch, Geir A. Ringstad, Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
+\author{Lars Magnus Valnes, Sebastian K. Mitusch, Geir A. Ringstad, \\ 
+Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 
 
 \begin{document}
@@ -25,11 +26,12 @@ It has been proposed that this pathway plays an important role in the waste
 clearance of the brain. In particular, since the brain lack a lymphatic system, 
 which elsewhere in our body plays a crucial role in waste clearance, the system has been called the glymphatic system~\cite{jessen2015glymphatic}.  
 The glymphatic system remains controversial and modeling attempts
-has so far mostly failed to explain the biomechanics of the system~\cite{holter2017interstitial, smith2017glymphatic}. A proper biomechanical 
+has so far mostly failed to explain the biomechanics of the system~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}\kam{Lars: vi trenger flere her}. A proper biomechanical 
 understanding of the pathway has significant potential because
 dementia such as Alzheimer´s and Parkinson´s diseases are
 associated with accumulation of metabolic waste such as
 amyloid-beta and CSF-tau.  
+
 In \cite{ringstad2018brain} brainwide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain wide distribution by diffusion alone was deemed unlikely by the authors (some of which are part 
 of this study as well). The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
 55 hours using the error function which is valid for planar diffusion. However, 
@@ -39,6 +41,17 @@ a more rigorous modeling attempt is warrented. Complicating factors
 are however that the contrast in the surrounding CSF is heterogenous
 and changes significantly during the 24 hours of the investigations. 
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}.  
+
+The pioneering works of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
+that diffusion was a governing transport mechanism in the brain and estimated to be on the order
+of XXX. This is confirmed with DTI where values of young and healthy are typically around XXX
+while values in dementia typically are XXX \kam{Geir vet du dette?}. Of course diffusion coefficient 
+measured by DTI at a time-scale of XXX \kam{tall her} may not be representative for the process on a
+longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vasculature (mostly 
+the capillary network) occupy around 3\% of the brain volume and the paravascular network is bound to be substatantially
+smaller potentially render it invisible for the DTI investigation while still effective on longer time scales.   
+
+
 Our purpose in this paper is to attempt a more rigorous methodology 
 for assessing the apparent diffusion process. To this end we employ
 adjoint methods to determine the apparent diffusion coefficient 
@@ -67,9 +80,9 @@ The software Freesurfer was used to segment and align each of the observations, 
 
 
 \subsection*{Mathematical Model}
-In order to assess whether the contrast distribution shown 
-in Figure \ref{fig1} is governed by a diffusion process we
-aim to solve a PDE constrained optimization problem where
+In order to estimate the apparent diffusion coefficient involved in the contrast transportation shown 
+in Figure \ref{fig1} we assume that the process is governed by a diffusion equation and  
+solve a PDE constrained optimization problem where
 the contrast distribution, boundary conditions, and apparent
 diffusion coefficient are solved for by optimizing with
 respect to the observed contrast distribution. 
