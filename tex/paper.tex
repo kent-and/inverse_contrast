@@ -198,9 +198,11 @@ In \cite{sykova2008diffusion}, it was shown that the macroscopic diffusion in th
 In the acquired data, the MPRAGE had a high signal to noise ratio and the T1 map had low signal in the CSF. This made it difficult to estimate the concentration in the CSF compartment. Thus an additional mesh without the CSF compartment was constructed, see Fig. \ref{figmesh}.     
 
 \subsection{DTI}
-The validation of the results from the MRI data can be done using diffusion tensor imaging (DTI). Diffusion tensor imaging is a MRI-sequence that is used to obtain the apparent diffusion coefficients of water in the brain. {\color{red} mer on DTI? } 
+The validation of the results from the MRI data can be done using diffusion tensor imaging (DTI). Diffusion tensor imaging is a MRI-sequence that is used to obtain the apparent diffusion coefficients of water in the brain.  {\color{red} mer on DTI? } 
 
-The diffusivity of the Gadovist (600 Da) is currently not known {\colro{red} Geir vet dere?}, thus the diffusion of (Navn Gd-DPTA (550 Da)  will be used as reference. The free diffusion coefficient for Gd-DPTA  3.8e-5$\mathrm{mm\sp{2}/s}$ , and obtained from [cite]. {\color{red} discussion om hvorfor eller nevne Stoke Einstein her?}
+
+
+The diffusivity of the Gadovist (600 Da cite?) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da cite ?). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA  3.8e-5$\mathrm{mm\sp{2}/s}$ was obtained from [cite].
 
 
 The fractional anisotropy is defined as 
@@ -255,7 +257,7 @@ D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} 
 The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The manufactured forward computation gave a total of 120 possible observation time points. These points 
 will be denoted as $t_i$.
 
-The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. (BrainMesh code accessibility {\color{red} not fully tested}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.  
+The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. The module BrainMesh (currently in testing) (BrainMesh code accessibility {\color{red} kan ta med eller bare si CGAL}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
@@ -263,7 +265,7 @@ The mesh construction was patient-specific and was constructed by using the MRI 
 \caption{A) Shows the mesh created from the baseline MR image with 3 domains. B) Shows the mesh created from the baseline MR image with 2 domains.  }
 \label{Fig::Mesh}
 \end{figure}
-The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices.
+The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. The dimension of the mesh coordiantes are $\mathrm{mm}$.
 
 
 
@@ -315,7 +317,10 @@ The estimation of tracer concentration proved difficult in the CSF compartment. 
 
 
 \subsection*{DTI comparison}
-The median diffusion coefficient in the DTI was estimated to be respectively in white and grey matter to be 8.7e-4 $\mathrm{mm\sp{2}/s}$ and  1.0e-3 $\mathrm{mm\sp{2}/s}$. This is an increase from the reported values in [insert citation] of XX and XX.  
+The median diffusion coefficient in the DTI was estimated to be respectively in white and grey matter to be 8.7e-4 $\mathrm{mm\sp{2}/s}$ and  1.0e-3 $\mathrm{mm\sp{2}/s}$. %This corresponds to 3.1 $\mathrm{mm\sp{2}/h}$ and  3.6 $\mathrm{mm\sp{2}/h}$. 
+The self-diffusivity of water have been estimated to be about  3.0e-3$\mathrm{mm\sp{2}/s}$ at 37\sp{o}C.% This corresponds to 10.8 $\mathrm{mm\sp{2}/h}$ and  $\mathrm{mm\sp{2}/h}$. 
+
+This is an increase from the reported values in [insert citation] of XX and XX.  
 
 
 \section{Discussion}
