@@ -46,6 +46,15 @@ def forward_problem(context):
     # Define solver. Use GMRES iterative method with AMG preconditioner.
     solver = LinearSolver(mpi_comm_self(), *context.linear_solver_args)
     solver.set_operator(A)
+    solver.parameters['absolute_tolerance'] = 10**-6  
+
+    solver.parameters['maximum_iterations'] = 100  
+    solver.parameters['monitor_convergence'] = True  
+    solver.parameters['nonzero_initial_guess'] = False # this may be used to speed up  
+
+    solver.parameters['relative_tolerance'] = 10**-6
+    solver.parameters['report'] = True  
+
 
     while not context.should_stop():
         U_prev.assign(U)
@@ -57,8 +66,14 @@ def forward_problem(context):
         A.bcs = [bc]
         bc.apply(b)
 
+        print ( "b.norm ", b.norm("l2"))
+        print ("A * u ", (A*U.vector()).norm("l2"))
+ 
+
         # Solve linear system for this timestep
         solver.solve(U.vector(), b)
+
+       
 
         context.handle_solution(U)
 
