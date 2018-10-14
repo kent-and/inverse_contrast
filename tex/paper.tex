@@ -19,13 +19,21 @@ Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 \maketitle
 
 \begin{abstract}
+bla bla 
 \end{abstract}
 \section{Introduction}
 
-A novel pathway called the paravascular pathway was discoved in 2011~\cite{iliff2012paravascular} and later found to be particularly active during sleep~\cite{xie2013sleep}.  
-It has been proposed that this pathway plays an important role in the waste
-clearance of the brain. In particular, since the brain lack a lymphatic system, 
-which elsewhere in our body plays a crucial role in waste clearance, the system has been called the glymphatic system~\cite{jessen2015glymphatic}.  
+A novel pathway of the brain's metabolism system called the paravascular pathway, because it runs in parallel with 
+vasculature system in a surrounding compartment,  
+was discoved in 2011~\cite{iliff2012paravascular}. 
+%Later it was found that this system is particularly active during sleep~\cite{xie2013sleep}.  
+It has been proposed that this pathway plays an important role in the clearance of waste
+from the brain and hereby a malfunction of this system is linked to  the development of dementia such as Alzheimer's and Parkinson's diseases. That is, 
+the lymphatic system plays a crucial role in waste clearance in the rest of our body, but there are no lymph vessels inside
+the brain. As such, the metabolic process of the brain is not well understood and this is surprising since the brain is a very 
+energy demanding organ (about 10 times as demanding as the average organ). The circulatory system of the paravascular pathway 
+has therefore been named the glymphatic system~\cite{jessen2015glymphatic} as it has a similar role as the well-known lymphatic system and because the glia cells 
+are crucial in this system.  
 The glymphatic system remains controversial and modeling attempts
 has so far mostly failed to explain the biomechanics of the system~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}\kam{Lars: vi trenger flere her}. A proper biomechanical 
 understanding of the pathway has significant potential because
@@ -33,13 +41,13 @@ dementia such as Alzheimer´s and Parkinson´s diseases are
 associated with accumulation of metabolic waste such as
 amyloid-beta and CSF-tau.  
 
-In \cite{ringstad2018brain} brainwide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain wide distribution by diffusion alone was deemed unlikely by the authors (some of which are part 
+In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors (some of which are part 
 of this study as well). The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
 55 hours using the error function which is valid for planar diffusion. However, 
 the surface of the brain is folded and is around five times larger than 
 a corresponding surface of a ball with the same volume. Hence, 
-a more rigorous modeling attempt is warrented. Complicating factors
-are however that the contrast in the surrounding CSF is heterogenous
+a more rigorous modeling attempt is warrented. A complicating factor
+is however that the contrast in the surrounding CSF is heterogenous
 and changes significantly during the 24 hours of the investigations. 
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}.  
 
@@ -48,45 +56,49 @@ that diffusion was a governing transport mechanism in the brain and estimated to
 of XXX. This is confirmed with DTI where values of young and healthy are typically around XXX
 while values in dementia typically are XXX \kam{Geir vet du dette?}. Of course diffusion coefficient 
 measured by DTI at a time-scale of XXX \kam{tall her} may not be representative for the process on a
-longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vasculature (mostly 
-the capillary network) occupy around 3\% of the brain volume and the paravascular network is bound to be substatantially
-smaller potentially render it invisible for the DTI investigation while still effective on longer time scales.   
+longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vasculature  occupy around 3\% of the brain volume 
+and the paravascular network is substatantially smaller potentially render it invisible at the short time-scales of a DTI investigation 
+while it may still be effective on longer time scales.   
 
 
 Our purpose in this paper is to attempt a more rigorous methodology 
-for assessing the apparent diffusion process. To this end we employ
-adjoint methods to determine the apparent diffusion coefficient 
-that would explain the tracer distribution.  
-  
+for assessing the apparent diffusion process where
+the complex geometry of the brain is taken into account. The approach 
+we will take is to solve a PDE constrained optimization problem 
+via adjoint methods. As such we need to assess the sensitivity of
+the approach with respect important parameters such as to regularization parameters, noise levels, 
+time resolution to determine whether this approach is a viable method
+to obtain parameters involved time-scales beyond those of the MRI aquisition.     
 
 
 
 \subsection*{MRI Data}
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
-\label{fig1} 
 \caption{Shows the percentage intensity increase from baseline at different observation times. }
+\label{fig1} 
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
-\label{fig2} 
 \caption{Shows the percentage intensity increase from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis.}
+\label{fig2} 
 \end{figure}
-Figure ~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
+Figure~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
 Our data (not all shown) consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
-Figure ~\ref{fig2} shows the slice selected for our computations. 
+Figure~\ref{fig2} shows the slice selected for our computations. 
 The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. 
 
 
 
 \subsection*{Mathematical Model}
 In order to estimate the apparent diffusion coefficient involved in the contrast transportation shown 
-in Figure \ref{fig1} we assume that the process is governed by a diffusion equation and  
+in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation and  
 solve a PDE constrained optimization problem where
 the contrast distribution, boundary conditions, and apparent
 diffusion coefficient are solved for by optimizing with
-respect to the observed contrast distribution. 
+respect to the observed contrast distribution. As such, enhanced transportation because of effects such as
+dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI.  
 The objective function was defined as 
 \begin{equation}
 \min_{u,g} F = \quad \sum\limits_i\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)| \mathrm{d}\Omega + \frac{\alpha}{2} \int\limits_{0}\sp{T} || g ||_{L\sp{2}(\partial\Omega)} \mathrm{d}t + \frac{\beta}{2} \int\limits_{0}\sp{T} || \dot{g} ||_{L\sp{2}(\partial\Omega)}\mathrm{d}t 
@@ -100,9 +112,7 @@ u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right)
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
-with the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$.
-
-Here $u$ is the contrast distribution, $D_i$ is the apparent diffusion 
+Here, $u$ is the contrast distribution, $D_i$ is the apparent diffusion 
 coefficient, and $g$ is the boundary condition. Furthermore,  
 the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$. The apparent
 diffusion constant is assumed constant within the CSF, grey and 
@@ -111,28 +121,29 @@ The $\alpha$ and $\beta$ parameters are regularization parameters
 and $u_{obs}$ are observations at certain time-points. 
 
 \section*{Implementation}
-The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and bilinear matrix stored in the solver. {\color{red} why not amg}  
-The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $L\sp{inf}$ norm of the project gradient was less than $gtol =1.0e-1$.
+\kam{Lars, sometimes past tense is used sometimes present tense.}
+The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and bilinear\kam{a matrix is always bilinear} matrix stored in the solver. {\color{red} why not amg}  
+The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $L\sp{\infty}$ norm of the project gradient was less than $gtol =1.0e-1$. \kam{More info needed gtol not defined. }
 
-The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}, and for each timestep, the next observation was used as the Dirichlet boundary condition. The Dirichlet boundary condition was imposed on the external boundary for the domain $D_{\Omega_1}$. 
+The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}, and for each timestep, the next observation was used as the Dirichlet boundary condition \kam{is this true? why not use \eqref{observations:interpolation} }. 
+The Dirichlet boundary condition was imposed on the external boundary for the domain $D_{\Omega_1}$. 
 
-Each observations $u_{obs}$ have a fixed time-point $t_i$, these time-points may not overlap with the time discretization in the forward problem. Therefore, after each time step $dt$ in Eq\ref{Eq::PDE}, it was checked if the time step contained the next observation. If it did, then a linear interpolation of the current solution $U$ and previous solution $U(t-dt)$ was used approximate the solution corresponding to $t_i$. The linear interpolation was given as  
+Each observations $u_{obs}$ have a fixed time-point $t_i$, these time-points may not overlap with the time discretization in the forward problem. Therefore, after each time step $dt$ in Eq\ref{Eq::PDE}, it was checked if the time step contained the next observation. If it did, then a linear interpolation of the current solution $u_{obs}(t_i)$ and previous solution $u_{obs}(t_{i-1})$ was used approximate the solution corresponding to $t_i$. The linear interpolation was given as  
 \begin{equation}
-U_{lin}(t) = \frac{\Delta t}{dt} U(t-dt) + \frac{dt - \Delta t }{dt} U(t), \quad t \in \lbrace t-dt, t \rbrace
+\label{observation:interpolation}
+u_{obs}(t) = \frac{\Delta t}{dt} u_{obs}(t_i) + \frac{dt - \Delta t }{dt} u_{obs}(t_{i-1}), \quad t \in \lbrace t-dt, t \rbrace
 \end{equation}
-with $\Delta t = t-t_i $
+with $\Delta t = t-t_i $.  \kam{Check this formula} 
 
-
- \kam{This has to be made clearer. Earlier we used $u_{obs}$ for observation. Also this also only applies if $t_i$ is close to the observations, right?} 
-
-The initial values of the optimization algorithm was chosen to be $1,1,1$. Furthermore, to obtain faster convergence in the optimization, the diffusion coefficients was scaled to have the same magnitude, i.e. $D_{\Omega_1} = D\sp {s}_{\Omega_1}100$.  
-
+The initial values of the diffusion coefficients in the optimization algorithm $(D_{CSF}, D_{GM}, D_{WM}) = (1000, 1, 1)$. 
 The noise susceptibility was tested by adding an uniform distribution noise term to the observations. The noise term was constructed using numpy.random and adjusted so that noise range becomes $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude. 
 
 \subsection*{Contrast concentration - Image Intensity Relation}
 Below, we briefly describe the relationship between the imaging intensity 
 seen in Figures \ref{fig1} and \ref{fig2} and the underlying contrast 
-concentration. 
+concentration. We remark that we use a notation common in medical literature and 
+here two letter symbols are common. Hence, below we will use two letter symbols such 
+as $TE$ and $SI$ to keep the notation consistent the presentation of (reference XXXX).   
 The tracer causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
 \begin{equation}
 \frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}C .
@@ -143,7 +154,8 @@ The superscripts indicating with contrast and without contrast and $r_1$ as the 
 SI = M_{n} \sin \theta e\sp{ - TE/T_2\sp{*} },
 \label{EQ::SI_T2}
 \end{equation}
-with  $TE$ and $\theta$ respectively denoting the echo time and the flip angle. Also $T2\sp{*}$ is transverse magnetization caused by a combination of spin-spin relaxation and magnetic field inhomogeneity. It is defined as 
+with  $TE$ and $\theta$ respectively denoting the echo time and the flip angle, and $M_{n}$ the magnetization for the n-echo described below. 
+Also $T2\sp{*}$ is transverse magnetization caused by a combination of spin-spin relaxation and magnetic field inhomogeneity. It is defined as 
 \begin{equation}
 \frac{1}{T_2\sp{*}} = \frac{1}{T_2} + \gamma \Delta B_{in} ,
 \end{equation}
@@ -198,10 +210,10 @@ In \cite{sykova2008diffusion}, it was shown that the macroscopic diffusion in th
 In the acquired data, the MPRAGE had a high signal to noise ratio and the T1 map had low signal in the CSF. This made it difficult to estimate the concentration in the CSF compartment. Thus an additional mesh without the CSF compartment was constructed, see Fig. \ref{figmesh}.     
 
 \subsection{DTI}
-The validation of the results from the MRI data can be done using diffusion tensor imaging (DTI). Diffusion tensor imaging is a MRI-sequence that is used to obtain the apparent diffusion coefficients of water in the brain.  {\color{red} mer on DTI? } 
-
-
-
+In addition to the T1 and T2 weighted sequences described above we have also obtained diffusion tensor imaging (DTI) to assess the apparent diffusion 
+coefficients on short time-scales. Images are shown in Figure~\ref{FIG:DTI} where the larges diffusion coefficient (shown in 
+red in the middle figure) is shown to be around 0.001 mm$^2$/s. We remark that we have not included possible anisotropy, shown in 
+the right-most image in Figure~\ref{FIG:DTI} and that these images shows the apparent diffusion coefficient for free water molecules (18 Da).      
 The diffusivity of the Gadovist (600 Da cite?) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da cite ?). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA  3.8e-5$\mathrm{mm\sp{2}/s}$ was obtained from [cite].
 
 
@@ -221,10 +233,6 @@ In these equations $\lambda_i$ denotes the eigenvalues of the diffusion tensor.
 \caption{The left panel show the anatomical map. The middle panel show the apparent diffusion coefficients (ADC) obtained from DTI. The right panel shows the computed fractional anisotropy (FA) from the DTI.}
 \end{figure}
 
-
-
-
-\kam{check that all symbols are explained here}
 
 
 
@@ -254,10 +262,10 @@ The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be
 \begin{equation}
 D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
 \end{equation}  
-The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in csf, grey and white matter. The manufactured forward computation gave a total of 120 possible observation time points. These points 
+The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in CSF, grey and white matter. The manufactured forward computation gave a total of 120 possible observation time points. These points 
 will be denoted as $t_i$.
 
-The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the csf compartment surrounding the cerebral. The module BrainMesh (currently in testing) (BrainMesh code accessibility {\color{red} kan ta med eller bare si CGAL}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
+The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the CSF compartment surrounding the cerebral. The module BrainMesh (currently in testing) (BrainMesh code accessibility {\color{red} kan ta med eller bare si CGAL}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
@@ -271,7 +279,8 @@ The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells
 
 
 \section{Results}
-
+Below we will discuss the parameter identification and its sensitivity with respect to 
+regularization parameters, noise and time-resolution. 
 In presentation of the results, the relative error norm  $||\cdot||_{RE}$ is defined as 
 \begin{equation}
 || X ||_{RE} = \frac{X_{found} -X_{true} }{ X_{true} }
@@ -283,19 +292,56 @@ with $X$ as an arbitrary scalar control parameter. For the boundary parameter $g
 In the case that the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen.  
 
 \subsection{The relaxation parameters}
-The robustness of the objective functional defined in Eq.\ref{Eq::F} is dependent on the regularization parameters $\alpha$ and $\beta$. Therefore it is important to select regularization parameter values that ensures an effective and accurate convergence. The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and compare the controls with the manufactured solution. The observation times were selected with $t_i \in  \lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps in the forward problem was set to $k= 10$. 
+To assess the sensitivity of the the objective functional defined in \ref{Eq::F} with respect to the regularization parameters $\alpha$ and $\beta$ 
+we perform a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
+Ideally, the approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although
+the convergence may vary substatantially.
+ The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and compare the controls with the manufactured solution. The observation times were selected with $t_i \in  \lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps in the forward problem was set to $k= 10$. 
 
-The results are shown in Tab.\ref{Tab::1} together with the number of iteration used to reach the convergence criteria. For $\alpha= 1.0$, it can be observed that there is a significant relative error for $D_{\Omega_1}$. The other control parameters also show an increased relative error when compared to other values of $\alpha$. 
+The results are shown in Tabel~\ref{Tab::1} together with the number of iteration used to reach the convergence criteria. For $\alpha= 1.0$, it can be observed that there is a significant relative error for $D_{\Omega_1}$. The other control parameters also show an increased relative error when compared to other values of $\alpha$. 
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.2]{convergence_0}  
+\includegraphics[scale=0.2]{convergence_1}  
+\includegraphics[scale=0.2]{convergence_2}  
+\includegraphics[scale=0.2]{convergence_3}  
+\includegraphics[scale=0.2]{convergence_4}  
+\label{convergence}
+\caption{Convergence of the diffusion coefficients, boundary conditions and functional with respect to different $\alpha$ and $\beta$ values. } 
+\end{figure}
+
 
 
 \subsection{The noise susceptibility}
-The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by adding uniform noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. 
+The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by adding uniform noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution with 
+different noise levels with $\alpha=0.0001$ and $\beta=1.0$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
+of noise shown in the upper rows.      
 
-In Tab.\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative error. However, in Tab.\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition) and it is observed that for  $\alpha < 1.0e-3$  $\beta < 1.0e-3$ the optimization failed to converge before reaching maximum iteration of 1000 steps. Furthermore, the relative boundary error $||g||_{RE(\Omega)}$ is  larger for lower values of $\beta$. 
+In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative error. However, in Tabel~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition) and it is observed that for  $\alpha < 1.0e-3$  $\beta < 1.0e-3$ the optimization failed to converge before reaching maximum iteration of 1000 steps. Furthermore, the relative boundary error $||g||_{RE(\Omega)}$ is  larger for lower values of $\beta$. 
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{27-12-hours-scale-0-1-3.png}  
+\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
+\label{12hourswithnoise}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{27-24-hours-scale-0-1.png}
+\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15 {\color{red} explain noise ampliutde}. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
+\label{24hourswithnoise}
+\end{figure}
+
+
+
 
 
 \subsection{The number of timessteps}
-The PDE uses backward Euler, which is a linear approximation in time. This means that the increasing the number of timesteps will allow for a better temporal approximation. However, this will also increase the computational cost for each iteration of the L-BFGS-B algorithm. Thus finding the number of timesteps for an effective convergence can help for larger meshes. The computation vary the timesteps with 10, 20 and 40 timesteps. Additionally, the computation will use a few variations of the regularization parameters that gives small relative errors. 
+Increasing the number of timesteps in the simulations potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization therefore may play a larger role. Furthermore,  the computational cost for each iteration of the L-BFGS-B algorithm as one
+forward solve is performed per iteration. Thus finding the number of timesteps for an effective convergence can help for larger meshes. The computation vary the timesteps with 10, 20 and 40 timesteps. Additionally, the computation will use a few variations of the regularization parameters that gives small relative errors. 
 
 This gave the values presented in Tab.\ref{TAB::timesteps}, and can be seen that increase in the number of timesteps causes a decrease in the relative error. 
 
@@ -397,20 +443,6 @@ The hypothesis of the glymphatic system [insert citation] states that the waste 
 % 
 %
 % 
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.4]{27-12-hours-scale-0-1-3.png}  
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
-\end{figure}
-
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.4]{27-24-hours-scale-0-1.png}
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15 {\color{red} explain noise ampliutde}. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
-\end{figure}
-
 
 \newpage 
 \newgeometry{top=0.5cm}
