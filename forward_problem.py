@@ -114,7 +114,7 @@ class Context(object):
     def return_value(self):
         return None
 
-def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None, noise=None,save=None):
+def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None, noise=None,save=None, interp=None):
     class FunctionalContext(Context):
         def __init__(self, mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gradient=None ):
             super(FunctionalContext, self).__init__(mesh_config, V, D, g_list)
@@ -137,7 +137,7 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
 
             self.gradient = gradient 
             self.save = save
-
+            self.interp = interp         
   
         def initial_conditions(self):
             self.obs_file.read(self.ic, "%0.2f"%(self.tau[0]))
@@ -172,7 +172,11 @@ def functional(mesh_config, V, D, g_list, tau, obs_file, alpha=0.0, beta=0.0, gr
                    self.save << ( self.d ,self.tau[self.next_tau])
 
 
-                Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U       
+                Ulin = Dt/self.dt*U_prev +  (self.dt - Dt)/self.dt*U     
+             
+                if self.interp: 
+                    self.interp << ( self.d ,self.tau[self.next_tau])
+  
                 self.J += assemble((Ulin - self.d) ** 2 * self.dx) 
                 # Move on to next observation
                 self.next_tau += 1

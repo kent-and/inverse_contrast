@@ -121,8 +121,10 @@ if __name__ == "__main__":
   
     if Z.save:
        save = File( "Results-{}-{}-{}-{}/observation.pvd".format( Z.alpha, Z.beta,Z.noise,k ) )
+       interp = File( "Results-{}-{}-{}-{}/interpolation.pvd".format( Z.alpha, Z.beta,Z.noise,k ) )
     else:
        save = None
+       interp =None
 
     if Z.generate_observations:
         ic = initial_condition(V, mesh_config)
@@ -131,7 +133,7 @@ if __name__ == "__main__":
         exit()
     else:
         g = bc_guess(g, Z.obs_file, tau, k, noise)
-        J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, noise=noise, gradient=Z.scale, save=save)
+        J = functional(mesh_config, V, D, g, tau, Z.obs_file, Z.alpha, Z.beta, noise=noise, gradient=Z.scale, save=save,interp=interp)
 
     ctrls = ([Control(D[i]) for i in range(1, 4)]
              + [Control(g_i) for g_i in g])
@@ -142,7 +144,7 @@ if __name__ == "__main__":
     Jhat.optimize()
 
     
-    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0e-1})
+    opt_ctrls = minimize(Jhat, method="L-BFGS-B", callback = iter_cb, options={"disp": True, "maxiter": Z.maxiter, "gtol": 1.0})
 
     #print("[Constant({}), Constant({}), Constant({})]".format(float(opt_ctrls[0]), float(opt_ctrls[1]), float(opt_ctrls[2])))
     #print(
@@ -151,6 +153,9 @@ if __name__ == "__main__":
         save_control_values(opt_ctrls, Z.save_control_values_file)
 
 
+    dx = (tau[-1]- tau[0])/k
+
+    us= Function(V)
     if Z.save:
        tape = get_working_tape()
 
@@ -158,6 +163,8 @@ if __name__ == "__main__":
        s_blocks = [block for block in tape._blocks if isinstance(block, SolveBlock)]
        states = [block.get_outputs()[0].saved_output for block in s_blocks]
        out =        File("Results-{}-{}-{}-{}/finalstate.pvd".format(Z.alpha,Z.beta, Z.noise,k) )
-       for i in states : 
-           out << i
+
+       for no,i in enumerate(states) : 
+           us.vector()[:]=i.vector()[:]  
+           out << (us,tau[0]+no*dx) 
 
