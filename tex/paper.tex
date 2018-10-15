@@ -1,10 +1,12 @@
 \documentclass[11pt,a4paper]{article}
+\usepackage{hyperref}
 \usepackage{color}
 \usepackage{amsmath, amsthm, amssymb, amsfonts, verbatim}
 \usepackage{graphicx}
 \usepackage[table,x11names]{xcolor}
 \usepackage{geometry}
 \usepackage{subcaption}
+
 \title{Assessing glymphatic transport velocities by adjoint methods}
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
@@ -75,13 +77,13 @@ to obtain parameters involved time-scales beyond those of the MRI aquisition.
 \subsection*{MRI Data}
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
-\caption{Shows the percentage intensity increase from baseline at different observation times. }
+\caption{Shows the percentage intensity increase from baseline at different observation times. The colorbar was restricted to the range $(0,100)$ }
 \label{fig1} 
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
-\caption{Shows the percentage intensity increase from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis.}
+\caption{Shows the percentage intensity increase from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis.The colorbar was restricted to the range $(0,100)$}
 \label{fig2} 
 \end{figure}
 Figure~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
@@ -121,47 +123,44 @@ The $\alpha$ and $\beta$ parameters are regularization parameters
 and $u_{obs}$ are observations at certain time-points. 
 
 \section*{Implementation}
-\kam{Lars, sometimes past tense is used sometimes present tense.}
-The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and bilinear\kam{a matrix is always bilinear} matrix stored in the solver. {\color{red} why not amg}  
-The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $L\sp{\infty}$ norm of the project gradient was less than $gtol =1.0e-1$. \kam{More info needed gtol not defined. }
+The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and the matrix was stored in the solver. 
+The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $max\lbrace | proj x_i | , \quad i = 1, .., N \rbrace \leq gtol=1.0e-1$ where $ proj x_i$ is the i-th component of the projected gradient. {\color{red} see scipy }.  
 
-The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}, and for each timestep, the next observation was used as the Dirichlet boundary condition \kam{is this true? why not use \eqref{observations:interpolation} }. 
-The Dirichlet boundary condition was imposed on the external boundary for the domain $D_{\Omega_1}$. 
+The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}. Then for each timestep, the next observation was used as the initial value for boundary control $g$. The boundary control was imposed on the external boundary for the domain $D_{\Omega_1}$. 
 
-Each observations $u_{obs}$ have a fixed time-point $t_i$, these time-points may not overlap with the time discretization in the forward problem. Therefore, after each time step $dt$ in Eq\ref{Eq::PDE}, it was checked if the time step contained the next observation. If it did, then a linear interpolation of the current solution $u_{obs}(t_i)$ and previous solution $u_{obs}(t_{i-1})$ was used approximate the solution corresponding to $t_i$. The linear interpolation was given as  
+The observations $u_{obs}$ have a fixed time-point $t_i$, these time-points may not overlap with the time discretization in the forward problem $t_j$. Therefore, after each time step $dt$ in Eq\ref{Eq::PDE}, it was checked if the time step contained the next observation. If it did, then a linear interpolation of the  current solution $u(t_j)$ and previous solution $u(t_{j-1})$ was used approximate the solution at time $t_i$. The linear interpolation was given as  
 \begin{equation}
 \label{observation:interpolation}
-u_{obs}(t) = \frac{\Delta t}{dt} u_{obs}(t_i) + \frac{dt - \Delta t }{dt} u_{obs}(t_{i-1}), \quad t \in \lbrace t-dt, t \rbrace
+u(t_i) \approx \frac{\Delta t}{dt} u(t_{j-1}) + \frac{dt - \Delta t }{dt} u(t_{j}), \quad t_i \in \lbrace t_{j-1}, t_j \rbrace
 \end{equation}
-with $\Delta t = t-t_i $.  \kam{Check this formula} 
+with $\Delta t = t_k-t_i $.  
 
-The initial values of the diffusion coefficients in the optimization algorithm $(D_{CSF}, D_{GM}, D_{WM}) = (1000, 1, 1)$. 
+The initial values of the diffusion coefficients in the optimization algorithm $(D_{CSF}, D_{GM}, D_{WM})=$  $(1, 1, 1)$. However, to increase the convergence rate, $D_{CSF}$ was scaled with $100$. 
 The noise susceptibility was tested by adding an uniform distribution noise term to the observations. The noise term was constructed using numpy.random and adjusted so that noise range becomes $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude. 
 
+This work was performed on the Abel Cluster, owned by the University of Oslo and Uninett\textbackslash Sigma2, and operated by the Department for Research Computing at USIT,the University of Oslo IT-department. \url{http://www.hpc.uio.no/} 
 \subsection*{Contrast concentration - Image Intensity Relation}
 Below, we briefly describe the relationship between the imaging intensity 
 seen in Figures \ref{fig1} and \ref{fig2} and the underlying contrast 
-concentration. We remark that we use a notation common in medical literature and 
-here two letter symbols are common. Hence, below we will use two letter symbols such 
-as $TE$ and $SI$ to keep the notation consistent the presentation of (reference XXXX).   
-The tracer causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
+concentration. We remark that we use a notation common in medical literature and here two letter symbols are common. Hence, below we will use two letter symbols such as $TE$ and $TR$ to keep the notation consistent the presentation of (reference \cite{GOWLAND}, \cite{MPRAGE}).   
+The tracer concentration $c$ causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
 \begin{equation}
-\frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}C .
+\frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}c .
 \label{EQ::contrast}
 \end{equation}
-The superscripts indicating with contrast and without contrast and $r_1$ as the relaxivity constant for the MRI-contrast in a medium. The relation between intensity and the relaxation time is non-linear, and is expressed with the following equations. The signal intensity $SI$ of the sequence is given by
+The superscripts indicating with contrast and without contrast and $r_1$ as the relaxivity constant for the MRI-contrast in a medium. The relation between intensity and the relaxation time is non-linear, and is expressed with the following equations. The signal intensity $S$ of the sequence is given by
 \begin{equation}
-SI = M_{n} \sin \theta e\sp{ - TE/T_2\sp{*} },
+S = M_{n} \sin \theta e\sp{ - TE/T_2\sp{*} },
 \label{EQ::SI_T2}
 \end{equation}
-with  $TE$ and $\theta$ respectively denoting the echo time and the flip angle, and $M_{n}$ the magnetization for the n-echo described below. 
-Also $T2\sp{*}$ is transverse magnetization caused by a combination of spin-spin relaxation and magnetic field inhomogeneity. It is defined as 
+with $TE$ and $\theta$ respectively denoting the echo time and the flip angle, and $M_{n}$ the magnetization for the n-echo described below. 
+Also $T_2\sp{*}$ is transverse magnetization caused by a combination of spin-spin relaxation and magnetic field inhomogeneity. It is defined as 
 \begin{equation}
 \frac{1}{T_2\sp{*}} = \frac{1}{T_2} + \gamma \Delta B_{in} ,
 \end{equation}
-with $T2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic ratio and $\Delta B_{in}$ is the magnetic field inhomogeneity across a voxel. The expression can be simplified by neglecting the $T2$ term in the signal, since $TE <<T_2\sp{*}$ for this MRI sequence. Thus Eq. \ref{EQ::SI_T2} becomes 
+with $T_2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic ratio and $\Delta B_{in}$ is the magnetic field inhomogeneity across a voxel. The expression can be simplified by neglecting the $T_2$ term in the signal, since $TE <<T_2\sp{*}$ for this MRI sequence. Thus Eq. \ref{EQ::SI_T2} becomes 
 \begin{equation}
-SI = M_{n} \sin \theta.
+S = M_{n} \sin \theta.
 \label{EQ::SI}
 \end{equation}
 In article  \cite{MPRAGE}, the term $M_n$ is defined as the magnetization for the n-echo 
@@ -183,9 +182,9 @@ Using the following definitions
 T_w    &= TR - T_a -T_b(m-1)       .\\
 \end{aligned}
 \end{equation}
-Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $T1$ is the longitudinal(spin-lattice) relaxation time for a given medium. The $M_0$ is a calibration constant of the magnetization. The center echo denoted as $n=\sp{m}/_2$ will be the signal that we will consider when estimating MRI-contrast. Given Eq.\ref{EQ::SI} we have that relative intensity increase can be written as 
+Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $T1$ is the longitudinal(spin-lattice) relaxation time for a given medium. The $M_0$ is a calibration constant of the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI-contrast. Given Eq.\ref{EQ::SI} we have that relative intensity increase can be written as 
 \begin{equation}
-\frac{SI\sp{c}}{SI\sp{0}} = \frac{ M_{n}\sp{c} \sin (\theta)}{ M_{n}\sp{0} \sin (\theta) } ,
+\frac{S\sp{c}}{S\sp{0}} = \frac{ M_{n}\sp{c} \sin (\theta)}{ M_{n}\sp{0} \sin (\theta) } ,
 \end{equation}
 We define that  
 \begin{equation}
@@ -194,12 +193,11 @@ f(T_1) = M_{n}/M_{0} ,
 \end{equation}
 which gives the following relation 
 \begin{equation}
-\frac{f(T_{1}\sp{c} ) }{f(T_{1}\sp{0})}  = \frac{SI\sp{c}}{SI\sp{0}} 
+\frac{f(T_{1}\sp{c} ) }{f(T_{1}\sp{0})}  = \frac{S\sp{c}}{S\sp{0}} 
 \end{equation}
-The difference in $S_0$ between observation times were adjusted in \cite{eidevalnes}.  
-Thus we can express the $T_1$ change due to contrast as 
+The difference in the calibraiton constant $M_0$ between observation times were adjusted in \cite{eidevalnes}. Thus we can express the $T_1$ change due to contrast as 
 \begin{equation}
-f ( T_{1}\sp{c} ) = \frac{SI\sp{c}}{SI\sp{0}} f(T_{1}\sp{0}) 
+f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
 and we can then estimate concentration using Eq.\ref{EQ::contrast} if we know $T_{1}\sp{0}$. The $T_{1}\sp{0}$ values were obtained by T1 mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This makes it possible to  take into account patients specific characteristic, such as tissue damage. There are several forms of tissue damage, which can be observed in the MRI due to a lower intensity in the white matter compared to healthy white matter tissue. This means that the damaged tissue have a different T1 relaxation time. 
 
@@ -214,12 +212,12 @@ In addition to the T1 and T2 weighted sequences described above we have also obt
 coefficients on short time-scales. Images are shown in Figure~\ref{FIG:DTI} where the larges diffusion coefficient (shown in 
 red in the middle figure) is shown to be around 0.001 mm$^2$/s. We remark that we have not included possible anisotropy, shown in 
 the right-most image in Figure~\ref{FIG:DTI} and that these images shows the apparent diffusion coefficient for free water molecules (18 Da).      
-The diffusivity of the Gadovist (600 Da cite?) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da cite ?). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA  3.8e-5$\mathrm{mm\sp{2}/s}$ was obtained from [cite].
+The diffusivity of the Gadovist (600 Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \cite{GdDPTA-DIFFUSION} to be 3.8e-4$\mathrm{mm\sp{2}/s}$.
 
 
 The fractional anisotropy is defined as 
 \begin{equation}
-FA\sp{2} = \frac{ 3(\lambda_1 - MD )\sp{2} +(\lambda_2 - MD )\sp{2} +(\lambda_3 - MD )\sp{2}}{2\lambda\sp{2}_1 + \lambda\sp{2}_2  +\lambda\sp{2}_3 },
+FA\sp{2} =  \frac{3}{2} \frac{ (\lambda_1 - MD )\sp{2} +(\lambda_2 - MD )\sp{2} +(\lambda_3 - MD )\sp{2}}{\lambda\sp{2}_1 + \lambda\sp{2}_2  +\lambda\sp{2}_3 },
 \end{equation}
 with the mean diffusivity $MD$ defined as 
 \begin{equation}
@@ -262,10 +260,9 @@ The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be
 \begin{equation}
 D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
 \end{equation}  
-The magnitude order of the diffusion coefficient are chosen so that they resemble diffusion coefficient in CSF, grey and white matter. The manufactured forward computation gave a total of 120 possible observation time points. These points 
-will be denoted as $t_i$.
+The magnitude order for $\quad D_{\Omega_2} $ and $\quad D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coeffieicents were not preserved. The diffusion coefficent in the csf was chosen given [cite Bryne and Kent]. The manufactured forward computation gave a total of 120 possible observation time points. These points will be denoted as $t_i$.
 
-The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the CSF compartment surrounding the cerebral. The module BrainMesh (currently in testing) (BrainMesh code accessibility {\color{red} kan ta med eller bare si CGAL}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
+The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. The module BrainMesh (currently in testing) (BrainMesh code accessibility {\color{red} kan ta med eller bare si CGAL}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
@@ -279,8 +276,7 @@ The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells
 
 
 \section{Results}
-Below we will discuss the parameter identification and its sensitivity with respect to 
-regularization parameters, noise and time-resolution. 
+Below we will discuss the parameter identification and its sensitivity with respect to regularization parameters, noise and time-resolution. 
 In presentation of the results, the relative error norm  $||\cdot||_{RE}$ is defined as 
 \begin{equation}
 || X ||_{RE} = \frac{X_{found} -X_{true} }{ X_{true} }
@@ -292,7 +288,7 @@ with $X$ as an arbitrary scalar control parameter. For the boundary parameter $g
 In the case that the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen.  
 
 \subsection{The relaxation parameters}
-To assess the sensitivity of the the objective functional defined in \ref{Eq::F} with respect to the regularization parameters $\alpha$ and $\beta$ 
+To assess the sensitivity of the the objective functional defined in Eq.\ref{Eq::F} with respect to the regularization parameters $\alpha$ and $\beta$ 
 we perform a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
 Ideally, the approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although
 the convergence may vary substatantially.
@@ -323,7 +319,7 @@ In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{27-12-hours-scale-0-1-3.png}  
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
+\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
 \label{12hourswithnoise}
 \end{figure}
 
@@ -331,12 +327,9 @@ In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{27-24-hours-scale-0-1.png}
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15 {\color{red} explain noise ampliutde}. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
+\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
 \label{24hourswithnoise}
 \end{figure}
-
-
-
 
 
 \subsection{The number of timessteps}
@@ -356,7 +349,7 @@ The MRI data contains observations after the injection of CSF tracer. These obse
 The results are shown in Tab.\ref{Tab::Hole1} and Tab\ref{Tab::Hole2}, and it can be observed that the addition of noise caused $\beta=1.0$ to converge the same. Comparing the values in Tab\ref{Tab::Hole1} and Tab.\ref{TAB::timesteps}, showed that the relative error increased.  
 
 \subsection{MRI Data} 
-The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24.06, 47.84, 698.02 $\rbrace (hours)$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace 0.00 0.16, 0.39, 0.55, 0.77 \rbrace$. This prompted the use of the following observation times  $0.00 2.09, 6.05, 24.06, 47.84$. 
+The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24.06, 47.84, 698.02 $\rbrace (hours)$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace $ 0.00, 0.16, 0.39, 0.55, 0.77 $ \rbrace$. This prompted the use of the following observation times  $0.00, 2.09, 6.05, 24.06, 47.84$. 
 
 The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{figmesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$ denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $gtol=6.0e-1$. 
 
@@ -370,7 +363,7 @@ and the observation together with resulting states are displayed in Fig.\ref{Fig
 The median diffusion coefficient in the DTI was estimated to be 8.7e-4 $\mathrm{mm\sp{2}/s}$ in   white matter and 1.0e-3 $\mathrm{mm\sp{2}/s}$ in grey matter.   %This corresponds to 3.1 $\mathrm{mm\sp{2}/h}$ and  3.6 $\mathrm{mm\sp{2}/h}$. 
 The self-diffusivity of water have been estimated to be around 3.0e-3$\mathrm{mm\sp{2}/s}$ for  $37\sp{o}C$.% This corresponds to 10.8 $\mathrm{mm\sp{2}/h}$ and  $\mathrm{mm\sp{2}/h}$. 
 
-The reference value of Gd-DPTA was reported to be 3.8e-4 $\mathrm{mm\sp{2}/s}$ in [insert citation]. The values in Tab.\ref{Tab::Real-data} gives the value-range $1.5e-4 -2.7e-4\mathrm{mm\sp{2}/s}  $ for the grey diffusion coefficient and  $2.2e-4 - 3.3e-4\mathrm{mm\sp{2}/s}$ for the white diffusion coefficient. These values are $20 -110 \%$ larger than the expected values for $D_{g}$,  and $100 - 200 \%$ larger than the expected values for $D_{w}$. 
+The reference value for Gd-DPTA was set to 3.8e-4 $\mathrm{mm\sp{2}/s}$. The values in Tab.\ref{Tab::Real-data} gives the value-range $1.5e-4 -2.7e-4\mathrm{mm\sp{2}/s}$ for the grey diffusion coefficient and  $2.2e-4 - 3.3e-4\mathrm{mm\sp{2}/s}$ for the white diffusion coefficient. These values are $20 -110 \%$ larger than the expected values for $D_{g}$,  and $100 - 200 \%$ larger than the expected values for $D_{w}$. 
 
 The estimation assumes that the tortousity is independent on molecular size.
 
@@ -400,18 +393,23 @@ The estimation assumes that the tortousity is independent on molecular size.
 
 
 \subsection{Manufactures Solution}
-The results from the manufactured solutions showed a robust method to compute diffusion coefficients. 
-
+%The results from the manufactured solutions showed a robust method to compute diffusion coefficients. However, the maufactured solutions were constructed .. ? .. .
 The computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{FIG::DTI}. The region with high FA, can also be observed in the observation after 48 hours, shown in Fig.\ref{Fig::realdata}. This observation is after 48 hours, and the amount of tracer inside the anisotropic region is negligible. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observation of tracer in anisotropic regions are needed for the integration of anisotropy into the model. 
   
-A more important factor are regions with higher diffusivity. In Fig.\ref{FIG::DTI}, it can be observed that the region with high diffusivity also have a high tracer concentration, see Fig \ref{Fig::realdata}.
+A more important factor are regions with higher diffusivity. Comparing Fig.\ref{FIG::DTI} and Fig \ref{Fig::realdata}, it can be observed that the region with high diffusivity also have a high tracer concentration. 
 
+The computational model have 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{FIG::DTI} that diffusion coefficients can be considered a spacial function. Although the implmentaion of spacial control parameters are possible, it would siginificantly increase the computational cost. 
 
-The computational have 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{FIG::DTI} that diffusion coefficients can be considered a spacial function.  
+The coputational cost dependes on the relaxation parameteres, the number of controls and solution of the PDE.
+
+   
   
-It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of an increase clearance in rodents during sleeping [insert citation]. This follows the assumption that the clearance is related to diffusion, which means an increase in diffusivity. Since the properties of the tracer molecule do not change, this would mean that the tortuosity decreased, and subsequently increase the value of the ADC. 
+It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of an increase clearance in rodents during sleeping [insert citation]. This follows the assumption that the clearance is related to diffusion, which means an increase in diffusivity. Since the properties of the tracer molecule do not change, this would mean that the tortuosity decreased and followed by an incearse in the ADC.
 
-In Tab.\ref{Tab::Real-data}, it is shown that the grey matter diffusion coefficient have a consistent increase based on the decrease in the relaxation parameter $\beta$. This can be caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering the that the grey matter volume has a depth less than 5 mm makes it susceptible to changes in $g$. Therefore this seems likely, given the fact that both relaxation parameters are used to adjust the boundary control. 
+In Tab.\ref{Tab::Real-data}, it is shown that the grey matter diffusion coefficient have a consistent increase based on the decrease in the relaxation parameter $\beta$. This can be caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering the that the grey matter volume has a depth less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Fig.\ref{12hourswithnoise} and Fig.\ref{24hourswithnoise}, where the nosie is present at the boundary. 
+  
+Furthermore. in Fig.?? it was shown that the 
+  
   
 
 A possible solution is to include the CSF compartment, but only use the observation in the white and grey matter. 
@@ -444,6 +442,11 @@ The hypothesis of the glymphatic system [insert citation] states that the waste 
 %
 % 
 
+
+\bibliographystyle{amsplain}
+\bibliography{references}
+
+
 \newpage 
 \newgeometry{top=0.5cm}
 
@@ -455,26 +458,7 @@ The hypothesis of the glymphatic system [insert citation] states that the waste 
  
 
 
- \begin{table}
-\centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the estimated diffusion coefficients for grey $D_g$ and white $D_w$ matter based on MRI data.}
-\resizebox{\textwidth}{!}{\begin{tabular}{*{6}c}
-$\alpha$ & $\beta$ & k & iter &  $ D_{g} \left[ \mathrm{mm\sp{2}/h} \right] $ & $ D_{w} \left[ \mathrm{mm\sp{2}/h} \right]$ \\
-\hline
- 1.0e-02 	 & 1.0e+00 	 & 48 & 591 	 & 0.648 & 0.893 \\ 
- 1.0e-02 	 & 1.0e-01 	 & 48 & 461 	 & 0.772 & 0.982 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 48 & 748 	 & 0.986 & 1.198 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 48 & 607 	 & 0.551 & 0.815 \\ 
- 1.0e-04 	 & 1.0e-01 	 & 48 & 598 	 & 0.649 & 0.787 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 48 & 837 	 & 0.740 & 0.817 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 48 & 681 	 & 0.557 & 0.811 \\ 
- 1.0e-06 	 & 1.0e-01 	 & 48 & 780 	 & 0.645 & 0.774 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 48 & 745 	 & 0.736 & 0.819 \\ 
- 
-\end{tabular}}
-\label{Tab::Real-data}
-\end{table} 
- 
+
  
 \begin{figure}
 \centering
@@ -490,21 +474,21 @@ $\alpha$ & $\beta$ & k & iter &  $ D_{g} \left[ \mathrm{mm\sp{2}/h} \right] $ & 
 \resizebox{0.9\textwidth}{!}{\begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{RE} $ & $||D_{\Omega_3}||_{RE}$ & $||g||_{RE}$ \\
 \hline
-\rowcolor{red}  1.0e+00 	 & 1.0e+00 	 & 10 & 225 	 & +4.148 & +0.304 & +0.092 & +0.135 \\ 
+  1.0e+00 	 & 1.0e+00 	 & 10 & 225 	 & +4.148 & +0.304 & +0.092 & +0.135 \\ 
 %\rowcolor{red}  1.0e+00 	 & 1.0e-01 	 & 10 & 206 	 & +4.272 & +0.305 & +0.091 & +0.142 \\ 
-\rowcolor{red}  1.0e+00 	 & 1.0e-02 	 & 10 & 233 	 & +4.272 & +0.305 & +0.091 & +0.143 \\ 
+ 1.0e+00 	 & 1.0e-02 	 & 10 & 233 	 & +4.272 & +0.305 & +0.091 & +0.143 \\ 
 %\rowcolor{red}  1.0e+00 	 & 1.0e-03 	 & 10 & 208 	 & +4.437 & +0.305 & +0.091 & +0.143 \\ 
-\rowcolor{red}  1.0e+00 	 & 1.0e-04 	 & 10 & 204 	 & +4.271 & +0.306 & +0.091 & +0.143 \\ 
+ 1.0e+00 	 & 1.0e-04 	 & 10 & 204 	 & +4.271 & +0.306 & +0.091 & +0.143 \\ 
 %\rowcolor{red}  1.0e+00 	 & 1.0e-05 	 & 10 & 203 	 & +4.400 & +0.305 & +0.091 & +0.143 \\ 
-\rowcolor{red}  1.0e+00 	 & 1.0e-06 	 & 10 & 222 	 & +4.584 & +0.304 & +0.090 & +0.143 \\
+ 1.0e+00 	 & 1.0e-06 	 & 10 & 222 	 & +4.584 & +0.304 & +0.090 & +0.143 \\
  
- 1.0e-01 	 & 1.0e+00 	 & 10 & 207 	 & +0.127 & +0.093 & +0.041 & +0.027 \\ 
+% 1.0e-01 	 & 1.0e+00 	 & 10 & 207 	 & +0.127 & +0.093 & +0.041 & +0.027 \\ 
  %1.0e-01 	 & 1.0e-01 	 & 10 & 196 	 & +0.121 & +0.093 & +0.041 & +0.046 \\ 
- 1.0e-01 	 & 1.0e-02 	 & 10 & 232 	 & +0.123 & +0.093 & +0.041 & +0.056 \\ 
+% 1.0e-01 	 & 1.0e-02 	 & 10 & 232 	 & +0.123 & +0.093 & +0.041 & +0.056 \\ 
  %1.0e-01 	 & 1.0e-03 	 & 10 & 183 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
- 1.0e-01 	 & 1.0e-04 	 & 10 & 212 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
+% 1.0e-01 	 & 1.0e-04 	 & 10 & 212 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
  %1.0e-01 	 & 1.0e-05 	 & 10 & 168 	 & +0.122 & +0.093 & +0.041 & +0.057 \\
- 1.0e-01 	 & 1.0e-06 	 & 10 & 195 	 & +0.122 & +0.093 & +0.041 & +0.057 \\ 
+% 1.0e-01 	 & 1.0e-06 	 & 10 & 195 	 & +0.122 & +0.093 & +0.041 & +0.057 \\ 
 
  1.0e-02 	 & 1.0e+00 	 & 10 & 227 	 & +0.015 & +0.067 & +0.039 & +0.018 \\ 
  %1.0e-02 	 & 1.0e-01 	 & 10 & 153 	 & +0.006 & +0.065 & +0.039 & +0.021 \\ 
@@ -514,13 +498,13 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
  %1.0e-02 	 & 1.0e-05 	 & 10 & 215 	 & +0.004 & +0.065 & +0.039 & +0.051 \\ 
  1.0e-02 	 & 1.0e-06 	 & 10 & 205 	 & +0.005 & +0.065 & +0.039 & +0.050 \\ 
 
- 1.0e-03 	 & 1.0e+00 	 & 10 & 179 	 & +0.004 & +0.064 & +0.039 & +0.019 \\ 
+ %1.0e-03 	 & 1.0e+00 	 & 10 & 179 	 & +0.004 & +0.064 & +0.039 & +0.019 \\ 
  %1.0e-03 	 & 1.0e-01 	 & 10 & 221 	 & -0.005 & +0.063 & +0.039 & +0.018 \\ 
- 1.0e-03 	 & 1.0e-02 	 & 10 & 89 	 & -0.007 & +0.063 & +0.039 & +0.026 \\ 
+ %1.0e-03 	 & 1.0e-02 	 & 10 & 89 	 & -0.007 & +0.063 & +0.039 & +0.026 \\ 
  %1.0e-03 	 & 1.0e-03 	 & 10 & 77 	 & -0.005 & +0.062 & +0.039 & +0.027 \\ 
- 1.0e-03 	 & 1.0e-04 	 & 10 & 100 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
+ %1.0e-03 	 & 1.0e-04 	 & 10 & 100 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
  %1.0e-03 	 & 1.0e-05 	 & 10 & 105 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
- 1.0e-03 	 & 1.0e-06 	 & 10 & 123 	 & -0.007 & +0.062 & +0.039 & +0.028 \\ 
+ %1.0e-03 	 & 1.0e-06 	 & 10 & 123 	 & -0.007 & +0.062 & +0.039 & +0.028 \\ 
 
 
  1.0e-04 	 & 1.0e+00 	 & 10 & 236 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
@@ -531,13 +515,13 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
  %1.0e-04 	 & 1.0e-05 	 & 10 & 109 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
  1.0e-04 	 & 1.0e-06 	 & 10 & 99 	 & -0.008 & +0.062 & +0.039 & +0.026 \\
  
- 1.0e-05 	 & 1.0e+00 	 & 10 & 139 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
+ %1.0e-05 	 & 1.0e+00 	 & 10 & 139 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
  %1.0e-05 	 & 1.0e-01 	 & 10 & 170 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
- 1.0e-05 	 & 1.0e-02 	 & 10 & 182 	 & -0.007 & +0.062 & +0.039 & +0.020 \\ 
+ %1.0e-05 	 & 1.0e-02 	 & 10 & 182 	 & -0.007 & +0.062 & +0.039 & +0.020 \\ 
  %1.0e-05 	 & 1.0e-03 	 & 10 & 70 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-05 	 & 1.0e-04 	 & 10 & 77 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+ %1.0e-05 	 & 1.0e-04 	 & 10 & 77 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
  %1.0e-05 	 & 1.0e-05 	 & 10 & 104 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-05 	 & 1.0e-06 	 & 10 & 92 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+ %1.0e-05 	 & 1.0e-06 	 & 10 & 92 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
 
  1.0e-06 	 & 1.0e+00 	 & 10 & 163 	 & +0.003 & +0.064 & +0.039 & +0.019 \\ 
  %1.0e-06 	 & 1.0e-01 	 & 10 & 218 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
@@ -571,13 +555,13 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE} $ & $||D_{\Omega_2}||_{
 % 1.0e+00 	 & 1.0e-05 	 & 10 & 227 	 & +4.527 & +0.304 & +0.090 & +0.143 \\ 
  1.0e+00 	 & 1.0e-06 	 & 10 & 263 	 & +4.266 & +0.306 & +0.091 & +0.143 \\ 
  
- 1.0e-01 	 & 1.0e+00 	 & 10 & 167 	 & +0.131 & +0.093 & +0.041 & +0.027 \\ 
+ %1.0e-01 	 & 1.0e+00 	 & 10 & 167 	 & +0.131 & +0.093 & +0.041 & +0.027 \\ 
 % 1.0e-01 	 & 1.0e-01 	 & 10 & 195 	 & +0.125 & +0.093 & +0.039 & +0.046 \\ 
- 1.0e-01 	 & 1.0e-02 	 & 10 & 218 	 & +0.126 & +0.093 & +0.040 & +0.056 \\ 
+% 1.0e-01 	 & 1.0e-02 	 & 10 & 218 	 & +0.126 & +0.093 & +0.040 & +0.056 \\ 
 % 1.0e-01 	 & 1.0e-03 	 & 10 & 161 	 & +0.129 & +0.094 & +0.040 & +0.057 \\ 
- 1.0e-01 	 & 1.0e-04 	 & 10 & 180 	 & +0.135 & +0.092 & +0.042 & +0.057 \\ 
+% 1.0e-01 	 & 1.0e-04 	 & 10 & 180 	 & +0.135 & +0.092 & +0.042 & +0.057 \\ 
 % 1.0e-01 	 & 1.0e-05 	 & 10 & 169 	 & +0.123 & +0.093 & +0.041 & +0.057 \\ 
- 1.0e-01 	 & 1.0e-06 	 & 10 & 201 	 & +0.119 & +0.093 & +0.040 & +0.057 \\ 
+% 1.0e-01 	 & 1.0e-06 	 & 10 & 201 	 & +0.119 & +0.093 & +0.040 & +0.057 \\ 
 
  1.0e-02 	 & 1.0e+00 	 & 10 & 183 	 & +0.013 & +0.067 & +0.040 & +0.018 \\ 
 % 1.0e-02 	 & 1.0e-01 	 & 10 & 149 	 & +0.002 & +0.066 & +0.038 & +0.021 \\ 
@@ -587,13 +571,13 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE} $ & $||D_{\Omega_2}||_{
 % 1.0e-02 	 & 1.0e-05 	 & 10 & 197 	 & +0.004 & +0.064 & +0.040 & +0.051 \\ 
  1.0e-02 	 & 1.0e-06 	 & 10 & 185 	 & +0.012 & +0.063 & +0.038 & +0.049 \\ 
 
- 1.0e-03 	 & 1.0e+00 	 & 10 & 183 	 & +0.007 & +0.062 & +0.038 & +0.019 \\ 
-%1.0e-03 	 & 1.0e-01 	 & 10 & 181 	 & -0.011 & +0.063 & +0.039 & +0.019 \\ 
- 1.0e-03 	 & 1.0e-02 	 & 10 & 122 	 & -0.008 & +0.063 & +0.040 & +0.025 \\ 
+% 1.0e-03 	 & 1.0e+00 	 & 10 & 183 	 & +0.007 & +0.062 & +0.038 & +0.019 \\ 
+% 1.0e-03 	 & 1.0e-01 	 & 10 & 181 	 & -0.011 & +0.063 & +0.039 & +0.019 \\ 
+% 1.0e-03 	 & 1.0e-02 	 & 10 & 122 	 & -0.008 & +0.063 & +0.040 & +0.025 \\ 
 % 1.0e-03 	 & 1.0e-03 	 & 10 & 158 	 & -0.004 & +0.062 & +0.040 & +0.028 \\ 
- 1.0e-03 	 & 1.0e-04 	 & 10 & 168 	 & -0.013 & +0.063 & +0.038 & +0.029 \\ 
+% 1.0e-03 	 & 1.0e-04 	 & 10 & 168 	 & -0.013 & +0.063 & +0.038 & +0.029 \\ 
 % 1.0e-03 	 & 1.0e-05 	 & 10 & 120 	 & -0.010 & +0.063 & +0.040 & +0.028 \\ 
- 1.0e-03 	 & 1.0e-06 	 & 10 & 132 	 & -0.002 & +0.062 & +0.039 & +0.028 \\ 
+% 1.0e-03 	 & 1.0e-06 	 & 10 & 132 	 & -0.002 & +0.062 & +0.039 & +0.028 \\ 
 
  1.0e-04 	 & 1.0e+00 	 & 10 & 176 	 & +0.000 & +0.063 & +0.039 & +0.019 \\ 
  %1.0e-04 	 & 1.0e-01 	 & 10 & 180 	 & -0.001 & +0.062 & +0.039 & +0.019 \\ 
@@ -603,13 +587,13 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE} $ & $||D_{\Omega_2}||_{
  %1.0e-04 	 & 1.0e-05 	 & 10 & 104 	 & -0.004 & +0.062 & +0.038 & +0.027 \\ 
  1.0e-04 	 & 1.0e-06 	 & 10 & 109 	 & -0.007 & +0.062 & +0.039 & +0.027 \\ 
 
- 1.0e-05 	 & 1.0e+00 	 & 10 & 220 	 & +0.005 & +0.063 & +0.039 & +0.019 \\ 
+ %1.0e-05 	 & 1.0e+00 	 & 10 & 220 	 & +0.005 & +0.063 & +0.039 & +0.019 \\ 
  %1.0e-05 	 & 1.0e-01 	 & 10 & 193 	 & -0.009 & +0.062 & +0.039 & +0.019 \\ 
- 1.0e-05 	 & 1.0e-02 	 & 10 & 163 	 & -0.013 & +0.063 & +0.039 & +0.021 \\ 
+ %1.0e-05 	 & 1.0e-02 	 & 10 & 163 	 & -0.013 & +0.063 & +0.039 & +0.021 \\ 
  %1.0e-05 	 & 1.0e-03 	 & 10 & 115 	 & -0.007 & +0.063 & +0.040 & +0.026 \\ 
- 1.0e-05 	 & 1.0e-04 	 & 10 & 82 	 & -0.007 & +0.062 & +0.038 & +0.027 \\ 
+ %1.0e-05 	 & 1.0e-04 	 & 10 & 82 	 & -0.007 & +0.062 & +0.038 & +0.027 \\ 
  %1.0e-05 	 & 1.0e-05 	 & 10 & 145 	 & -0.001 & +0.062 & +0.039 & +0.027 \\ 
- 1.0e-05 	 & 1.0e-06 	 & 10 & 147 	 & -0.012 & +0.061 & +0.040 & +0.027 \\ 
+ %1.0e-05 	 & 1.0e-06 	 & 10 & 147 	 & -0.012 & +0.061 & +0.040 & +0.027 \\ 
 
  1.0e-06 	 & 1.0e+00 	 & 10 & 138 	 & +0.002 & +0.063 & +0.039 & +0.019 \\ 
  %1.0e-06 	 & 1.0e-01 	 & 10 & 184 	 & -0.006 & +0.063 & +0.039 & +0.019 \\ 
@@ -635,11 +619,11 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $||D_{\Omega_2}||_{R
  %1.0e+00 	 & 1.0e-05 	 & 10 & 204 	 & +4.251 & +0.313 & +0.085 & +0.147 \\ 
  1.0e+00 	 & 1.0e-06 	 & 10 & 223 	 & +4.493 & +0.310 & +0.085 & +0.147 \\ 
  %1.0e-01 	 & 1.0e+00 	 & 10 & 145 	 & +0.126 & +0.100 & +0.054 & +0.035 \\ 
- 1.0e-01 	 & 1.0e-01 	 & 10 & 199 	 & +0.115 & +0.125 & +0.026 & +0.060 \\ 
+ %1.0e-01 	 & 1.0e-01 	 & 10 & 199 	 & +0.115 & +0.125 & +0.026 & +0.060 \\ 
  %1.0e-01 	 & 1.0e-02 	 & 10 & 217 	 & +0.128 & +0.092 & +0.036 & +0.071 \\ 
- 1.0e-01 	 & 1.0e-03 	 & 10 & 242 	 & +0.109 & +0.093 & +0.031 & +0.073 \\ 
+ %1.0e-01 	 & 1.0e-03 	 & 10 & 242 	 & +0.109 & +0.093 & +0.031 & +0.073 \\ 
  %1.0e-01 	 & 1.0e-04 	 & 10 & 275 	 & +0.187 & +0.094 & +0.028 & +0.073 \\ 
- 1.0e-01 	 & 1.0e-05 	 & 10 & 237 	 & +0.048 & +0.099 & +0.039 & +0.073 \\ 
+ %1.0e-01 	 & 1.0e-05 	 & 10 & 237 	 & +0.048 & +0.099 & +0.039 & +0.073 \\ 
  %1.0e-01 	 & 1.0e-06 	 & 10 & 225 	 & +0.092 & +0.111 & +0.055 & +0.073 \\ 
  1.0e-02 	 & 1.0e+00 	 & 10 & 208 	 & +0.017 & +0.075 & +0.037 & +0.029 \\ 
  %1.0e-02 	 & 1.0e-01 	 & 10 & 199 	 & -0.013 & +0.068 & +0.046 & +0.040 \\ 
@@ -649,33 +633,33 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $||D_{\Omega_2}||_{R
  %1.0e-02 	 & 1.0e-05 	 & 10 & 359 	 & +0.022 & +0.068 & +0.027 & +0.076 \\ 
  1.0e-02 	 & 1.0e-06 	 & 10 & 369 	 & +0.001 & +0.074 & +0.024 & +0.076 \\ 
  %1.0e-03 	 & 1.0e+00 	 & 10 & 207 	 & -0.001 & +0.065 & +0.051 & +0.029 \\ 
- 1.0e-03 	 & 1.0e-01 	 & 10 & 280 	 & +0.028 & +0.051 & +0.053 & +0.038 \\ 
+% 1.0e-03 	 & 1.0e-01 	 & 10 & 280 	 & +0.028 & +0.051 & +0.053 & +0.038 \\ 
  %1.0e-03 	 & 1.0e-02 	 & 10 & 565 	 & -0.059 & +0.076 & +0.033 & +0.053 \\ 
- \rowcolor{orange} 1.0e-03 	 & 1.0e-03 	 & 10 & 673 	 & -0.035 & +0.066 & +0.032 & +0.108 \\ 
+% 1.0e-03 	 & 1.0e-03 	 & 10 & 673 	 & -0.035 & +0.066 & +0.032 & +0.108 \\ 
  %\rowcolor{orange} 1.0e-03 	 & 1.0e-04 	 & 10 & 604 	 & -0.026 & +0.061 & +0.049 & +0.182 \\ 
- \rowcolor{orange} 1.0e-03 	 & 1.0e-05 	 & 10 & 666 	 & +0.012 & +0.070 & +0.038 & +0.182 \\ 
+ %1.0e-03 	 & 1.0e-05 	 & 10 & 666 	 & +0.012 & +0.070 & +0.038 & +0.182 \\ 
  %\rowcolor{orange} 1.0e-03 	 & 1.0e-06 	 & 10 & 893 	 & +0.027 & +0.070 & +0.022 & +0.180 \\ 
  1.0e-04 	 & 1.0e+00 	 & 10 & 204 	 & +0.015 & +0.062 & +0.043 & +0.030 \\ 
  %1.0e-04 	 & 1.0e-01 	 & 10 & 269 	 & +0.005 & +0.057 & +0.037 & +0.038 \\ 
  1.0e-04 	 & 1.0e-02 	 & 10 & 559 	 & -0.072 & +0.067 & +0.044 & +0.050 \\ 
 %\rowcolor{orange} 1.0e-04 	 & 1.0e-03 	 & 10 & 691 	 & -0.023 & +0.055 & +0.040 & +0.175 \\ 
-\rowcolor{red}  1.0e-04 	 & 1.0e-04 	 & 10 & 1001 	 & -0.012 & +0.066 & +0.030 & +0.745 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 10 & -	 & -0.012 & +0.066 & +0.030 & +0.745 \\ 
 %\rowcolor{red}  1.0e-04 	 & 1.0e-05 	 & 10 & 1001 	 & +0.038 & +0.057 & +0.034 & +1.113 \\ 
-\rowcolor{red} 1.0e-04 	 & 1.0e-06 	 & 10 & 1001 	 & +0.015 & +0.063 & +0.035 & +1.127 \\ 
+1.0e-04 	 & 1.0e-06 	 & 10 & -	 & +0.015 & +0.063 & +0.035 & +1.127 \\ 
 % 1.0e-05 	 & 1.0e+00 	 & 10 & 184 	 & -0.025 & +0.076 & +0.041 & +0.029 \\ 
- 1.0e-05 	 & 1.0e-01 	 & 10 & 357 	 & -0.011 & +0.070 & +0.052 & +0.038 \\ 
+ %1.0e-05 	 & 1.0e-01 	 & 10 & 357 	 & -0.011 & +0.070 & +0.052 & +0.038 \\ 
 % 1.0e-05 	 & 1.0e-02 	 & 10 & 399 	 & +0.041 & +0.075 & +0.042 & +0.049 \\ 
- \rowcolor{orange} 1.0e-05 	 & 1.0e-03 	 & 10 & 689 	 & +0.044 & +0.062 & +0.020 & +0.172 \\ 
+%1.0e-05 	 & 1.0e-03 	 & 10 & 689 	 & +0.044 & +0.062 & +0.020 & +0.172 \\ 
 %\rowcolor{red} 1.0e-05 	 & 1.0e-04 	 & 10 & 915 	 & +0.030 & +0.077 & +0.039 & +1.027 \\ 
-\rowcolor{red} 1.0e-05 	 & 1.0e-05 	 & 10 & 1001 	 & +0.017 & +0.061 & +0.045 & +1.953 \\ 
-%\rowcolor{red}  1.0e-05 	 & 1.0e-06 	 & 10 & 1001 	 & -0.018 & +0.071 & +0.045 & +2.545 \\ 
+ %1.0e-05 	 & 1.0e-05 	 & 10 & - 	 & +0.017 & +0.061 & +0.045 & +1.953 \\ 
+%\rowcolor{red}  1.0e-05 	 & 1.0e-06 	 & 10 & - 	 & -0.018 & +0.071 & +0.045 & +2.545 \\ 
  1.0e-06 	 & 1.0e+00 	 & 10 & 177 	 & +0.060 & +0.069 & +0.039 & +0.029 \\ 
 % 1.0e-06 	 & 1.0e-01 	 & 10 & 302 	 & +0.011 & +0.039 & +0.039 & +0.038 \\ 
  1.0e-06 	 & 1.0e-02 	 & 10 & 457 	 & +0.011 & +0.055 & +0.036 & +0.050 \\ 
 %\rowcolor{orange} 1.0e-06 	 & 1.0e-03 	 & 10 & 738 	 & -0.022 & +0.055 & +0.042 & +0.172 \\ 
-\rowcolor{red}  1.0e-06 	 & 1.0e-04 	 & 10 & 1001 	 & -0.043 & +0.042 & +0.054 & +1.180 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 10 & -	 & -0.043 & +0.042 & +0.054 & +1.180 \\ 
 %\rowcolor{red}  1.0e-06 	 & 1.0e-05 	 & 10 & 1001 	 & +0.006 & +0.052 & +0.033 & +3.365 \\ 
-\rowcolor{red}  1.0e-06 	 & 1.0e-06 	 & 10 & 1001 	 & -0.002 & +0.065 & +0.051 & +3.402 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 10 & 1001 	 & -0.002 & +0.065 & +0.051 & +3.402 \\ 
 \end{tabular}}
 \label{Tab::Noise0.3}
 \end{table} 
@@ -695,12 +679,12 @@ $\alpha$ & $\beta$ & k & iter & $ ||D_{\Omega_1}||_{RE}$& $||D_{\Omega_2}||_{RE}
  %1.0e-04 	 & 1.0e-01 	 & 40 & 422 	 & +0.001 & -0.007 & +0.004 & +0.005 \\  
  1.0e-04 	 & 1.0e-02 	 & 20 & 258 	 & +0.068 & +0.023 & +0.005 & +0.006 \\ 
  1.0e-04 	 & 1.0e-02 	 & 40 & 339 	 & +0.004 & +0.002 & +0.002 & +0.003 \\   
- 1.0e-05 	 & 1.0e+00 	 & 20 & 237 	 & -0.006 & +0.004 & +0.013 & +0.008 \\ 
- 1.0e-05 	 & 1.0e+00 	 & 40 & 358 	 & -0.018 & -0.019 & +0.005 & +0.007 \\  
+% 1.0e-05 	 & 1.0e+00 	 & 20 & 237 	 & -0.006 & +0.004 & +0.013 & +0.008 \\ 
+ %1.0e-05 	 & 1.0e+00 	 & 40 & 358 	 & -0.018 & -0.019 & +0.005 & +0.007 \\  
  %1.0e-05 	 & 1.0e-01 	 & 20 & 290 	 & +0.026 & +0.010 & +0.008 & +0.007 \\
  %1.0e-05 	 & 1.0e-01 	 & 40 & 419 	 & +0.001 & -0.007 & +0.004 & +0.005 \\    
- 1.0e-05 	 & 1.0e-02 	 & 20 & 316 	 & +0.071 & +0.025 & +0.005 & +0.007 \\ 
- 1.0e-05 	 & 1.0e-02 	 & 40 & 401 	 & +0.004 & +0.003 & +0.002 & +0.004 \\  
+ %1.0e-05 	 & 1.0e-02 	 & 20 & 316 	 & +0.071 & +0.025 & +0.005 & +0.007 \\ 
+ %1.0e-05 	 & 1.0e-02 	 & 40 & 401 	 & +0.004 & +0.003 & +0.002 & +0.004 \\  
  1.0e-06 	 & 1.0e+00 	 & 20 & 219 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
  1.0e-06 	 & 1.0e+00 	 & 40 & 240 	 & -0.020 & -0.019 & +0.005 & +0.007 \\ 
  %1.0e-06 	 & 1.0e-01 	 & 20 & 250 	 & +0.027 & +0.010 & +0.008 & +0.007 \\ 
@@ -821,7 +805,7 @@ $\alpha$ & $\beta$ & k & iter &  $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
  1.0e-04 	 & 1.0e-02 	 & 40 & 611 	 & -0.051 & -0.020 & -0.027 & +0.096 \\ 
  1.0e-05 	 & 1.0e+00 	 & 40 & 561 	 & -0.004 & -0.016 & -0.021 & +0.053 \\ 
  1.0e-05 	 & 1.0e-01 	 & 40 & 688 	 & -0.033 & -0.015 & -0.025 & +0.045 \\ 
-? 1.0e-05 	 & 1.0e-02 	 & 40 & 566 	 & -0.053 & -0.020 & -0.027 & +0.098 \\
+ 1.0e-05 	 & 1.0e-02 	 & 40 & 566 	 & -0.053 & -0.020 & -0.027 & +0.098 \\
  1.0e-06 	 & 1.0e+00 	 & 40 & 517 	 & -0.005 & -0.016 & -0.021 & +0.053 \\ 
  1.0e-06 	 & 1.0e-01 	 & 40 & 619 	 & -0.033 & -0.015 & -0.025 & +0.044 \\  
  1.0e-06 	 & 1.0e-02 	 & 40 & 691 	 & -0.051 & -0.020 & -0.027 & +0.073 \\ 
@@ -860,12 +844,26 @@ $\alpha$ & $\beta$ & k & iter & $ ||D_{\Omega_1}||_{RE}$ & $  ||D_{\Omega_2}||_{
 \end{table} 
 
 
-
-
-
-\bibliographystyle{amsplain}
-\bibliography{references}
-
+\begin{table}
+\centering
+\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the estimated diffusion coefficients for grey $D_g$ and white $D_w$ matter based on MRI data.}
+\resizebox{\textwidth}{!}{\begin{tabular}{*{6}c}
+$\alpha$ & $\beta$ & k & iter &  $ D_{g} \left[ \mathrm{mm\sp{2}/h} \right] $ & $ D_{w} \left[ \mathrm{mm\sp{2}/h} \right]$ \\
+\hline
+ 1.0e-02 	 & 1.0e+00 	 & 48 & 591 	 & 0.648 & 0.893 \\ 
+ 1.0e-02 	 & 1.0e-01 	 & 48 & 461 	 & 0.772 & 0.982 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 48 & 748 	 & 0.986 & 1.198 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 48 & 607 	 & 0.551 & 0.815 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 48 & 598 	 & 0.649 & 0.787 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 48 & 837 	 & 0.740 & 0.817 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 48 & 681 	 & 0.557 & 0.811 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 48 & 780 	 & 0.645 & 0.774 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 48 & 745 	 & 0.736 & 0.819 \\ 
+ 
+\end{tabular}}
+\label{Tab::Real-data}
+\end{table} 
+ 
 
 \end{document}
 
