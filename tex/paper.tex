@@ -89,8 +89,7 @@ to obtain parameters involved time-scales beyond those of the MRI aquisition.
 Figure~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
 Our data (not all shown) consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed with 5 observations within 1-2 hours after injection, 1 observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
 Figure~\ref{fig2} shows the slice selected for our computations. 
-The software Freesurfer was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. 
-
+The software Freesurfer {\color{red} citation needed, Hvilken ? } was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. 
 
 
 \subsection*{Mathematical Model}
@@ -124,18 +123,20 @@ and $u_{obs}$ are observations at certain time-points.
 
 \section*{Implementation}
 The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and the matrix was stored in the solver. 
-The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $max\lbrace | proj x_i | , \quad i = 1, .., N \rbrace \leq gtol=1.0e-1$ where $ proj x_i$ is the i-th component of the projected gradient. {\color{red} see scipy }.  
+The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $max \lbrace | \text{proj} \hspace*{0.2cm} x_i | , \quad i = 1, .., N \rbrace \leq gtol=1.0e-1$ where $x_i$ is the i-th component of the gradient. {\color{red} From scipy :The iteration will stop when $max\lbrace | \text{proj} \hspace*{0.2cm} g_i | , \quad i = 1, .., N \rbrace \leq gtol $  where $pg_i$ is the i-th component of the projected gradient.}
 
-The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}. Then for each timestep, the next observation was used as the initial value for boundary control $g$. The boundary control was imposed on the external boundary for the domain $D_{\Omega_1}$. 
+
 
 The observations $u_{obs}$ have a fixed time-point $t_i$, these time-points may not overlap with the time discretization in the forward problem $t_j$. Therefore, after each time step $dt$ in Eq\ref{Eq::PDE}, it was checked if the time step contained the next observation. If it did, then a linear interpolation of the  current solution $u(t_j)$ and previous solution $u(t_{j-1})$ was used approximate the solution at time $t_i$. The linear interpolation was given as  
 \begin{equation}
 \label{observation:interpolation}
 u(t_i) \approx \frac{\Delta t}{dt} u(t_{j-1}) + \frac{dt - \Delta t }{dt} u(t_{j}), \quad t_i \in \lbrace t_{j-1}, t_j \rbrace
 \end{equation}
-with $\Delta t = t_k-t_i $.  
+with $\Delta t = t_j-t_i$.
 
-The initial values of the diffusion coefficients in the optimization algorithm $(D_{CSF}, D_{GM}, D_{WM})=$  $(1, 1, 1)$. However, to increase the convergence rate, $D_{CSF}$ was scaled with $100$. 
+
+The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}. Then for each timestep, the next observation was used as the initial value for boundary control $g$, which was imposed on the external boundary of the domain $\Omega_1$. The initial values of the diffusion coefficients in the optimization algorithm $(D_{CSF}, D_{GM}, D_{WM})=$  $(1, 1, 1)$. However, to increase the convergence rate, $D_{CSF}$ was scaled with $100$. 
+
 The noise susceptibility was tested by adding an uniform distribution noise term to the observations. The noise term was constructed using numpy.random and adjusted so that noise range becomes $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude. 
 
 This work was performed on the Abel Cluster, owned by the University of Oslo and Uninett\textbackslash Sigma2, and operated by the Department for Research Computing at USIT,the University of Oslo IT-department. \url{http://www.hpc.uio.no/} 
@@ -163,7 +164,7 @@ with $T_2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic 
 S = M_{n} \sin \theta.
 \label{EQ::SI}
 \end{equation}
-In article  \cite{MPRAGE}, the term $M_n$ is defined as the magnetization for the n-echo 
+In article \cite{GOWLAND}, the term $M_n$ is defined as the magnetization for the n-echo 
 \begin{equation}
 M_{n} = M_{0}  \left[ (1-\beta)\frac{(1-(\alpha \beta)\sp{n-1} }{1-\alpha\beta} + (\alpha \beta)\sp{n-1}(1-\gamma) + \gamma ( \alpha \beta)\sp{n-1} \frac{M_{e}}{M_{0}}  \right]   
 \end{equation}
@@ -199,19 +200,19 @@ The difference in the calibraiton constant $M_0$ between observation times were 
 \begin{equation}
 f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
-and we can then estimate concentration using Eq.\ref{EQ::contrast} if we know $T_{1}\sp{0}$. The $T_{1}\sp{0}$ values were obtained by T1 mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This makes it possible to  take into account patients specific characteristic, such as tissue damage. There are several forms of tissue damage, which can be observed in the MRI due to a lower intensity in the white matter compared to healthy white matter tissue. This means that the damaged tissue have a different T1 relaxation time. 
+and we can then estimate concentration using Eq.\ref{EQ::contrast} if we know $T_{1}\sp{0}$. The $T_{1}\sp{0}$ values were obtained by T1 mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This makes it possible to  take into account patients specific characteristic, such as tissue damage. There are several forms of tissue damage that can be observed in the MRI due to a lower intensity in the white matter compared to healthy white matter tissue, hence damaged tissue have different T1 relaxation time. 
 
-The estimation of the tracer concentration was precomputed and used the parameters obtained from the T1 map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function $f(T_1)$ was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline intensity increase to estimate $T_1\sp{c}$, and then the concentration was computed using Eq.\ref{EQ::contrast}.   
+The estimation of the tracer concentration was precomputed and used the parameters obtained from the T1 map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function $f(T_1)$ was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline intensity increase to estimate $T_1\sp{c}$, and then the concentration was computed using Eq.\ref{EQ::contrast}. 
 
 In \cite{sykova2008diffusion}, it was shown that the macroscopic diffusion in the brain can be considered a hindered diffusion with an apparent diffusion coefficient. Thus the computed diffusion coefficients will correspond to the apparent diffusion coefficient.
 
-In the acquired data, the MPRAGE had a high signal to noise ratio and the T1 map had low signal in the CSF. This made it difficult to estimate the concentration in the CSF compartment. Thus an additional mesh without the CSF compartment was constructed, see Fig. \ref{figmesh}.     
+In the acquired data, the MPRAGE had a high signal to noise ratio and the T1 map had low signal in the CSF. This made it difficult to estimate the concentration in the CSF compartment. Thus an additional mesh without the CSF compartment was constructed, see Fig. \ref{Fig::Mesh}.     
 
 \subsection{DTI}
 In addition to the T1 and T2 weighted sequences described above we have also obtained diffusion tensor imaging (DTI) to assess the apparent diffusion 
-coefficients on short time-scales. Images are shown in Figure~\ref{FIG:DTI} where the larges diffusion coefficient (shown in 
+coefficients on short time-scales. Images are shown in Figure~\ref{figuredti} where the larges diffusion coefficient (shown in 
 red in the middle figure) is shown to be around 0.001 mm$^2$/s. We remark that we have not included possible anisotropy, shown in 
-the right-most image in Figure~\ref{FIG:DTI} and that these images shows the apparent diffusion coefficient for free water molecules (18 Da).      
+the right-most image in Figure~\ref{figuredti} and that these images shows the apparent diffusion coefficient for free water molecules (18 Da).      
 The diffusivity of the Gadovist (600 Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \cite{GdDPTA-DIFFUSION} to be 3.8e-4$\mathrm{mm\sp{2}/s}$.
 
 
@@ -227,8 +228,8 @@ In these equations $\lambda_i$ denotes the eigenvalues of the diffusion tensor.
 \begin{figure}
 \centering
 \includegraphics[width=0.80\textwidth]{DTI-zoom.png} 
-\label{FIG::DTI} 
 \caption{The left panel show the anatomical map. The middle panel show the apparent diffusion coefficients (ADC) obtained from DTI. The right panel shows the computed fractional anisotropy (FA) from the DTI.}
+\label{figuredti} 
 \end{figure}
 
 
@@ -266,24 +267,20 @@ The mesh construction was patient-specific and was constructed by using the MRI 
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
-\label{figmesh} 
 \caption{A) Shows the mesh created from the baseline MR image with 3 domains. B) Shows the mesh created from the baseline MR image with 2 domains.  }
 \label{Fig::Mesh}
 \end{figure}
 The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. The dimension of the mesh coordiantes are $\mathrm{mm}$.
 
-
-
-
 \section{Results}
 Below we will discuss the parameter identification and its sensitivity with respect to regularization parameters, noise and time-resolution. 
 In presentation of the results, the relative error norm  $||\cdot||_{RE}$ is defined as 
 \begin{equation}
-|| X ||_{RE} = \frac{X_{found} -X_{true} }{ X_{true} }
+ X\sp{rel} = \frac{X_{found} -X_{true} }{ X_{true} }
 \end{equation}
 with $X$ as an arbitrary scalar control parameter. For the boundary parameter $g$, the relative error norm is defined as 
 \begin{equation}
-|| g ||_{RE} = \frac{ \sum\limits_t\sp{k}||| g_{found}(t) -g_{true}(t)||_{L(\Omega_1)} }{  \sum\limits_t\sp{k}||g_{true}(t)||_{L(\Omega_1)} }
+|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} = \frac{ \sum\limits_t\sp{k}| g_{found}(t) -g_{true}(t)||_{L(\Omega_1)} }{  \sum\limits_t\sp{k}||g_{true}(t)||_{L(\Omega_1)} }
 \end{equation}
 In the case that the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen.  
 
@@ -294,20 +291,53 @@ Ideally, the approach should have a wide range of parameters in which the recons
 the convergence may vary substatantially.
  The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and compare the controls with the manufactured solution. The observation times were selected with $t_i \in  \lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps in the forward problem was set to $k= 10$. 
 
-The results are shown in Tabel~\ref{Tab::1} together with the number of iteration used to reach the convergence criteria. For $\alpha= 1.0$, it can be observed that there is a significant relative error for $D_{\Omega_1}$. The other control parameters also show an increased relative error when compared to other values of $\alpha$. 
+The results are shown in Tabel~\ref{Tab::1} together with the number of iteration used to reach the convergence criteria. It can be observed that for all $\alpha=1.0$ had significant relative error for $D_{\Omega_1}$, and this can also be observed for all $\beta=100$. These parameter selections fails to reconstructed the manufacured solutions, due to $g$ influence on $F$ 
+
+
+
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.2]{convergence_0}  
-\includegraphics[scale=0.2]{convergence_1}  
-\includegraphics[scale=0.2]{convergence_2}  
-\includegraphics[scale=0.2]{convergence_3}  
-\includegraphics[scale=0.2]{convergence_4}  
+\includegraphics[scale=0.2]{Convergence0}  
+\includegraphics[scale=0.2]{Convergence1}  
+\includegraphics[scale=0.2]{Convergence2}  
+\includegraphics[scale=0.2]{Convergence3}  
+\includegraphics[scale=0.2]{Convergence4}  
 \label{convergence}
 \caption{Convergence of the diffusion coefficients, boundary conditions and functional with respect to different $\alpha$ and $\beta$ values. } 
 \end{figure}
 
+\subsection{The number of timessteps}
+Increasing the number of timesteps in the computations potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization therefore may play a larger role. Furthermore, the computational cost will increases due the number of iterations in the forward problem. Therefore finding the number of timesteps for an effective convergence can help for larger meshes. The computation used different regularization parameters with 10, 20 and 40 timesteps. 
 
+The reults are show in Tab.\ref{TAB::timesteps}, and can be seen that for $\alpha=1.0$ the relative error increases with the number of timesteps. While for values $\alpha < 1.0 $, the relative error decreases with increasing number of timesteps. 
+
+This prompted to look at the boundary control $g$ through time by selecting high and low values of $\alpha$ and $\beta$, see Fig \ref{boundarycontrol}. Figure \ref{boundarycontrol} displays oscillations for $\alpha=1.0$ with $k=40$. The oscillation peaks correlate with the observation times. It can also be observed that $\alpha=1.0e-4$ and $\beta=1.0e-4$ there is a small oscillation.
+
+
+\subsection{The number of observations}
+The dependency on observations is relevant, since the number of observations of the MRI data is limited. This was investigated by changing the number of observations, and examine the resulting states. The number of observation were chosen to be 5, 10  and 20, and times were set to be evenly spaced. The range of regularization parameters were restricted to values that had previously low relative error. 
+
+The results are shown in Tab.\ref{TAB::timesteps}, Tab.\ref{TAB::double} and Tab.\ref{TAB::half}. In the case of 10 observations, the number of timesteps showed a decrease in the relative error. Similar effects was observed for 5 and 20 observations. 
+
+
+The relative boundary error for $\beta=1.0$  in Table~\ref{TAB::half} have similar value, independent on number of timesteps. This not the case for  
+
+
+The spikes in Figure ~\ref{boundarycontrol} relates to the observation points $t_i$.
+
+
+
+
+
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.2]{boundary_control.png}  
+\caption{ Displays plots over time for a selection of points at the boundary of $\Omega_1$ with different regularization parameters and number of timesteps $k$. The left panel shows the legend for the plot over time, together with the selection of points. The middel panel shows the average bounadry value $g$ for different regularization parameter with $k=10$. The right panel shows the average bounadry value $g$ for different regularization parameter with $k=40$. }
+\label{boundarycontrol}
+\end{figure}
 
 \subsection{The noise susceptibility}
 The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by adding uniform noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution with 
@@ -318,7 +348,7 @@ In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{27-12-hours-scale-0-1-3.png}  
+\includegraphics[scale=0.4]{12-clrscl-0413-regp--40-interp-white-2.png}  
 \caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
 \label{12hourswithnoise}
 \end{figure}
@@ -326,32 +356,23 @@ In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{27-24-hours-scale-0-1.png}
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
+\includegraphics[scale=0.4]{24-clrscl-0212-regp--40-interp.png}
+\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
 \label{24hourswithnoise}
 \end{figure}
 
 
-\subsection{The number of timessteps}
-Increasing the number of timesteps in the simulations potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization therefore may play a larger role. Furthermore,  the computational cost for each iteration of the L-BFGS-B algorithm as one
-forward solve is performed per iteration. Thus finding the number of timesteps for an effective convergence can help for larger meshes. The computation vary the timesteps with 10, 20 and 40 timesteps. Additionally, the computation will use a few variations of the regularization parameters that gives small relative errors. 
 
-This gave the values presented in Tab.\ref{TAB::timesteps}, and can be seen that increase in the number of timesteps causes a decrease in the relative error. 
 
-\subsection{The number of observations}
-The dependency on observations is relevant, since the number of observations of the MRI data is limited. This was investigated by changing the number of observations, and examine the resulting states. The number of observation were chosen to be 5, 10  and 20, and times were set to be evenly spaced. 
-
-The results are shown in Tab.\ref{TAB::timesteps}, Tab.\ref{TAB::double} and Tab.\ref{TAB::half}. In the case of 10 observations, the number of timesteps showed a decrease in the relative error. Similar effects was observed for 5 and 20 observations. However, the variation of observations did not show a consistent decrease in error. And the variation in the relative error indicates oscillations in the convergence. 
-
-\subsection{Sparse observations}
-The MRI data contains observations after the injection of CSF tracer. These observation are unevenly distributed in time resulting in large time intervals with no observations. Therefore the effect of these temporal gaps in the observations will be evaluated. This was done by selecting the observation times as follows  $t_i = \lbrace$0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0$\rbrace$. The regularization parameters was selected, so that the error would be minimized,and noise was also added.
-
-The results are shown in Tab.\ref{Tab::Hole1} and Tab\ref{Tab::Hole2}, and it can be observed that the addition of noise caused $\beta=1.0$ to converge the same. Comparing the values in Tab\ref{Tab::Hole1} and Tab.\ref{TAB::timesteps}, showed that the relative error increased.  
+%\subsection{Sparse observations}
+%The MRI data contains observations after the injection of CSF tracer. These observation are unevenly distributed in time resulting in large time intervals with no observations. Therefore the effect of these temporal gaps in the observations will be evaluated. This was done by selecting the observation times as follows  $t_i = \lbrace$0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0$\rbrace$. The regularization parameters was selected, so that the error would be minimized,and noise was also added.
+%
+%The results are shown in Tab.\ref{Tab::Hole1} and Tab\ref{Tab::Hole2}, and it can be observed that the addition of noise caused $\beta=1.0$ to converge the same. Comparing the values in Tab\ref{Tab::Hole1} and Tab.\ref{TAB::timesteps}, showed that the relative error increased.  
 
 \subsection{MRI Data} 
 The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24.06, 47.84, 698.02 $\rbrace (hours)$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace $ 0.00, 0.16, 0.39, 0.55, 0.77 $ \rbrace$. This prompted the use of the following observation times  $0.00, 2.09, 6.05, 24.06, 47.84$. 
 
-The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{figmesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$ denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $gtol=6.0e-1$. 
+The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$ denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $gtol=6.0e-1$. The number of timesteps were selceted to be $k=48$, which gives approximate $dt = 1 hour$.   
 
 The results are shown in Tab.\ref{Tab::Real-data}, 
 and the observation together with resulting states are displayed in Fig.\ref{Fig::realdata}
@@ -360,12 +381,30 @@ and the observation together with resulting states are displayed in Fig.\ref{Fig
  
 
 \subsection*{DTI comparison}
-The median diffusion coefficient in the DTI was estimated to be 8.7e-4 $\mathrm{mm\sp{2}/s}$ in   white matter and 1.0e-3 $\mathrm{mm\sp{2}/s}$ in grey matter.   %This corresponds to 3.1 $\mathrm{mm\sp{2}/h}$ and  3.6 $\mathrm{mm\sp{2}/h}$. 
-The self-diffusivity of water have been estimated to be around 3.0e-3$\mathrm{mm\sp{2}/s}$ for  $37\sp{o}C$.% This corresponds to 10.8 $\mathrm{mm\sp{2}/h}$ and  $\mathrm{mm\sp{2}/h}$. 
 
-The reference value for Gd-DPTA was set to 3.8e-4 $\mathrm{mm\sp{2}/s}$. The values in Tab.\ref{Tab::Real-data} gives the value-range $1.5e-4 -2.7e-4\mathrm{mm\sp{2}/s}$ for the grey diffusion coefficient and  $2.2e-4 - 3.3e-4\mathrm{mm\sp{2}/s}$ for the white diffusion coefficient. These values are $20 -110 \%$ larger than the expected values for $D_{g}$,  and $100 - 200 \%$ larger than the expected values for $D_{w}$. 
+% \begin{table}
+%\centering
+%\caption{Viser omgjøringer,estiamering og prosentvis forskjell for min og max control/optimerte verdier . Unit $\left[ \mathrm{mm\sp{2}/h} \right]$}
+%\begin{tabular}{*{2}c}
+% Parameter    & Value \\
+%\hline
+%Median 
+%\end{tabular}
+%\label{}
+%\end{table} 
+%% 
 
-The estimation assumes that the tortousity is independent on molecular size.
+The median diffusion coefficient in the DTI was estimated to be $8.7e-4 \mathrm{mm\sp{2}/s}$ in white matter and $1.0e-3 \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to $1.85$ and $1.73$ in tortuosity, given that the self-diffusivity of water has been estimated to be around $3.0e-3\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$.% This corresponds to 10.8 $\mathrm{mm\sp{2}/h}$ and  $\mathrm{mm\sp{2}/h}$. 
+Then by using the reference value $3.8e-4 \mathrm{mm\sp{2}/s}$ for Gd-DPTA gives an estimate for the diffusion coefficient in the grey and white matter to respecitvly be $ 1.26\mathrm{mm\sp{2}/s}$ adn $1.10 \mathrm{mm\sp{2}/s}$. This estiamtion assums that the tortuoisty is indepedent on molecular size ? . 
+
+The oscillation in Fig.\ref{boundarycontrol} showed a large discrepency in the states between observations. Therefore the states after 36 hours were examined, see Figure  ~\ref{statecomparison}, and the upper rows some indications of non- optimal regularization parameters. This prompt the exclusion of the corresponding valeus, which gives an average computed values $0.65 \mathrm{mm\sp{2}/h}$ and  $0.80 \mathrm{mm\sp{2}/h}$ in respectively grey and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives $1.8 \mathrm{mm\sp{2}/s}$ and $2.22 \mathrm{mm\sp{2}/s}$. 
+
+This gives a relative errot of $42 \%$ in grey matter and $ 100 %$ in white matter comparied the estimted values.
+
+
+
+The computation require that there is tracer present to compute the diffusion coefficient. In Fig.\ref{Fig::realdata}, it can be seen that there are regions with neglible amount of tracers and vice versa. Considering $1.3 \mathrm{mm\sp{2}/s}$ as the upper boound gives an estimated upper bound $1.43$ diffusion coefficient in the white matter. This relative error of $54%$ difference.  
+
 
 %The region with high diffusivity in the white matter, shown in Fig\ref{FIG::DTI}, gives a upper bound on the diffusion coefficient to be 1.3 $\mathrm{mm\sp{2}/s}$. 
 
@@ -384,21 +423,16 @@ The estimation assumes that the tortousity is independent on molecular size.
 %\label{}
 %\end{table} 
 % 
-
-
-{\color{red} tortuoisty mindre for støre molekyler ? }
 %The region with high diffusivity in the white matter, shown in Fig\ref{FIG::DTI}, gives a upper bound on the diffusion coefficient to be 1.3 $\mathrm{mm\sp{2}/s}$
 
 \section{Discussion}
 
-
-\subsection{Manufactures Solution}
 %The results from the manufactured solutions showed a robust method to compute diffusion coefficients. However, the maufactured solutions were constructed .. ? .. .
-The computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{FIG::DTI}. The region with high FA, can also be observed in the observation after 48 hours, shown in Fig.\ref{Fig::realdata}. This observation is after 48 hours, and the amount of tracer inside the anisotropic region is negligible. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observation of tracer in anisotropic regions are needed for the integration of anisotropy into the model. 
+The computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. The region with high FA, can also be observed in the observation after 48 hours, shown in Fig.\ref{Fig::realdata}. This observation is after 48 hours, and the amount of tracer inside the anisotropic region is negligible. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observation of tracer in anisotropic regions are needed for the integration of anisotropy into the model. 
   
-A more important factor are regions with higher diffusivity. Comparing Fig.\ref{FIG::DTI} and Fig \ref{Fig::realdata}, it can be observed that the region with high diffusivity also have a high tracer concentration. 
+A more important factor are regions with higher diffusivity. Comparing Fig.\ref{figuredti} and Fig \ref{Fig::realdata}, it can be observed that the region with high diffusivity also have a high tracer concentration. 
 
-The computational model have 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{FIG::DTI} that diffusion coefficients can be considered a spacial function. Although the implmentaion of spacial control parameters are possible, it would siginificantly increase the computational cost. 
+The computational model have 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{figuredti} that diffusion coefficients can be considered a spacial function. Although the implmentaion of spacial control parameters are possible, it would siginificantly increase the computational cost. 
 
 The coputational cost dependes on the relaxation parameteres, the number of controls and solution of the PDE.
 
@@ -447,15 +481,6 @@ The hypothesis of the glymphatic system [insert citation] states that the waste 
 \bibliographystyle{amsplain}
 \bibliography{references}
 
-
-\newpage 
-\newgeometry{top=0.5cm}
-
-
-
-
- 
- 
  
 
 
@@ -469,12 +494,23 @@ The hypothesis of the glymphatic system [insert citation] states that the waste 
 \label{Fig::realdata}
 \end{figure}
 
+\begin{figure}
+\centering
+\includegraphics[width=0.95\textwidth]{Statecomparison36h-pinta.png} 
+\caption{ Displays the states for different regularixation parameters after 36 h.}
+\label{statecomparison}
+\end{figure}
+
+ 
+
+
 \begin{table}
 \centering
 \caption{Shows the regularization parameters $\alpha$ and $\beta$, number of timesteps $k$ and number of observation $\tau$ with the resulting number of iterations and the relative error for the control parameters. }
-\resizebox{0.9\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{RE} $ & $||D_{\Omega_3}||_{RE}$ & $||g||_{RE}$ \\
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel}$ & $||g||_{rel}$ \\
 \hline
+  1.0e+00 	 & 1.0e+02 	 & 10 & 499 	 & +5.125 & +0.278 & +0.105 & +0.127 \\ 
   1.0e+00 	 & 1.0e+00 	 & 10 & 225 	 & +4.148 & +0.304 & +0.092 & +0.135 \\ 
 %\rowcolor{red}  1.0e+00 	 & 1.0e-01 	 & 10 & 206 	 & +4.272 & +0.305 & +0.091 & +0.142 \\ 
  1.0e+00 	 & 1.0e-02 	 & 10 & 233 	 & +4.272 & +0.305 & +0.091 & +0.143 \\ 
@@ -490,7 +526,7 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
 % 1.0e-01 	 & 1.0e-04 	 & 10 & 212 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
  %1.0e-01 	 & 1.0e-05 	 & 10 & 168 	 & +0.122 & +0.093 & +0.041 & +0.057 \\
 % 1.0e-01 	 & 1.0e-06 	 & 10 & 195 	 & +0.122 & +0.093 & +0.041 & +0.057 \\ 
-
+1.0e-02 	 & 1.0e+02 	 & 10 & 228 	 & +0.702 & +0.106 & +0.035 & +0.033 \\ 
  1.0e-02 	 & 1.0e+00 	 & 10 & 227 	 & +0.015 & +0.067 & +0.039 & +0.018 \\ 
  %1.0e-02 	 & 1.0e-01 	 & 10 & 153 	 & +0.006 & +0.065 & +0.039 & +0.021 \\ 
  1.0e-02 	 & 1.0e-02 	 & 10 & 184 	 & +0.005 & +0.065 & +0.039 & +0.039 \\ 
@@ -507,7 +543,7 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
  %1.0e-03 	 & 1.0e-05 	 & 10 & 105 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
  %1.0e-03 	 & 1.0e-06 	 & 10 & 123 	 & -0.007 & +0.062 & +0.039 & +0.028 \\ 
 
-
+ 1.0e-04 	 & 1.0e+02 	 & 10 & 167 	 & +0.688 & +0.104 & +0.035 & +0.032 \\ 
  1.0e-04 	 & 1.0e+00 	 & 10 & 236 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
  %1.0e-04 	 & 1.0e-01 	 & 10 & 195 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
  1.0e-04 	 & 1.0e-02 	 & 10 & 152 	 & -0.006 & +0.062 & +0.039 & +0.022 \\ 
@@ -523,7 +559,7 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
  %1.0e-05 	 & 1.0e-04 	 & 10 & 77 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
  %1.0e-05 	 & 1.0e-05 	 & 10 & 104 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
  %1.0e-05 	 & 1.0e-06 	 & 10 & 92 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
-
+ 1.0e-06 	 & 1.0e+02 	 & 10 & 210 	 & +0.685 & +0.104 & +0.035 & +0.032 \\ 
  1.0e-06 	 & 1.0e+00 	 & 10 & 163 	 & +0.003 & +0.064 & +0.039 & +0.019 \\ 
  %1.0e-06 	 & 1.0e-01 	 & 10 & 218 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
  1.0e-06 	 & 1.0e-02 	 & 10 & 134 	 & -0.008 & +0.062 & +0.039 & +0.023 \\ 
@@ -531,7 +567,7 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
  1.0e-06 	 & 1.0e-04 	 & 10 & 107 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
  %1.0e-06 	 & 1.0e-05 	 & 10 & 103 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
  1.0e-06 	 & 1.0e-06 	 & 10 & 91 	 & -0.008 & +0.062 & +0.039 & +0.026 \\  
-\end{tabular}}
+\end{tabular}
 \label{Tab::1}
 \end{table} 
 
@@ -541,20 +577,163 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{
 
 
 
+
+\begin{table}
+\centering
+\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. }
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $&$|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
+\hline
+ %1.0e+00 	 & 1.0e+00 	 & 10 & 128 	 & +1.587 & +0.217 & +0.091 & +0.119 \\ 
+ 1.0e+00 	 & 1.0e+00 	 & 20 & 268 	 & +5.537 & +0.321 & +0.152 & +0.128 \\ 
+ 1.0e+00 	 & 1.0e+00 	 & 40 & 381 	 & +12.346 & +0.890 & +0.249 & +0.154\\ 
+
+% 1.0e+00 	 & 1.0e-04 	 & 10 & 130 	 & +1.558 & +0.216 & +0.091 & +0.119 \\ 
+ 1.0e+00 	 & 1.0e-04 	 & 20 & 497 	 & +19.414 & +1.514 & +0.422 & +0.259\\ 
+ 1.0e+00 	 & 1.0e-04 	 & 40 & 872 	 & +63.564 & +18.579 & +17.218 & +0.641 \\ 
+
+% 1.0e-04 	 & 1.0e+00 	 & 10 & 140 	 & -0.048 & +0.032 & +0.035 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 165 	 & +0.006 & +0.000 & +0.008 & +0.007 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 285 	 & +0.005 & -0.013 & +0.000 & +0.003 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 187 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 257 	 & -0.019 & -0.019 & +0.005 & +0.007 \\ 
+ %1.0e-04 	 & 1.0e-01 	 & 20 & 367 	 & +0.028 & +0.010 & +0.008 & +0.007 \\
+ %1.0e-04 	 & 1.0e-01 	 & 40 & 422 	 & +0.001 & -0.007 & +0.004 & +0.005 \\  
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 258 	 & +0.068 & +0.023 & +0.005 & +0.006 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 339 	 & +0.004 & +0.002 & +0.002 & +0.003 \\  
+ 
+ %1.0e-04 	 & 1.0e-04 	 & 10 & 113 	 & -0.060 & +0.030 & +0.036 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 & 322 	 & +0.105 & +0.031 & -0.003 & +0.020 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 40 & 358 	 & -0.011 & -0.005 & -0.003 & +0.004 \\ 
+ 
+% 1.0e-05 	 & 1.0e+00 	 & 20 & 237 	 & -0.006 & +0.004 & +0.013 & +0.008 \\ 
+ %1.0e-05 	 & 1.0e+00 	 & 40 & 358 	 & -0.018 & -0.019 & +0.005 & +0.007 \\  
+ %1.0e-05 	 & 1.0e-01 	 & 20 & 290 	 & +0.026 & +0.010 & +0.008 & +0.007 \\
+ %1.0e-05 	 & 1.0e-01 	 & 40 & 419 	 & +0.001 & -0.007 & +0.004 & +0.005 \\    
+ %1.0e-05 	 & 1.0e-02 	 & 20 & 316 	 & +0.071 & +0.025 & +0.005 & +0.007 \\ 
+ %1.0e-05 	 & 1.0e-02 	 & 40 & 401 	 & +0.004 & +0.003 & +0.002 & +0.004 \\  
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 219 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 240 	 & -0.020 & -0.019 & +0.005 & +0.007 \\ 
+ %1.0e-06 	 & 1.0e-01 	 & 20 & 250 	 & +0.027 & +0.010 & +0.008 & +0.007 \\ 
+ %1.0e-06 	 & 1.0e-01 	 & 40 & 365 	 & +0.000 & -0.007 & +0.004 & +0.005 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 379 	 & +0.070 & +0.025 & +0.005 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 386 	 & +0.004 & +0.003 & +0.002 & +0.004 \\ 
+\end{tabular}
+\label{TAB::timesteps}
+\end{table} 
+
+
+\begin{table}
+\centering
+\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i \in \lbrace 4.8, 9.6, 14.4, 19.2, 24.0 \rbrace $. }
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $&$|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
+\hline
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 161 	 & +0.081 & +0.027 & +0.049 & +0.023 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 202 	 & +0.007 & -0.050 & +0.017 & +0.028 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 308 	 & -0.032 & -0.081 & +0.002 & +0.031 \\
+  
+% 1.0e-04 	 & 1.0e-01 	 & 10 & 185 	 & +0.123 & +0.046 & +0.037 & +0.021 \\ 
+% 1.0e-04 	 & 1.0e-01 	 & 20 & 336 	 & +0.028 & -0.009 & +0.009 & +0.023 \\
+% 1.0e-04 	 & 1.0e-01 	 & 40 & 379 	 & -0.004 & -0.033 & -0.006 & +0.026 \\ 
+ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 265 	 & +0.160 & +0.082 & +0.033 & +0.016 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 320 	 & +0.025 & +0.025 & +0.015 & +0.013 \\
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 377 	 & +0.006 & +0.006 & -0.001 & +0.008 \\ 
+  
+ 
+% 1.0e-05 	 & 1.0e+00 	 & 10 & 192 	 & +0.083 & +0.026 & +0.049 & +0.023 \\ 
+% 1.0e-05 	 & 1.0e+00 	 & 20 & 195 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
+% 1.0e-05 	 & 1.0e+00 	 & 40 & 212 	 & -0.034 & -0.083 & +0.001 & +0.031 \\ 
+ 
+% 1.0e-05 	 & 1.0e-01 	 & 10 & 223 	 & +0.118 & +0.047 & +0.037 & +0.020 \\ 
+%  1.0e-05 	 & 1.0e-01 	 & 20 & 320 	 & +0.029 & -0.011 & +0.009 & +0.026 \\
+%  1.0e-05 	 & 1.0e-01 	 & 40 & 396 	 & -0.007 & -0.036 & -0.006 & +0.028 \\ 
+  
+  
+%  1.0e-05 	 & 1.0e-02 	 & 10 & 267 	 & +0.159 & +0.084 & +0.033 & +0.016 \\ 
+%  1.0e-05 	 & 1.0e-02 	 & 20 & 351 	 & +0.023 & +0.017 & +0.011 & +0.019 \\ 
+%  1.0e-05 	 & 1.0e-02 	 & 40 & 374 	 & +0.009 & +0.007 & -0.003 & +0.014 \\ 
+  
+  
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 176 	 & +0.082 & +0.026 & +0.049 & +0.023 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 224 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 226 	 & -0.034 & -0.082 & +0.001 & +0.031 \\ 
+  
+% 1.0e-06 	 & 1.0e-01 	 & 10 & 229 	 & +0.120 & +0.046 & +0.037 & +0.021 \\ 
+%  1.0e-06 	 & 1.0e-01 	 & 20 & 334 	 & +0.027 & -0.012 & +0.009 & +0.026 \\  
+% 1.0e-06 	 & 1.0e-01 	 & 40 & 313 	 & -0.007 & -0.037 & -0.006 & +0.030 \\
+  
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 253 	 & +0.156 & +0.080 & +0.033 & +0.018 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 340 	 & +0.020 & +0.016 & +0.012 & +0.019 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 368 	 & +0.006 & +0.006 & -0.004 & +0.013 \\ 
+\end{tabular}
+\label{TAB::half}
+\end{table} 
+
+\begin{table}
+\centering
+\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were $t_i \in \lbrace $1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4,$ 21.6, 22.8, 24.0\rbrace $.}
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
+\hline
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 246 	 & -0.046 & +0.038 & +0.023 & +0.031 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 228 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 279 	 & -0.007 & +0.000 & +0.003 & +0.002 \\  
+  
+% 1.0e-04 	 & 1.0e-01 	 & 10 & 292 	 & -0.052 & +0.038 & +0.024 & +0.032 \\  
+% 1.0e-04 	 & 1.0e-01 	 & 20 & 331 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
+% 1.0e-04 	 & 1.0e-01 	 & 40 & 313 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 338 	 & -0.053 & +0.038 & +0.024 & +0.032 \\ 
+  1.0e-04 	 & 1.0e-02 	 & 20 & 367 	 & +0.003 & +0.018 & +0.005 & +0.007 \\
+   1.0e-04 	 & 1.0e-02 	 & 40 & 273 	 & +0.017 & +0.006 & -0.001 & +0.001 \\  
+  
+% 1.0e-05 	 & 1.0e+00 	 & 10 & 290 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
+%  1.0e-05 	 & 1.0e+00 	 & 20 & 194 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+%   1.0e-05 	 & 1.0e+00 	 & 40 & 238 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
+  
+% 1.0e-05 	 & 1.0e-01 	 & 10 & 316 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+%  1.0e-05 	 & 1.0e-01 	 & 20 & 312 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
+%   1.0e-05 	 & 1.0e-01 	 & 40 & 317 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+   
+   
+ %1.0e-05 	 & 1.0e-02 	 & 10 & 389 	 & -0.052 & +0.038 & +0.024 & +0.033 \\ 
+ % 1.0e-05 	 & 1.0e-02 	 & 20 & 266 	 & +0.004 & +0.018 & +0.005 & +0.007 \\ 
+ %  1.0e-05 	 & 1.0e-02 	 & 40 & 336 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
+   
+   
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 282 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
+  1.0e-06 	 & 1.0e+00 	 & 20 & 179 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+  1.0e-06 	 & 1.0e+00 	 & 40 & 261 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
+ 
+  
+% 1.0e-06 	 & 1.0e-01 	 & 10 & 308 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+%  1.0e-06 	 & 1.0e-01 	 & 20 & 245 	 & -0.002 & +0.018 & +0.006 & +0.006 \\ 
+%   1.0e-06 	 & 1.0e-01 	 & 40 & 318 	 & +0.004 & +0.003 & +0.000 & +0.002 \\
+
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 285 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 362 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 375 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
+\end{tabular}
+\label{TAB::double}
+\end{table} 
+
+
 \newpage
 \begin{table}
 \centering
 \caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.03, and $ t_i=[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$ }
-\resizebox{0.8\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE} $ & $||D_{\Omega_2}||_{RE}$ & $||D_{\Omega_3}||_{RE}$ & $||g||_{RE}$\\
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel} $ & $D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel}$ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $\\
 \hline
- 1.0e+00 	 & 1.0e+00 	 & 10 & 218 	 & +4.266 & +0.304 & +0.092 & +0.135 \\ 
+ %1.0e+00 	 & 1.0e+00 	 & 10 & 218 	 & +4.266 & +0.304 & +0.092 & +0.135 \\ 
  %1.0e+00 	 & 1.0e-01 	 & 10 & 223 	 & +4.565 & +0.304 & +0.090 & +0.142 \\ 
- 1.0e+00 	 & 1.0e-02 	 & 10 & 199 	 & +4.268 & +0.305 & +0.090 & +0.143 \\ 
+% 1.0e+00 	 & 1.0e-02 	 & 10 & 199 	 & +4.268 & +0.305 & +0.090 & +0.143 \\ 
 % 1.0e+00 	 & 1.0e-03 	 & 10 & 222 	 & +4.274 & +0.305 & +0.090 & +0.143 \\ 
- 1.0e+00 	 & 1.0e-04 	 & 10 & 211 	 & +4.448 & +0.306 & +0.090 & +0.143 \\ 
+% 1.0e+00 	 & 1.0e-04 	 & 10 & 211 	 & +4.448 & +0.306 & +0.090 & +0.143 \\ 
 % 1.0e+00 	 & 1.0e-05 	 & 10 & 227 	 & +4.527 & +0.304 & +0.090 & +0.143 \\ 
- 1.0e+00 	 & 1.0e-06 	 & 10 & 263 	 & +4.266 & +0.306 & +0.091 & +0.143 \\ 
+%1.0e+00 	 & 1.0e-06 	 & 10 & 263 	 & +4.266 & +0.306 & +0.091 & +0.143 \\ 
  
  %1.0e-01 	 & 1.0e+00 	 & 10 & 167 	 & +0.131 & +0.093 & +0.041 & +0.027 \\ 
 % 1.0e-01 	 & 1.0e-01 	 & 10 & 195 	 & +0.125 & +0.093 & +0.039 & +0.046 \\ 
@@ -603,22 +782,22 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE} $ & $||D_{\Omega_2}||_{
  1.0e-06 	 & 1.0e-04 	 & 10 & 109 	 & -0.005 & +0.062 & +0.038 & +0.027 \\ 
  %1.0e-06 	 & 1.0e-05 	 & 10 & 116 	 & -0.007 & +0.063 & +0.039 & +0.027 \\ 
  1.0e-06 	 & 1.0e-06 	 & 10 & 108 	 & +0.001 & +0.062 & +0.040 & +0.027 \\ 
-\end{tabular}}
+\end{tabular}
 \label{Tab::Noise0.03}
 \end{table} 
 \begin{table}[t]
 \centering
 \caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.3, and $t_i =[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$  }
-\resizebox{0.8\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $||D_{\Omega_2}||_{RE} $ & $||D_{\Omega_3}||_{RE} $ & $||g||_{RE}$ \\
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
 \hline
- 1.0e+00 	 & 1.0e+00 	 & 10 & 212 	 & +4.268 & +0.310 & +0.073 & +0.138 \\ 
+% 1.0e+00 	 & 1.0e+00 	 & 10 & 212 	 & +4.268 & +0.310 & +0.073 & +0.138 \\ 
  %1.0e+00 	 & 1.0e-01 	 & 10 & 211 	 & +4.122 & +0.302 & +0.085 & +0.146 \\ 
- 1.0e+00 	 & 1.0e-02 	 & 10 & 221 	 & +4.773 & +0.298 & +0.089 & +0.147 \\ 
+% 1.0e+00 	 & 1.0e-02 	 & 10 & 221 	 & +4.773 & +0.298 & +0.089 & +0.147 \\ 
  %1.0e+00 	 & 1.0e-03 	 & 10 & 257 	 & +4.872 & +0.301 & +0.090 & +0.147 \\ 
- 1.0e+00 	 & 1.0e-04 	 & 10 & 238 	 & +4.186 & +0.293 & +0.097 & +0.148 \\ 
+% 1.0e+00 	 & 1.0e-04 	 & 10 & 238 	 & +4.186 & +0.293 & +0.097 & +0.148 \\ 
  %1.0e+00 	 & 1.0e-05 	 & 10 & 204 	 & +4.251 & +0.313 & +0.085 & +0.147 \\ 
- 1.0e+00 	 & 1.0e-06 	 & 10 & 223 	 & +4.493 & +0.310 & +0.085 & +0.147 \\ 
+% 1.0e+00 	 & 1.0e-06 	 & 10 & 223 	 & +4.493 & +0.310 & +0.085 & +0.147 \\ 
  %1.0e-01 	 & 1.0e+00 	 & 10 & 145 	 & +0.126 & +0.100 & +0.054 & +0.035 \\ 
  %1.0e-01 	 & 1.0e-01 	 & 10 & 199 	 & +0.115 & +0.125 & +0.026 & +0.060 \\ 
  %1.0e-01 	 & 1.0e-02 	 & 10 & 217 	 & +0.128 & +0.092 & +0.036 & +0.071 \\ 
@@ -661,194 +840,66 @@ $\alpha$ & $\beta$ & k  & iter & $ ||D_{\Omega_1}||_{RE}$ & $||D_{\Omega_2}||_{R
  1.0e-06 	 & 1.0e-04 	 & 10 & -	 & -0.043 & +0.042 & +0.054 & +1.180 \\ 
 %\rowcolor{red}  1.0e-06 	 & 1.0e-05 	 & 10 & 1001 	 & +0.006 & +0.052 & +0.033 & +3.365 \\ 
  1.0e-06 	 & 1.0e-06 	 & 10 & - & -0.002 & +0.065 & +0.051 & +3.402 \\ 
-\end{tabular}}
+\end{tabular}
 \label{Tab::Noise0.3}
 \end{table} 
 
-
-
-
-\begin{table}
-\centering
-\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. }
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ ||D_{\Omega_1}||_{RE}$& $||D_{\Omega_2}||_{RE} $ & $||D_{\Omega_3}||_{RE} $&$||g||_{RE}$ \\
-\hline
- 1.0e-04 	 & 1.0e+00 	 & 20 & 187 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 40 & 257 	 & -0.019 & -0.019 & +0.005 & +0.007 \\ 
- %1.0e-04 	 & 1.0e-01 	 & 20 & 367 	 & +0.028 & +0.010 & +0.008 & +0.007 \\
- %1.0e-04 	 & 1.0e-01 	 & 40 & 422 	 & +0.001 & -0.007 & +0.004 & +0.005 \\  
- 1.0e-04 	 & 1.0e-02 	 & 20 & 258 	 & +0.068 & +0.023 & +0.005 & +0.006 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 40 & 339 	 & +0.004 & +0.002 & +0.002 & +0.003 \\   
-% 1.0e-05 	 & 1.0e+00 	 & 20 & 237 	 & -0.006 & +0.004 & +0.013 & +0.008 \\ 
- %1.0e-05 	 & 1.0e+00 	 & 40 & 358 	 & -0.018 & -0.019 & +0.005 & +0.007 \\  
- %1.0e-05 	 & 1.0e-01 	 & 20 & 290 	 & +0.026 & +0.010 & +0.008 & +0.007 \\
- %1.0e-05 	 & 1.0e-01 	 & 40 & 419 	 & +0.001 & -0.007 & +0.004 & +0.005 \\    
- %1.0e-05 	 & 1.0e-02 	 & 20 & 316 	 & +0.071 & +0.025 & +0.005 & +0.007 \\ 
- %1.0e-05 	 & 1.0e-02 	 & 40 & 401 	 & +0.004 & +0.003 & +0.002 & +0.004 \\  
- 1.0e-06 	 & 1.0e+00 	 & 20 & 219 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 40 & 240 	 & -0.020 & -0.019 & +0.005 & +0.007 \\ 
- %1.0e-06 	 & 1.0e-01 	 & 20 & 250 	 & +0.027 & +0.010 & +0.008 & +0.007 \\ 
- %1.0e-06 	 & 1.0e-01 	 & 40 & 365 	 & +0.000 & -0.007 & +0.004 & +0.005 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 379 	 & +0.070 & +0.025 & +0.005 & +0.007 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 386 	 & +0.004 & +0.003 & +0.002 & +0.004 \\ 
-\end{tabular}}
-\label{TAB::timesteps}
-\end{table} 
-
-
-\begin{table}
-\centering
-\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i \in \lbrace 4.8, 9.6, 14.4, 19.2, 24.0 \rbrace $. }
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ ||D_{\Omega_1}||_{RE}$& $||D_{\Omega_2}||_{RE} $ & $||D_{\Omega_3}||_{RE} $&$||g||_{RE}$ \\
-\hline
- 1.0e-04 	 & 1.0e+00 	 & 10 & 161 	 & +0.081 & +0.027 & +0.049 & +0.023 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 20 & 202 	 & +0.007 & -0.050 & +0.017 & +0.028 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 40 & 308 	 & -0.032 & -0.081 & +0.002 & +0.031 \\
-  
-% 1.0e-04 	 & 1.0e-01 	 & 10 & 185 	 & +0.123 & +0.046 & +0.037 & +0.021 \\ 
-% 1.0e-04 	 & 1.0e-01 	 & 20 & 336 	 & +0.028 & -0.009 & +0.009 & +0.023 \\
-% 1.0e-04 	 & 1.0e-01 	 & 40 & 379 	 & -0.004 & -0.033 & -0.006 & +0.026 \\ 
- 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 265 	 & +0.160 & +0.082 & +0.033 & +0.016 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 20 & 320 	 & +0.025 & +0.025 & +0.015 & +0.013 \\
- 1.0e-04 	 & 1.0e-02 	 & 40 & 377 	 & +0.006 & +0.006 & -0.001 & +0.008 \\ 
-  
- 
-% 1.0e-05 	 & 1.0e+00 	 & 10 & 192 	 & +0.083 & +0.026 & +0.049 & +0.023 \\ 
-% 1.0e-05 	 & 1.0e+00 	 & 20 & 195 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
-% 1.0e-05 	 & 1.0e+00 	 & 40 & 212 	 & -0.034 & -0.083 & +0.001 & +0.031 \\ 
- 
-% 1.0e-05 	 & 1.0e-01 	 & 10 & 223 	 & +0.118 & +0.047 & +0.037 & +0.020 \\ 
-%  1.0e-05 	 & 1.0e-01 	 & 20 & 320 	 & +0.029 & -0.011 & +0.009 & +0.026 \\
-%  1.0e-05 	 & 1.0e-01 	 & 40 & 396 	 & -0.007 & -0.036 & -0.006 & +0.028 \\ 
-  
-  
-%  1.0e-05 	 & 1.0e-02 	 & 10 & 267 	 & +0.159 & +0.084 & +0.033 & +0.016 \\ 
-%  1.0e-05 	 & 1.0e-02 	 & 20 & 351 	 & +0.023 & +0.017 & +0.011 & +0.019 \\ 
-%  1.0e-05 	 & 1.0e-02 	 & 40 & 374 	 & +0.009 & +0.007 & -0.003 & +0.014 \\ 
-  
-  
- 1.0e-06 	 & 1.0e+00 	 & 10 & 176 	 & +0.082 & +0.026 & +0.049 & +0.023 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 20 & 224 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 40 & 226 	 & -0.034 & -0.082 & +0.001 & +0.031 \\ 
-  
-% 1.0e-06 	 & 1.0e-01 	 & 10 & 229 	 & +0.120 & +0.046 & +0.037 & +0.021 \\ 
-%  1.0e-06 	 & 1.0e-01 	 & 20 & 334 	 & +0.027 & -0.012 & +0.009 & +0.026 \\  
-% 1.0e-06 	 & 1.0e-01 	 & 40 & 313 	 & -0.007 & -0.037 & -0.006 & +0.030 \\
-  
- 1.0e-06 	 & 1.0e-02 	 & 10 & 253 	 & +0.156 & +0.080 & +0.033 & +0.018 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 340 	 & +0.020 & +0.016 & +0.012 & +0.019 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 368 	 & +0.006 & +0.006 & -0.004 & +0.013 \\ 
-\end{tabular}}
-\label{TAB::half}
-\end{table} 
-
-\begin{table}
-\centering
-\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were $t_i \in \lbrace $1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4,$ 21.6, 22.8, 24.0\rbrace $.}
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{RE}$ & $||D_{\Omega_3}||_{RE} $ & $||g||_{RE}$ \\
-\hline
- 1.0e-04 	 & 1.0e+00 	 & 10 & 246 	 & -0.046 & +0.038 & +0.023 & +0.031 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 20 & 228 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 40 & 279 	 & -0.007 & +0.000 & +0.003 & +0.002 \\  
-  
-% 1.0e-04 	 & 1.0e-01 	 & 10 & 292 	 & -0.052 & +0.038 & +0.024 & +0.032 \\  
-% 1.0e-04 	 & 1.0e-01 	 & 20 & 331 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
-% 1.0e-04 	 & 1.0e-01 	 & 40 & 313 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
- 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 338 	 & -0.053 & +0.038 & +0.024 & +0.032 \\ 
-  1.0e-04 	 & 1.0e-02 	 & 20 & 367 	 & +0.003 & +0.018 & +0.005 & +0.007 \\
-   1.0e-04 	 & 1.0e-02 	 & 40 & 273 	 & +0.017 & +0.006 & -0.001 & +0.001 \\  
-  
-% 1.0e-05 	 & 1.0e+00 	 & 10 & 290 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
-%  1.0e-05 	 & 1.0e+00 	 & 20 & 194 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
-%   1.0e-05 	 & 1.0e+00 	 & 40 & 238 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
-  
-% 1.0e-05 	 & 1.0e-01 	 & 10 & 316 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
-%  1.0e-05 	 & 1.0e-01 	 & 20 & 312 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
-%   1.0e-05 	 & 1.0e-01 	 & 40 & 317 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
-   
-   
- %1.0e-05 	 & 1.0e-02 	 & 10 & 389 	 & -0.052 & +0.038 & +0.024 & +0.033 \\ 
- % 1.0e-05 	 & 1.0e-02 	 & 20 & 266 	 & +0.004 & +0.018 & +0.005 & +0.007 \\ 
- %  1.0e-05 	 & 1.0e-02 	 & 40 & 336 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
-   
-   
- 1.0e-06 	 & 1.0e+00 	 & 10 & 282 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
-  1.0e-06 	 & 1.0e+00 	 & 20 & 179 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
-  1.0e-06 	 & 1.0e+00 	 & 40 & 261 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
- 
-  
-% 1.0e-06 	 & 1.0e-01 	 & 10 & 308 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
-%  1.0e-06 	 & 1.0e-01 	 & 20 & 245 	 & -0.002 & +0.018 & +0.006 & +0.006 \\ 
-%   1.0e-06 	 & 1.0e-01 	 & 40 & 318 	 & +0.004 & +0.003 & +0.000 & +0.002 \\
-
- 1.0e-06 	 & 1.0e-02 	 & 10 & 285 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 362 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 375 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
-\end{tabular}}
-\label{TAB::double}
-\end{table} 
-
-
-
-\begin{table}
-\centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i \in \lbrace 0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0\rbrace $, and zero noise.}
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter &  $ ||D_{\Omega_1}||_{RE}$ & $ ||D_{\Omega_2}||_{RE}$ & $||D_{\Omega_3}||_{RE} $ & $||g||_{RE}$\\
-\hline
- 1.0e-04 	 & 1.0e+00 	 & 40 & 453 	 & -0.003 & -0.017 & -0.021 & +0.053 \\
- 1.0e-04 	 & 1.0e-01 	 & 40 & 491 	 & -0.033 & -0.015 & -0.024 & +0.049 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 40 & 611 	 & -0.051 & -0.020 & -0.027 & +0.096 \\ 
- %1.0e-05 	 & 1.0e+00 	 & 40 & 561 	 & -0.004 & -0.016 & -0.021 & +0.053 \\ 
- %1.0e-05 	 & 1.0e-01 	 & 40 & 688 	 & -0.033 & -0.015 & -0.025 & +0.045 \\ 
- %1.0e-05 	 & 1.0e-02 	 & 40 & 566 	 & -0.053 & -0.020 & -0.027 & +0.098 \\
- 1.0e-06 	 & 1.0e+00 	 & 40 & 517 	 & -0.005 & -0.016 & -0.021 & +0.053 \\ 
- 1.0e-06 	 & 1.0e-01 	 & 40 & 619 	 & -0.033 & -0.015 & -0.025 & +0.044 \\  
- 1.0e-06 	 & 1.0e-02 	 & 40 & 691 	 & -0.051 & -0.020 & -0.027 & +0.073 \\ 
-
-
-\end{tabular}}
-\label{Tab::Hole1}
-\end{table} 
-\begin{table}
-\centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i \in \lbrace 0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0\rbrace $, and with a noise amplitude of 0.3.}
-\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ ||D_{\Omega_1}||_{RE}$ & $  ||D_{\Omega_2}||_{RE}$ & $ ||D_{\Omega_3}||_{RE}$  &$||g||_{RE}$\\
-\hline
- %1.0e-04 	 & 1.0e+00 	 & 40 & 519 	 & +0.003 & +0.029 & +0.035 & +0.067 \\ 
-% 1.0e-04 	 & 1.0e-01 	 & 40 & 653 	 & -0.096 & +0.015 & +0.016 & +0.070 \\ 
-%\rowcolor{red}  1.0e-04 	 & 1.0e-02 	 & 40 & 575 	 & -0.050 & -0.001 & +0.057 & +0.281 \\ 
-% 1.0e-05 	 & 1.0e+00 	 & 40 & 585 	 & -0.050 & -0.007 & +0.017 & +0.068 \\ 
-% 1.0e-05 	 & 1.0e-01 	 & 40 & 871 	 & -0.023 & +0.024 & +0.019 & +0.079 \\ 
-%\rowcolor{red}  1.0e-05 	 & 1.0e-02 	 & 40 & 466 	 & -0.045 & +0.042 & +0.019 & +0.281 \\ 
-% 1.0e-06 	 & 1.0e+00 	 & 40 & 584 	 & -0.045 & +0.019 & +0.006 & +0.071 \\ 
-% 1.0e-06 	 & 1.0e-01 	 & 40 & 546 	 & +0.005 & +0.019 & -0.001 & +0.079 \\ 
-%\rowcolor{red}  1.0e-06 	 & 1.0e-02 	 & 40 & 648 	 & -0.074 & -0.008 & +0.041 & +0.227 \\ 
-
- 1.0e-04 	 & 1.0e+00 	 & 40 & 519 	 & +0.066 & -0.025 & -0.002 & +0.063 \\ 
- 1.0e-04 	 & 1.0e-01 	 & 40 & 853 	 & -0.047 & -0.013 & -0.001 & +0.078 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 40 & -	 & -0.062 & -0.005 & -0.018 & +0.223 \\ 
- %1.0e-05 	 & 1.0e+00 	 & 40 & 455 	 & -0.038 & -0.006 & +0.012 & +0.063 \\ 
- %1.0e-05 	 & 1.0e-01 	 & 40 & 801 	 & -0.016 & +0.002 & +0.040 & +0.074 \\ 
- %1.0e-05 	 & 1.0e-02 	 & 40 & 877 	 & -0.060 & +0.017 & +0.010 & +0.198 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 40 & 575 	 & -0.030 & +0.001 & +0.015 & +0.062 \\ 
- 1.0e-06 	 & 1.0e-01 	 & 40 & 848 	 & +0.002 & +0.005 & +0.023 & +0.071 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & -	 & +0.018 & +0.013 & -0.035 & +0.234 \\ 
-\end{tabular}}
-\label{Tab::Hole2}
-\end{table} 
+%
+%
+%\begin{table}
+%\centering
+%\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i \in \lbrace 0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0\rbrace $, and zero noise.}
+%\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
+%$\alpha$ & $\beta$ & k & iter &  $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $\\
+%\hline
+% 1.0e-04 	 & 1.0e+00 	 & 40 & 453 	 & -0.003 & -0.017 & -0.021 & +0.053 \\
+% 1.0e-04 	 & 1.0e-01 	 & 40 & 491 	 & -0.033 & -0.015 & -0.024 & +0.049 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 40 & 611 	 & -0.051 & -0.020 & -0.027 & +0.096 \\ 
+% %1.0e-05 	 & 1.0e+00 	 & 40 & 561 	 & -0.004 & -0.016 & -0.021 & +0.053 \\ 
+% %1.0e-05 	 & 1.0e-01 	 & 40 & 688 	 & -0.033 & -0.015 & -0.025 & +0.045 \\ 
+% %1.0e-05 	 & 1.0e-02 	 & 40 & 566 	 & -0.053 & -0.020 & -0.027 & +0.098 \\
+% 1.0e-06 	 & 1.0e+00 	 & 40 & 517 	 & -0.005 & -0.016 & -0.021 & +0.053 \\ 
+% 1.0e-06 	 & 1.0e-01 	 & 40 & 619 	 & -0.033 & -0.015 & -0.025 & +0.044 \\  
+% 1.0e-06 	 & 1.0e-02 	 & 40 & 691 	 & -0.051 & -0.020 & -0.027 & +0.073 \\ 
+%
+%
+%\end{tabular}}
+%\label{Tab::Hole1}
+%\end{table} 
+%\begin{table}
+%\centering
+%\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i \in \lbrace 0.8, 1.0, 1.2, 1.8, 2.4, 3.6, 5.4, 7.6, 24.0\rbrace $, and with a noise amplitude of 0.3.}
+%\resizebox{\textwidth}{!}{\begin{tabular}{*{8}c}
+%$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$ & $  D_{\Omega_2}\sp{rel}$ & $ D_{\Omega_3}\sp{rel}$  &$|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $\\
+%\hline
+% %1.0e-04 	 & 1.0e+00 	 & 40 & 519 	 & +0.003 & +0.029 & +0.035 & +0.067 \\ 
+%% 1.0e-04 	 & 1.0e-01 	 & 40 & 653 	 & -0.096 & +0.015 & +0.016 & +0.070 \\ 
+%%\rowcolor{red}  1.0e-04 	 & 1.0e-02 	 & 40 & 575 	 & -0.050 & -0.001 & +0.057 & +0.281 \\ 
+%% 1.0e-05 	 & 1.0e+00 	 & 40 & 585 	 & -0.050 & -0.007 & +0.017 & +0.068 \\ 
+%% 1.0e-05 	 & 1.0e-01 	 & 40 & 871 	 & -0.023 & +0.024 & +0.019 & +0.079 \\ 
+%%\rowcolor{red}  1.0e-05 	 & 1.0e-02 	 & 40 & 466 	 & -0.045 & +0.042 & +0.019 & +0.281 \\ 
+%% 1.0e-06 	 & 1.0e+00 	 & 40 & 584 	 & -0.045 & +0.019 & +0.006 & +0.071 \\ 
+%% 1.0e-06 	 & 1.0e-01 	 & 40 & 546 	 & +0.005 & +0.019 & -0.001 & +0.079 \\ 
+%%\rowcolor{red}  1.0e-06 	 & 1.0e-02 	 & 40 & 648 	 & -0.074 & -0.008 & +0.041 & +0.227 \\ 
+%
+% 1.0e-04 	 & 1.0e+00 	 & 40 & 519 	 & +0.066 & -0.025 & -0.002 & +0.063 \\ 
+% 1.0e-04 	 & 1.0e-01 	 & 40 & 853 	 & -0.047 & -0.013 & -0.001 & +0.078 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 40 & -	 & -0.062 & -0.005 & -0.018 & +0.223 \\ 
+% %1.0e-05 	 & 1.0e+00 	 & 40 & 455 	 & -0.038 & -0.006 & +0.012 & +0.063 \\ 
+% %1.0e-05 	 & 1.0e-01 	 & 40 & 801 	 & -0.016 & +0.002 & +0.040 & +0.074 \\ 
+% %1.0e-05 	 & 1.0e-02 	 & 40 & 877 	 & -0.060 & +0.017 & +0.010 & +0.198 \\ 
+% 1.0e-06 	 & 1.0e+00 	 & 40 & 575 	 & -0.030 & +0.001 & +0.015 & +0.062 \\ 
+% 1.0e-06 	 & 1.0e-01 	 & 40 & 848 	 & +0.002 & +0.005 & +0.023 & +0.071 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 40 & -	 & +0.018 & +0.013 & -0.035 & +0.234 \\ 
+%\end{tabular}}
+%\label{Tab::Hole2}
+%\end{table} 
 
 
 \begin{table}
 \centering
 \caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the estimated diffusion coefficients for grey $D_g$ and white $D_w$ matter based on MRI data.}
-\resizebox{\textwidth}{!}{\begin{tabular}{*{6}c}
+\begin{tabular}{*{6}c}
 $\alpha$ & $\beta$ & k & iter &  $ D_{g} \left[ \mathrm{mm\sp{2}/h} \right] $ & $ D_{w} \left[ \mathrm{mm\sp{2}/h} \right]$ \\
 \hline
  %1.0e-02    & 1.0e+02   & 48 & 714      & 0.564 & 0.952 ?? \\ 
@@ -866,7 +917,7 @@ $\alpha$ & $\beta$ & k & iter &  $ D_{g} \left[ \mathrm{mm\sp{2}/h} \right] $ & 
 
 
 
-\end{tabular}}
+\end{tabular}
 \label{Tab::Real-data}
 \end{table} 
  
