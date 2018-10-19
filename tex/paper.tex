@@ -66,14 +66,14 @@ of this study as well). The argument was based on analytical considerations wher
 55 hours using the error function which is valid for planar diffusion. However, 
 the surface of the brain is folded and is around five times larger than 
 a corresponding surface of a ball with the same volume. Hence, 
-a more rigorous modeling attempt is warrented. A complicating factor
+a more rigorous modeling attempt is warranted. A complicating factor
 is however that the contrast in the surrounding CSF is heterogenous
 and changes significantly during the 24 hours of the investigations. 
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}.  
 
 The pioneering works of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
 that diffusion was a governing transport mechanism in the brain and estimated to be on the order
-of XXX. This is confirmed with DTI where values of young and healthy are typically around XXX
+of XXX. This is confirmed with DTI where values of young and healthy are typically around $0.7e-3 \mathrm{mm\sp{2}/s}$ \cite{Helenius194}
 while values in dementia typically are XXX \kam{Geir vet du dette?}. Of course diffusion coefficient 
 measured by DTI at a time-scale of XXX \kam{tall her} may not be representative for the process on a
 longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vasculature  occupy around 3\% of the brain volume 
@@ -198,6 +198,7 @@ red in the middle figure) is shown to be around 0.001 mm$^2$/s. We remark that w
 the right-most image in Figure~\ref{figuredti} and that these images shows the apparent diffusion coefficient for free water molecules (18 Da).      
 The diffusivity of the Gadovist (600 Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \cite{GdDPTA-DIFFUSION} to be $3.8e-4\mathrm{mm\sp{2}/s}$.
 
+{\color{red} må skrive om B-values og parameter}
 
 The fractional anisotropy is defined as 
 \begin{equation}
@@ -217,11 +218,7 @@ In these equations $\lambda_i$ denotes the eigenvalues of the diffusion tensor.
 
 
 \subsection{Mathematical Model}
-
-
-In \cite{sykova2008diffusion}, It was shown that the macroscopic diffusion in the brain can be considered a hindered diffusion with an apparent diffusion coefficient. 
-
-In order to estimate the apparent diffusion coefficient involved in the contrast transportation shown in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation and solve a PDE constrained optimization problem where
+In \cite{sykova2008diffusion}, it was shown that the macroscopic diffusion in the brain can be considered a hindered diffusion with an apparent diffusion coefficient. In order to estimate the apparent diffusion coefficient involved in the contrast transportation shown in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation and solve a PDE constrained optimization problem where
 the contrast distribution, boundary conditions, and apparent
 diffusion coefficient are solved for by optimizing with
 respect to the observed contrast distribution. As such, enhanced transportation because of effects such as
@@ -261,16 +258,16 @@ The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be
 D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
 \end{equation}  
 The magnitude order for $D_{\Omega_1} $ and $D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. The diffusion coefficient in the CSF was chosen given [cite Bryne and Kent], and the initial condition was set to 0 everywhere. %and the initial condition was set to 1.0 in $\Omega_1$ and 0 elsewhere.
-The manufactured forward computation gave a total of 120 possible observation time points. These points will be denoted as $t_i$.
+The manufactured forward computation gave a total of 120 possible observation times, which  will be denoted as $t_i$.
 
-The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI \cite{eidevalnes} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh, the code can be found ?? . The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
+The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI \cite{eidevalnes} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
 \caption{A) Shows the mesh created from the baseline MR image with 3 domains. B) Shows the mesh created from the baseline MR image with 2 domains.  }
 \label{Fig::Mesh}
 \end{figure}
-The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. The dimension of the mesh coordiantes are $\mathrm{mm}$.
+The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. The dimension of the mesh coordinates are $\mathrm{mm}$.
 
 
 \section{Implementation}
