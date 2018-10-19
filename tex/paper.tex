@@ -83,24 +83,24 @@ while it may still be effective on longer time scales.
 
 Our purpose in this paper is to attempt a more rigorous methodology 
 for assessing the apparent diffusion process where
-the complex geometry of the brain is taken into account and time-scales of hours or days are taken into approach. 
+the complex geometry of the brain is taken into account and time-scales of hours or days are taken into account. 
 The approach we will take is to solve a PDE constrained optimization problem 
-via adjoint methods where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but throught
+via adjoint methods where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
 the complete domain. Hence, the challenges faced from a mathematical point of view 
 are that 1) the images are subject to noise, resolution in space is limited to slightly less than (1 mm)$^3$ and 
-the sparse observations throught the time domain.  As such we need to assess the sensitivity of
+the sparse observations through the time domain.  As such we need to assess the sensitivity of
 the approach with respect important parameters such as to regularization parameters, noise levels, 
 time resolution to determine whether this approach is a viable method
-to obtain parameters involved time-scales beyond those of the MRI aquisition. We remark that the purpose
-of this paper is a systematic study of the mathematical challenges faces and that assessing  
-whether clearance is goverened by a process that is faster than diffusion is not the topic of the current paper.       
+to obtain parameters involved time-scales beyond those of the MRI acquisition. We remark that the purpose
+of this paper is a systematic study of the mathematical challenges and that assessing  
+whether clearance is governed by a process that is faster than diffusion is not the topic of the current paper.       
 
 An outline of the paper is as follows. 
 In Section 2 we present the methodology of the paper. Section 2.1-2.3 contains a detailed description of the medical imaging 
 relevant to this study and do not expect the reader to have prior knowledge of medical imaging. Section 2.4
 describes the PDE constrained optimization problem and the corresponding solution algorithm, while 2.5 presents
 a test problem using a manufactured solution that is used for method verification. Section 2.6 describes the implementation 
-in FEniCS. In Section 3 we present the results and have a rather extensive discussion of the verification performed
+in FEniCS \cite{LoggMardalEtAl2012a}. In Section 3 we present the results and have a rather extensive discussion of the verification performed
 using a manufactured solution (Section 3.1-3.3) before we present the results obtained by real observations in Section 3.4     
 and a comparison with DTI data in Section 3.5. Finally, in Section 4, the methodology and results are discussed.  
    
@@ -130,7 +130,7 @@ The software Freesurfer {\color{red} citation needed, Hvilken ? } was used to se
 \subsection{Contrast concentration - Image Intensity Relation}
 Below, we briefly describe the relationship between the imaging intensity 
 seen in Figures \ref{fig1} and \ref{fig2} and the underlying contrast 
-concentration. We remark that we use a notation common in medical literature and here two letter symbols are common. Hence, below we will use two letter symbols such as $TE$ and $TR$ to keep the notation consistent the presentation of (reference \cite{GOWLAND}, \cite{MPRAGE}).   
+concentration. We remark that we use a notation common in medical literature and here two letter symbols are common. Hence, below we will use two letter symbols such as $TE$ and $TR$ to keep the notation consistent the presentation in \cite{GOWLAND}\cite{MPRAGE}.   
 The tracer concentration $c$ causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
 \begin{equation}
 \frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}c .
@@ -151,6 +151,7 @@ with $T_2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic 
 S = M_{n} \sin \theta.
 \label{EQ::SI}
 \end{equation}
+{\color{red} kommer inversion prepared fram ?}
 In article \cite{GOWLAND}, the term $M_n$ is defined as the magnetization for the n-echo 
 \begin{equation}
 M_{n} = M_{0}  \left[ (1-\beta)\frac{(1-(\alpha \beta)\sp{n-1} }{1-\alpha\beta} + (\alpha \beta)\sp{n-1}(1-\gamma) + \gamma ( \alpha \beta)\sp{n-1} \frac{M_{e}}{M_{0}}  \right]   
@@ -195,7 +196,7 @@ In addition to the T1 and T2 weighted sequences described above we have also obt
 coefficients on short time-scales. Images are shown in Figure~\ref{figuredti} where the larges diffusion coefficient (shown in 
 red in the middle figure) is shown to be around 0.001 mm$^2$/s. We remark that we have not included possible anisotropy, shown in 
 the right-most image in Figure~\ref{figuredti} and that these images shows the apparent diffusion coefficient for free water molecules (18 Da).      
-The diffusivity of the Gadovist (600 Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \cite{GdDPTA-DIFFUSION} to be 3.8e-4$\mathrm{mm\sp{2}/s}$.
+The diffusivity of the Gadovist (600 Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This due to the fact that both molecules have similar mass/size, and based Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \cite{GdDPTA-DIFFUSION} to be $3.8e-4\mathrm{mm\sp{2}/s}$.
 
 
 The fractional anisotropy is defined as 
@@ -227,7 +228,7 @@ respect to the observed contrast distribution. As such, enhanced transportation 
 dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI.  
 The objective function was defined as 
 \begin{equation}
-\min_{u,g} F = \quad \sum\limits_i\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)| \mathrm{d}\Omega + \frac{\alpha}{2} \int\limits_{0}\sp{T} || g ||_{L\sp{2}(\partial\Omega)} \mathrm{d}t + \frac{\beta}{2} \int\limits_{0}\sp{T} || \dot{g} ||_{L\sp{2}(\partial\Omega)}\mathrm{d}t 
+\min_{D,g} F = \quad \sum\limits_i\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \frac{\alpha}{2} \int\limits_{0}\sp{T} || g ||\sp{2}_{L\sp{2}(\partial\Omega)} \mathrm{d}t + \frac{\beta}{2} \int\limits_{0}\sp{T} || \dot{g} ||\sp{2}_{L\sp{2}(\partial\Omega)}\mathrm{d}t 
 \label{EQ::objf}
 \end{equation}
 subject to   
@@ -241,14 +242,14 @@ u=g(t) \qquad \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right)
 Here, $u$ is the contrast distribution, $D_i$ is the apparent diffusion 
 coefficient, and $g$ is the boundary condition. Furthermore,  
 the domain $\Omega$ contains three sub domains, each with a different diffusion coefficient. We denote the Cerebral Spinal fluid (CSF) domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$. The apparent
-diffusion constant is assumed constant within the CSF, grey and 
-white matter but each region may have different constants.  
-The $\alpha$ and $\beta$ parameters are regularization parameters 
+diffusion constant is assumed to be constant within the CSF, grey and 
+white matter but each region may have different values.  
+The $\alpha$ and $\beta$ parameters are non-negative regularization parameters 
 and $u_{obs}$ are observations at certain time-points. 
 
 \subsection{Manufactured Solution}
 In order to verify our strategy and test the dependency of the
-regularization paramters, we perform a test case with a
+regularization parameters, we perform a test case with a
 known solution.  
 The manufactured observations was obtained by forward computation of Eq.\ref{Eq::PDE} with the Dirichlet boundary condition defined as
 \begin{equation}
@@ -259,9 +260,10 @@ The timestep was $dt = 0.02$, and the diffusion coefficients were selected to be
 \begin{equation}
 D_{\Omega_1} = 1000 \quad , \quad D_{\Omega_2} = 4.0 \quad , \quad D_{\Omega_3} = 8.0 
 \end{equation}  
-The magnitude order for $\quad D_{\Omega_2} $ and $\quad D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. The diffusion coefficient in the CSF was chosen given [cite Bryne and Kent], and the initial condition was set to 1.0 in $\Omega_1$ and 0 elsewhere. The manufactured forward computation gave a total of 120 possible observation time points. These points will be denoted as $t_i$.
+The magnitude order for $D_{\Omega_1} $ and $D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. The diffusion coefficient in the CSF was chosen given [cite Bryne and Kent], and the initial condition was set to 0 everywhere. %and the initial condition was set to 1.0 in $\Omega_1$ and 0 elsewhere.
+The manufactured forward computation gave a total of 120 possible observation time points. These points will be denoted as $t_i$.
 
-The mesh construction was patient-specific and was constructed by using the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. The module BrainMesh (currently in testing) (BrainMesh code accessibility {\color{red} kan ta med eller bare si CGAL}) CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh. The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
+The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used in segmentation and creating the polyhedral surfaces of the white and grey matter. Then the use of T2 weighted MRI \cite{eidevalnes} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construed the mesh, the code can be found ?? . The computational requirement for the resulting mesh was significant, therefore two submesh was also constructed, see Fig.\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
@@ -272,26 +274,28 @@ The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells
 
 
 \section{Implementation}
-The estimation of the tracer concentration was precomputed and used the parameters obtained from the T1 map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function $f(T_1)$ was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline intensity increase to estimate $T_1\sp{c}$, and then the concentration was computed using Eq.\ref{EQ::contrast}. 
+The estimation of the tracer concentration was precomputed and used the parameters obtained from the T1 map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function $f(T_1)$ was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline intensity increase to estimate $T_1\sp{c}$, and then the concentration was computed using Eq.\ref{EQ::contrast}.  
 
 %In the acquired data, the MPRAGE had a high signal to noise ratio and the T1 map had low signal in the CSF. This made it difficult to estimate the concentration in the CSF compartment. Thus an additional mesh without the CSF compartment was constructed, see Fig. \ref{Fig::Mesh}.     
 
-The code used the FEniCS project to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and the matrix was stored in the solver. 
-The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?} was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy. The convergence criteria for the minimization was set so that $max \lbrace | \text{proj} \hspace*{0.2cm} x_i | , \quad i = 1, .., N \rbrace \leq gtol=1.0e-1$ where $x_i$ is the i-th component of the gradient. {\color{red} From scipy :The iteration will stop when $max\lbrace | \text{proj} \hspace*{0.2cm} g_i | , \quad i = 1, .., N \rbrace \leq gtol $  where $pg_i$ is the i-th component of the projected gradient.}
+The code used the FEniCS project (v.2017.2)  to solve the PDE, using backwards Euler time discretization and first order continuous Galerkin finite elements. The linear problem was solved using GMRES, and the matrix was stored in the solver. 
+The module dolfin adjoint ~\cite{farrell2013automated} \kam{correct ref?}  was used to solve the PDE constrained optimization problem with the L-BFGS-B algorithm in the python module scipy \cite{LBFGSB1},\cite{LBFGSB2}. 
 
 
 
-The observations $u_{obs}$ have a fixed time-point $t_i$, these time-points may not overlap with the time discretization in the forward problem $t_j$. Therefore, after each time step $dt$ in Eq\ref{Eq::PDE}, it was checked if the time step contained the next observation. If it did, then a linear interpolation of the  current solution $u(t_j)$ and previous solution $u(t_{j-1})$ was used approximate the solution at time $t_i$. The linear interpolation was given as  
+The convergence criteria for the minimization was set so that $|| x ||_{L\sp{inf}} \leq \epsilon=1.0e-1$ with $x$ denoting the projected gradient. {\color{red} From scipy :The iteration will stop when $max\lbrace | \text{proj} \hspace*{0.2cm} g_i | , \quad i = 1, .., N \rbrace \leq gtol $  where $pg_i$ is the i-th component of the projected gradient.}
+
+The observations $u_{obs}$ have a fixed time-points $t_i$, these time-points may not overlap with the time discretization in the forward problem $t_j$. Therefore a linear interpolation of the current solution $u(t_j)$ and previous solution $u(t_{j-1})$ was used approximate the solution at time $t_i$. The linear interpolation was given as  
 \begin{equation}
 \label{observation:interpolation}
 u(t_i) \approx \frac{\Delta t}{dt} u(t_{j-1}) + \frac{dt - \Delta t }{dt} u(t_{j}), \quad t_i \in \lbrace t_{j-1}, t_j \rbrace
 \end{equation}
-with $\Delta t = t_j-t_i$.
+with $\Delta t = t_j-t_i$ and $dt  = t_{j} - t_{j-1}$.
 
 
-The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}. Then for each timestep, the next observation was used as the initial value for boundary control $g$, which was imposed on the external boundary of the domain $\Omega_1$. The initial values of the diffusion coefficients in the optimization algorithm $(D_{CSF}, D_{GM}, D_{WM})=$  $(1, 1, 1)$. However, to increase the convergence rate, $D_{CSF}$ was scaled with $100$. 
+The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}. Then for each time-step, the next observation was used as the initial value for boundary control $g$, which was imposed on the external boundary of the domain $\Omega_1$. In order to increase the convergence rate, $D_{CSF}$ was scaled so that $D_{CSF} = 100 D_{CSF}\sp{\star} $. The initial values of the diffusion coefficients in the optimization algorithm was $(D_{CSF}\sp{\star}, D_{GM}, D_{WM})=$  $(1, 1, 1)$. 
 
-The noise susceptibility was tested by adding an uniform distribution noise term to the observations. The noise term was constructed using numpy.random and adjusted so that noise range becomes $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude. 
+The noise susceptibility was tested by adding a uniform distribution noise term to the observations. The noise term was constructed using the random library in numpy and adjusted so that noise range becomes $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude. 
 
 This work was performed on the Abel Cluster, owned by the University of Oslo and Uninett\textbackslash Sigma2, and operated by the Department for Research Computing at USIT,the University of Oslo IT-department. \url{http://www.hpc.uio.no/} 
 
@@ -300,8 +304,7 @@ This work was performed on the Abel Cluster, owned by the University of Oslo and
 
 \subsection{Verification in terms of the manufactured solution}
 
-Below we will discuss the parameter identification and its sensitivity with respect to regularization parameters, noise and time-resolution. 
-In presentation of the results, the relative error norm  $||\cdot||_{RE}$ is defined as 
+Below we will discuss the parameter identification and its sensitivity with respect to regularization parameters, noise and time-resolution. In presentation of the results, the relative error norm is defined as 
 \begin{equation}
  X\sp{rel} = \frac{X_{found} -X_{true} }{ X_{true} }
 \end{equation}
@@ -312,15 +315,17 @@ with $X$ as an arbitrary scalar control parameter. For the boundary parameter $g
 In the case that the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen.  
 
 \subsubsection{The relaxation parameters}
-To assess the sensitivity of the the objective functional defined in Eq.\ref{Eq::F} with respect to the regularization parameters $\alpha$ and $\beta$ 
-we perform a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
-Ideally, the approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although
-the convergence may vary substatantially.
- The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and compare the controls with the manufactured solution. The observation times were selected with $t_i \in  \lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps in the forward problem was set to $k= 10$. 
 
-The results are shown in Tabel~\ref{Tab::1} together with the number of iteration used to reach the convergence criteria. It can be observed that for all $\alpha=1.0$ had significant relative error for $D_{\Omega_1}$, and this can also be observed for all $\beta=100$. These parameter selections fails to reconstructed the manufacured solutions, due to $g$ influence on $F$ 
+The convergence of the objective functional $F$ is influenced by the values of the regularization parameters $\alpha$ and $\beta$. Therefore the convergence was examined by a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
 
+%To assess the sensitivity of the the objective functional defined in Eq.\ref{Eq::F} with respect to the regularization parameters $\alpha$ and $\beta$ 
+%we perform a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
 
+Ideally, the approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although the convergence may vary substantially. The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and compare the controls with the manufactured solution. The observation times were selected with $t_i \in  \lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps $k$ in the forward problem was set to $10$. 
+
+The results shown in Tabel~\ref{Tab::1} shows similar end-result for most regularization parameters. However, in the case of $ \alpha=1.0$ the relative error over 100\% higher then for other values of $\alpha$. Furthermore, it can also be seen in the table that $ \forall \beta=100.0$ there is about 70\% relative error for $D_{\Omega_1}$ and approximate 10\% error for $D_{\Omega_2}$, which is higher than other values of $\beta$. 
+
+From the results it can be discerned that $\alpha =1.0$ and $\beta=100.0$ represent an upper  boundary where the residual is no longer the dominant term in the objective functional.  
 
 
 \begin{figure}
@@ -335,27 +340,29 @@ The results are shown in Tabel~\ref{Tab::1} together with the number of iteratio
 \end{figure}
 
 \subsubsection{The number of timessteps}
-Increasing the number of timesteps in the computations potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization therefore may play a larger role. Furthermore, the computational cost will increases due the number of iterations in the forward problem. Therefore finding the number of timesteps for an effective convergence can help for larger meshes. The computation used different regularization parameters with 10, 20 and 40 timesteps. 
+Increasing the number of time-steps in the computations can potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization may therefore play a larger role. Furthermore, the computational cost will rise due to additional number of time-steps. 
+%Thus finding the optimal number of time-steps can give an effective convergence for larger problems . 
+The computation used different regularization parameters with 10, 20 and 40 timesteps. 
 
-The reults are show in Tab.\ref{TAB::timesteps}, and can be seen that for $\alpha=1.0$ the relative error increases with the number of timesteps. While for values $\alpha < 1.0 $, the relative error decreases with increasing number of timesteps. 
+The results are given in Tab.\ref{TAB::timesteps}, and it can be seen $\forall \alpha=1.0$ that the relative error becomes bigger with more time-steps. This behavior can also be seen for $\alpha=1.0e-2$ and $\beta = 1.0e-4 , 1.0e-6$, and followed by a rise in the number of iterations. The increase time-steps causes most values of regularization parameters to increase number of iterations, but for some values the number of iterations decreases.
+These values share that $\alpha $ is a magnitude 2 lower than $ \beta$,i.e $\alpha=1.0e-2$ and $\beta =1.0$. This indicates that $\alpha $ should be smaller than $\beta$ to achieve optimal convergence. But taking into account the values in Table ~\ref{Tab::1} ??
 
-This prompted to look at the boundary control $g$ through time by selecting high and low values of $\alpha$ and $\beta$, see Fig \ref{boundarycontrol}. Figure \ref{boundarycontrol} displays oscillations for $\alpha=1.0$ with $k=40$. The oscillation peaks correlate with the observation times. It can also be observed that $\alpha=1.0e-4$ and $\beta=1.0e-4$ there is a small oscillation.
+Given the boundary control $g$ through time by selecting high and low values of $\alpha$ and $\beta$, see Fig \ref{boundarycontrol}. Figure \ref{boundarycontrol} displays oscillations for $\alpha=1.0$ with $k=40$. The oscillation peaks correlate with the observation times. It can also be observed that $\alpha=1.0e-4$ and $\beta=1.0e-4$ there is a small oscillation.
+
+
+
+
 
 
 \subsubsection{The number of observations}
-The dependency on observations is relevant, since the number of observations of the MRI data is limited. This was investigated by changing the number of observations, and examine the resulting states. The number of observation were chosen to be 5, 10  and 20, and times were set to be evenly spaced. The range of regularization parameters were restricted to values that had previously low relative error. 
+The dependency on observations is relevant, since the number of observations of the MRI data is limited. This was investigated by changing the number of observations, and examine the resulting states. The number of observation were chosen to be 5, 10  and 20, and times were set to be evenly spaced. The range of regularization parameters were restricted to values that have low relative error. 
 
-The results are shown in Tab.\ref{TAB::timesteps}, Tab.\ref{TAB::double} and Tab.\ref{TAB::half}. In the case of 10 observations, the number of timesteps showed a decrease in the relative error. Similar effects was observed for 5 and 20 observations. 
+The results are shown in Tab.\ref{TAB::timesteps}, Tab.\ref{TAB::double} and Tab.\ref{TAB::half}. In Tab.\ref{TAB::half}, the values $\alpha =1.0e-2$ and $\beta=1.0e-2,1.0e-4$ gives a surge in the relative error with more time-steps. This behavior is neither visible in Tab.\ref{TAB::timesteps} and Tab.\ref{TAB::double} given the same regularization parameters. 
 
-
-The relative boundary error for $\beta=1.0$  in Table~\ref{TAB::half} have similar value, independent on number of timesteps. This not the case for  
-
-
-The spikes in Figure ~\ref{boundarycontrol} relates to the observation points $t_i$.
+In Table ~\ref{TAB::double} some values have a drastic change in convergence rate with increase of number of iteration (Hypothesis $i < k$ is better than $i = k$, i is number of observations)
 
 
-
-
+The observations functions as stabilization for the functional so that the error between observations becomes smaller, which gives a broader rang of adequate regularization parameters.
 
 
 
@@ -371,7 +378,13 @@ The MRI data contains noise, hence an investigation to the noise susceptibility 
 different noise levels with $\alpha=0.0001$ and $\beta=1.0$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 
-In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative error. However, in Tabel~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition) and it is observed that for  $\alpha < 1.0e-3$  $\beta < 1.0e-3$ the optimization failed to converge before reaching maximum iteration of 1000 steps. Furthermore, the relative boundary error $||g||_{RE(\Omega)}$ is  larger for lower values of $\beta$. 
+In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative error. However, in Tabel~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition) and it is observed that for  $\alpha \leq 1.0e-4$  and $\beta \leq 1.0e-4$ the optimization failed to converge before reaching maximum iteration of 1000 steps. Furthermore, the relative boundary error $||g||_{RE(\Omega)}$ is  larger for lower values of $\beta$. 
+
+
+
+
+Tt can be concluded from the results that increasing the number of iterations gives rise to oscillations for poor regularizations parameters. 
+
 
 \begin{figure}
 \centering
@@ -401,7 +414,7 @@ In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \subsubsection{Results obtained when using real observations}
 The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24.06, 47.84, 698.02 $\rbrace (hours)$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace $ 0.00, 0.16, 0.39, 0.55, 0.77 $ \rbrace$. This prompted the use of the following observation times  $0.00, 2.09, 6.05, 24.06, 47.84$. 
 
-The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$ denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $gtol=6.0e-1$. The number of timesteps were selected to be $k=24$ $k=48$, which gives $dt = 2 hour$ and $dt = 1 hour$.   
+The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$ denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $gtol=6.0e-1$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 hour$ and $dt = 1 hour$.   
 
 The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states. 
  
@@ -421,15 +434,38 @@ The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12
 %% 
 
 The median diffusion coefficient in the DTI was estimated to be $8.7e-4 \mathrm{mm\sp{2}/s}$ in white matter and $1.0e-3 \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to $1.85$ and $1.73$ in tortuosity, given that the self-diffusivity of water has been estimated to be around $3.0e-3\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$.% This corresponds to 10.8 $\mathrm{mm\sp{2}/h}$ and  $\mathrm{mm\sp{2}/h}$. 
-Then by using the reference value $3.8e-4 \mathrm{mm\sp{2}/s}$ for Gd-DPTA gives an estimate for the diffusion coefficient in the grey and white matter to respectively be $ 1.26\mathrm{mm\sp{2}/s}$ and $1.10 \mathrm{mm\sp{2}/s}$. This estimation assumes that the tortuosity is independent on molecular size . 
+Then by using the reference value $3.8e-4 \mathrm{mm\sp{2}/s}$ for Gd-DPTA gives an estimate for the diffusion coefficient in the grey and white matter to respectively be $ 1.26e-4\mathrm{mm\sp{2}/s}$ and $1.10e-4 \mathrm{mm\sp{2}/s}$. This estimation assumes that the tortuosity is independent on molecular size . 
 
-The oscillation in Fig.\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to wrong regularization parameters. This prompt the exclusion of the corresponding values, which gives an average computed values $0.65 \mathrm{mm\sp{2}/h}$ and  $0.80 \mathrm{mm\sp{2}/h}$ in respectively grey and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives $1.8 \mathrm{mm\sp{2}/s}$ and $2.22 \mathrm{mm\sp{2}/s}$. 
+The oscillation in Fig.\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to wrong regularization parameters. This prompt the exclusion of the corresponding values, which gives an average computed values $?? \mathrm{mm\sp{2}/h}$ and  $?? \mathrm{mm\sp{2}/h}$ in respectively grey and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives $1.8e-4\mathrm{mm\sp{2}/s}$ and $2.22e-4 \mathrm{mm\sp{2}/s}$. 
 
+
+
+
+
+
+
+\subsection*{Compare high DTI values with computed}
 This gives a relative error of $42 \%$ in grey matter and $ 100 \%$ in white matter compared to the estimated values.
 
+The computation require that there is tracer present to compute the diffusion coefficient. In Fig.\ref{Fig::realdata}, it can be seen that there were regions with negligible amount of tracers and vice versa. 
+
+The observation after 24 hours was used to compute the area containing $90\%$ of the  concentration in white matter. This area was then used to calculate the median diffusion coefficient given the data in Figure ~\ref{figuredti}, and it was estimated to be  $?? e-3 \mathrm{mm\sp{2}/s}$. This correspondence to a tracer diffusion coefficient of $??e-4 \mathrm{mm\sp{2}/h}$ , which gives a relative error of $??\%$ difference compared to the computed values.
 
 
-The computation require that there is tracer present to compute the diffusion coefficient. In Fig.\ref{Fig::realdata}, it can be seen that there are regions with negligible amount of tracers and vice versa. Considering $1.3 \mathrm{mm\sp{2}/s}$ as the upper bound gives an estimated upper bound $1.43$ diffusion coefficient in the white matter. This relative error of $54\%$ difference {\color{red} compare with dispersion, NB bare k 48 er brukt, k 24 skal med}  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 %The region with high diffusivity in the white matter, shown in Fig\ref{FIG::DTI}, gives a upper bound on the diffusion coefficient to be 1.3 $\mathrm{mm\sp{2}/s}$. 
@@ -455,7 +491,7 @@ The computation require that there is tracer present to compute the diffusion co
 
 The methodology presented here for identification of diffusion coefficients and boundary conditions with application to the glymphatic system appears to work quite 
 well for regularization parameters varying by orders of magnitude. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
-in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise levels of 30\% \kam{is this correctly stated}. 
+in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise levels of 30\% \kam{is this correctly stated}{\color{red} (0.3,-0.3) added to all values with peak of 1.3 at 12 h }. 
 Crucial in our application is the interplay between the regularization term that regulates the smoothness of the boundary conditions as well as
 the integrate magnitude of the boundary conditions over time, i.e. $\alpha$ and $\beta$, and the
 importance of interplay of these parameter increases with the number of time steps. This is, however, not surprising because our observations are sparse
@@ -467,10 +503,9 @@ However, we have not yet been able to assessment the self-diffusion of water as 
 the constants in equation XXX must be taken with caution. Furthermore,    
 the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Therefore  observation of tracer in regions with anisotropy can be considered a requirement for adding anisotropy to the model.
 The regions with high diffusivity in Figure~\ref{figuredti},  have significant amount of diffusivity as seen in Figure~\ref{Fig::realdata} 
+
+
 The computational model have 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{figuredti} that diffusion coefficients can be considered a spacial function. Although the implementation of spacial control parameters are possible, it would significantly increase the computational cost. 
-
-
-
    
   
 It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of an increase clearance in rodents during sleeping [insert citation]. This follows the assumption that the clearance is related to diffusion, which means an increase in diffusivity. Since the properties of the tracer molecule do not change, this would mean that the tortuosity decreased and followed by an increase in the ADC.
@@ -536,67 +571,87 @@ The hypothesis of the glymphatic system [insert citation] states that the waste 
 
 \begin{table}
 \centering
-\caption{Shows the regularization parameters $\alpha$ and $\beta$, number of timesteps $k$ and number of observation $\tau$ with the resulting number of iterations and the relative error for the control parameters. }
+\caption{Shows the regularization parameters $\alpha$ and $\beta$, number of timesteps $k$ and number of observation $\tau$ with the resulting number of iterations and the relative error for the control parameters. {\color{red} check pvd }.}
 \begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel}$ & $||g||_{rel}$ \\
-\hline
-  1.0e+00 	 & 1.0e+02 	 & 10 & 499 	 & +5.125 & +0.278 & +0.105 & +0.127 \\ 
-  1.0e+00 	 & 1.0e+00 	 & 10 & 225 	 & +4.148 & +0.304 & +0.092 & +0.135 \\ 
-%\rowcolor{red}  1.0e+00 	 & 1.0e-01 	 & 10 & 206 	 & +4.272 & +0.305 & +0.091 & +0.142 \\ 
- 1.0e+00 	 & 1.0e-02 	 & 10 & 233 	 & +4.272 & +0.305 & +0.091 & +0.143 \\ 
-%\rowcolor{red}  1.0e+00 	 & 1.0e-03 	 & 10 & 208 	 & +4.437 & +0.305 & +0.091 & +0.143 \\ 
- 1.0e+00 	 & 1.0e-04 	 & 10 & 204 	 & +4.271 & +0.306 & +0.091 & +0.143 \\ 
-%\rowcolor{red}  1.0e+00 	 & 1.0e-05 	 & 10 & 203 	 & +4.400 & +0.305 & +0.091 & +0.143 \\ 
- 1.0e+00 	 & 1.0e-06 	 & 10 & 222 	 & +4.584 & +0.304 & +0.090 & +0.143 \\
- 
-% 1.0e-01 	 & 1.0e+00 	 & 10 & 207 	 & +0.127 & +0.093 & +0.041 & +0.027 \\ 
- %1.0e-01 	 & 1.0e-01 	 & 10 & 196 	 & +0.121 & +0.093 & +0.041 & +0.046 \\ 
-% 1.0e-01 	 & 1.0e-02 	 & 10 & 232 	 & +0.123 & +0.093 & +0.041 & +0.056 \\ 
- %1.0e-01 	 & 1.0e-03 	 & 10 & 183 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
-% 1.0e-01 	 & 1.0e-04 	 & 10 & 212 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
- %1.0e-01 	 & 1.0e-05 	 & 10 & 168 	 & +0.122 & +0.093 & +0.041 & +0.057 \\
-% 1.0e-01 	 & 1.0e-06 	 & 10 & 195 	 & +0.122 & +0.093 & +0.041 & +0.057 \\ 
- 1.0e-02 	 & 1.0e+02 	 & 10 & 228 	 & +0.702 & +0.106 & +0.035 & +0.033 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 10 & 227 	 & +0.015 & +0.067 & +0.039 & +0.018 \\ 
- %1.0e-02 	 & 1.0e-01 	 & 10 & 153 	 & +0.006 & +0.065 & +0.039 & +0.021 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 10 & 184 	 & +0.005 & +0.065 & +0.039 & +0.039 \\ 
- %1.0e-02 	 & 1.0e-03 	 & 10 & 176 	 & +0.004 & +0.065 & +0.039 & +0.048 \\ 
- 1.0e-02 	 & 1.0e-04 	 & 10 & 195 	 & +0.005 & +0.065 & +0.039 & +0.049 \\ 
- %1.0e-02 	 & 1.0e-05 	 & 10 & 215 	 & +0.004 & +0.065 & +0.039 & +0.051 \\ 
- 1.0e-02 	 & 1.0e-06 	 & 10 & 205 	 & +0.005 & +0.065 & +0.039 & +0.050 \\ 
-
- %1.0e-03 	 & 1.0e+00 	 & 10 & 179 	 & +0.004 & +0.064 & +0.039 & +0.019 \\ 
- %1.0e-03 	 & 1.0e-01 	 & 10 & 221 	 & -0.005 & +0.063 & +0.039 & +0.018 \\ 
- %1.0e-03 	 & 1.0e-02 	 & 10 & 89 	 & -0.007 & +0.063 & +0.039 & +0.026 \\ 
- %1.0e-03 	 & 1.0e-03 	 & 10 & 77 	 & -0.005 & +0.062 & +0.039 & +0.027 \\ 
- %1.0e-03 	 & 1.0e-04 	 & 10 & 100 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
- %1.0e-03 	 & 1.0e-05 	 & 10 & 105 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
- %1.0e-03 	 & 1.0e-06 	 & 10 & 123 	 & -0.007 & +0.062 & +0.039 & +0.028 \\ 
-
- 1.0e-04 	 & 1.0e+02 	 & 10 & 167 	 & +0.688 & +0.104 & +0.035 & +0.032 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 10 & 236 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
- %1.0e-04 	 & 1.0e-01 	 & 10 & 195 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 152 	 & -0.006 & +0.062 & +0.039 & +0.022 \\ 
- %1.0e-04 	 & 1.0e-03 	 & 10 & 119 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 10 & 106 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- %1.0e-04 	 & 1.0e-05 	 & 10 & 109 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-04 	 & 1.0e-06 	 & 10 & 99 	 & -0.008 & +0.062 & +0.039 & +0.026 \\
- 
- %1.0e-05 	 & 1.0e+00 	 & 10 & 139 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
- %1.0e-05 	 & 1.0e-01 	 & 10 & 170 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
- %1.0e-05 	 & 1.0e-02 	 & 10 & 182 	 & -0.007 & +0.062 & +0.039 & +0.020 \\ 
- %1.0e-05 	 & 1.0e-03 	 & 10 & 70 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- %1.0e-05 	 & 1.0e-04 	 & 10 & 77 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- %1.0e-05 	 & 1.0e-05 	 & 10 & 104 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
- %1.0e-05 	 & 1.0e-06 	 & 10 & 92 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-06 	 & 1.0e+02 	 & 10 & 210 	 & +0.685 & +0.104 & +0.035 & +0.032 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 10 & 163 	 & +0.003 & +0.064 & +0.039 & +0.019 \\ 
- %1.0e-06 	 & 1.0e-01 	 & 10 & 218 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 10 & 134 	 & -0.008 & +0.062 & +0.039 & +0.023 \\ 
- %1.0e-06 	 & 1.0e-03 	 & 10 & 79 	 & -0.006 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-06 	 & 1.0e-04 	 & 10 & 107 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
- %1.0e-06 	 & 1.0e-05 	 & 10 & 103 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-06 	 & 1.0e-06 	 & 10 & 91 	 & -0.008 & +0.062 & +0.039 & +0.026 \\  
+\hline 
+ 1.0e+00 	 & 1.0e+02 	 & 10 & 437 	 & +4.631 & +0.283 & +0.103 & +0.127 \\ 
+ 1.0e+00 	 & 1.0e+00 	 & 10 & 129 	 & +1.638 & +0.224 & +0.089 & +0.119 \\ 
+ 1.0e+00 	 & 1.0e-02 	 & 10 & 129 	 & +1.602 & +0.223 & +0.089 & +0.119 \\ 
+ 1.0e+00 	 & 1.0e-04 	 & 10 & 151 	 & +1.608 & +0.223 & +0.089 & +0.119 \\ 
+ 1.0e+00 	 & 1.0e-06 	 & 10 & 133 	 & +1.603 & +0.223 & +0.089 & +0.119 \\ 
+ 1.0e-02 	 & 1.0e+02 	 & 10 & 186 	 & +0.649 & +0.111 & +0.036 & +0.033 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 10 & 125 	 & -0.027 & +0.041 & +0.036 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 10 & 133 	 & -0.039 & +0.039 & +0.036 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 10 & 108 	 & -0.039 & +0.039 & +0.036 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 10 & 154 	 & -0.039 & +0.039 & +0.036 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e+02 	 & 10 & 212 	 & +0.636 & +0.108 & +0.035 & +0.032 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 143 	 & -0.036 & +0.039 & +0.035 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 108 	 & -0.047 & +0.037 & +0.036 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 10 & 158 	 & -0.047 & +0.037 & +0.036 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 10 & 142 	 & -0.047 & +0.037 & +0.036 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e+02 	 & 10 & 203 	 & +0.636 & +0.108 & +0.035 & +0.032 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 117 	 & -0.035 & +0.039 & +0.035 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 120 	 & -0.047 & +0.037 & +0.036 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 10 & 122 	 & -0.047 & +0.037 & +0.036 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 10 & 133 	 & -0.047 & +0.037 & +0.036 & +0.026 \\ 
+%  1.0e+00 	 & 1.0e+02 	 & 10 & 499 	 & +5.125 & +0.278 & +0.105 & +0.127 \\ 
+%  1.0e+00 	 & 1.0e+00 	 & 10 & 225 	 & +4.148 & +0.304 & +0.092 & +0.135 \\ 
+%%\rowcolor{red}  1.0e+00 	 & 1.0e-01 	 & 10 & 206 	 & +4.272 & +0.305 & +0.091 & +0.142 \\ 
+% 1.0e+00 	 & 1.0e-02 	 & 10 & 233 	 & +4.272 & +0.305 & +0.091 & +0.143 \\ 
+%%\rowcolor{red}  1.0e+00 	 & 1.0e-03 	 & 10 & 208 	 & +4.437 & +0.305 & +0.091 & +0.143 \\ 
+% 1.0e+00 	 & 1.0e-04 	 & 10 & 204 	 & +4.271 & +0.306 & +0.091 & +0.143 \\ 
+%%\rowcolor{red}  1.0e+00 	 & 1.0e-05 	 & 10 & 203 	 & +4.400 & +0.305 & +0.091 & +0.143 \\ 
+% 1.0e+00 	 & 1.0e-06 	 & 10 & 222 	 & +4.584 & +0.304 & +0.090 & +0.143 \\
+% 
+%% 1.0e-01 	 & 1.0e+00 	 & 10 & 207 	 & +0.127 & +0.093 & +0.041 & +0.027 \\ 
+% %1.0e-01 	 & 1.0e-01 	 & 10 & 196 	 & +0.121 & +0.093 & +0.041 & +0.046 \\ 
+%% 1.0e-01 	 & 1.0e-02 	 & 10 & 232 	 & +0.123 & +0.093 & +0.041 & +0.056 \\ 
+% %1.0e-01 	 & 1.0e-03 	 & 10 & 183 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
+%% 1.0e-01 	 & 1.0e-04 	 & 10 & 212 	 & +0.122 & +0.093 & +0.040 & +0.057 \\ 
+% %1.0e-01 	 & 1.0e-05 	 & 10 & 168 	 & +0.122 & +0.093 & +0.041 & +0.057 \\
+%% 1.0e-01 	 & 1.0e-06 	 & 10 & 195 	 & +0.122 & +0.093 & +0.041 & +0.057 \\ 
+% 1.0e-02 	 & 1.0e+02 	 & 10 & 228 	 & +0.702 & +0.106 & +0.035 & +0.033 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 10 & 227 	 & +0.015 & +0.067 & +0.039 & +0.018 \\ 
+% %1.0e-02 	 & 1.0e-01 	 & 10 & 153 	 & +0.006 & +0.065 & +0.039 & +0.021 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 10 & 184 	 & +0.005 & +0.065 & +0.039 & +0.039 \\ 
+% %1.0e-02 	 & 1.0e-03 	 & 10 & 176 	 & +0.004 & +0.065 & +0.039 & +0.048 \\ 
+% 1.0e-02 	 & 1.0e-04 	 & 10 & 195 	 & +0.005 & +0.065 & +0.039 & +0.049 \\ 
+% %1.0e-02 	 & 1.0e-05 	 & 10 & 215 	 & +0.004 & +0.065 & +0.039 & +0.051 \\ 
+% 1.0e-02 	 & 1.0e-06 	 & 10 & 205 	 & +0.005 & +0.065 & +0.039 & +0.050 \\ 
+%
+% %1.0e-03 	 & 1.0e+00 	 & 10 & 179 	 & +0.004 & +0.064 & +0.039 & +0.019 \\ 
+% %1.0e-03 	 & 1.0e-01 	 & 10 & 221 	 & -0.005 & +0.063 & +0.039 & +0.018 \\ 
+% %1.0e-03 	 & 1.0e-02 	 & 10 & 89 	 & -0.007 & +0.063 & +0.039 & +0.026 \\ 
+% %1.0e-03 	 & 1.0e-03 	 & 10 & 77 	 & -0.005 & +0.062 & +0.039 & +0.027 \\ 
+% %1.0e-03 	 & 1.0e-04 	 & 10 & 100 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
+% %1.0e-03 	 & 1.0e-05 	 & 10 & 105 	 & -0.006 & +0.062 & +0.039 & +0.027 \\ 
+% %1.0e-03 	 & 1.0e-06 	 & 10 & 123 	 & -0.007 & +0.062 & +0.039 & +0.028 \\ 
+%
+% 1.0e-04 	 & 1.0e+02 	 & 10 & 167 	 & +0.688 & +0.104 & +0.035 & +0.032 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 10 & 236 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
+% %1.0e-04 	 & 1.0e-01 	 & 10 & 195 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 10 & 152 	 & -0.006 & +0.062 & +0.039 & +0.022 \\ 
+% %1.0e-04 	 & 1.0e-03 	 & 10 & 119 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
+% 1.0e-04 	 & 1.0e-04 	 & 10 & 106 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+% %1.0e-04 	 & 1.0e-05 	 & 10 & 109 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+% 1.0e-04 	 & 1.0e-06 	 & 10 & 99 	 & -0.008 & +0.062 & +0.039 & +0.026 \\
+% 
+% %1.0e-05 	 & 1.0e+00 	 & 10 & 139 	 & +0.004 & +0.063 & +0.039 & +0.019 \\ 
+% %1.0e-05 	 & 1.0e-01 	 & 10 & 170 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
+% %1.0e-05 	 & 1.0e-02 	 & 10 & 182 	 & -0.007 & +0.062 & +0.039 & +0.020 \\ 
+% %1.0e-05 	 & 1.0e-03 	 & 10 & 70 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+% %1.0e-05 	 & 1.0e-04 	 & 10 & 77 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+% %1.0e-05 	 & 1.0e-05 	 & 10 & 104 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
+% %1.0e-05 	 & 1.0e-06 	 & 10 & 92 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+% 1.0e-06 	 & 1.0e+02 	 & 10 & 210 	 & +0.685 & +0.104 & +0.035 & +0.032 \\ 
+% 1.0e-06 	 & 1.0e+00 	 & 10 & 163 	 & +0.003 & +0.064 & +0.039 & +0.019 \\ 
+% %1.0e-06 	 & 1.0e-01 	 & 10 & 218 	 & -0.006 & +0.062 & +0.039 & +0.018 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 10 & 134 	 & -0.008 & +0.062 & +0.039 & +0.023 \\ 
+% %1.0e-06 	 & 1.0e-03 	 & 10 & 79 	 & -0.006 & +0.062 & +0.039 & +0.026 \\ 
+% 1.0e-06 	 & 1.0e-04 	 & 10 & 107 	 & -0.007 & +0.062 & +0.039 & +0.026 \\ 
+% %1.0e-06 	 & 1.0e-05 	 & 10 & 103 	 & -0.008 & +0.062 & +0.039 & +0.026 \\ 
+% 1.0e-06 	 & 1.0e-06 	 & 10 & 91 	 & -0.008 & +0.062 & +0.039 & +0.026 \\  
 \end{tabular}
 \label{Tab::1}
 \end{table} 
@@ -608,61 +663,122 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel
 
 
 
+
+
+  
+
+
+
+
+
+ 
+
+ 
+
+
+
+
+
+
+
+
 \begin{table}
 \centering
-\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. }
+\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. {\color{red} check pvd }}
 \begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $&$|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
 \hline
-
- %1.0e+00 	 & 1.0e+00 	 & 10 & 128 	 & +1.587 & +0.217 & +0.091 & +0.119 \\ 
- 
- 1.0e+00 	 & 1.0e+00 	 & 20 & 268 	 & +5.537 & +0.321 & +0.152 & +0.128 \\ 
- 1.0e+00 	 & 1.0e+00 	 & 40 & 381 	 & +12.346 & +0.890 & +0.249 & +0.154\\ 
- 
- 1.0e+00 	 & 1.0e-02 	 & 20 & 407 	 & +17.676 & +1.417 & +0.402 & +0.251 \\ 
- 1.0e+00 	 & 1.0e-02 	 & 40 & 873 	 & +61.467 & +17.965 & +16.437 & +0.614 \\ 
- 
-% 1.0e+00 	 & 1.0e-04 	 & 10 & 130 	 & +1.558 & +0.216 & +0.091 & +0.119 \\ 
- 1.0e+00 	 & 1.0e-04 	 & 20 & 497 	 & +19.414 & +1.514 & +0.422 & +0.259\\ 
- 1.0e+00 	 & 1.0e-04 	 & 40 & 872 	 & +63.564 & +18.579 & +17.218 & +0.641 \\ 
-
- 1.0e-02 	 & 1.0e+00 	 & 20 & 157 	 & +0.016 & +0.004 & +0.008 & +0.007 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 40 & 277 	 & +0.020 & -0.006 & +0.001 & +0.003 \\ 
- 
- 1.0e-02 	 & 1.0e-02 	 & 20 & 447 	 & +0.130 & +0.055 & -0.000 & +0.016 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 40 & 458 	 & +0.098 & +0.088 & +0.002 & +0.023 \\ 
- 
- 1.0e-02 	 & 1.0e-04 	 & 20 & 595 	 & +0.175 & +0.081 & -0.003 & +0.090 \\ 
- 1.0e-02 	 & 1.0e-04 	 & 40 & 976 	 & +0.320 & +0.398 & +0.088 & +0.226 \\ 
- 
-% 1.0e-04 	 & 1.0e+00 	 & 10 & 140 	 & -0.048 & +0.032 & +0.035 & +0.026 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 20 & 165 	 & +0.006 & +0.000 & +0.008 & +0.007 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 40 & 285 	 & +0.005 & -0.013 & +0.000 & +0.003 \\ 
- %1.0e-04 	 & 1.0e-01 	 & 20 & 367 	 & +0.028 & +0.010 & +0.008 & +0.007 \\
- %1.0e-04 	 & 1.0e-01 	 & 40 & 422 	 & +0.001 & -0.007 & +0.004 & +0.005 \\  
- 1.0e-04 	 & 1.0e-02 	 & 20 & 258 	 & +0.068 & +0.023 & +0.005 & +0.006 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 40 & 339 	 & +0.004 & +0.002 & +0.002 & +0.003 \\  
- 
- %1.0e-04 	 & 1.0e-04 	 & 10 & 113 	 & -0.060 & +0.030 & +0.036 & +0.026 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 20 & 322 	 & +0.105 & +0.031 & -0.003 & +0.020 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 40 & 358 	 & -0.011 & -0.005 & -0.003 & +0.004 \\ 
- 
-% 1.0e-05 	 & 1.0e+00 	 & 20 & 237 	 & -0.006 & +0.004 & +0.013 & +0.008 \\ 
- %1.0e-05 	 & 1.0e+00 	 & 40 & 358 	 & -0.018 & -0.019 & +0.005 & +0.007 \\  
- %1.0e-05 	 & 1.0e-01 	 & 20 & 290 	 & +0.026 & +0.010 & +0.008 & +0.007 \\
- %1.0e-05 	 & 1.0e-01 	 & 40 & 419 	 & +0.001 & -0.007 & +0.004 & +0.005 \\    
- %1.0e-05 	 & 1.0e-02 	 & 20 & 316 	 & +0.071 & +0.025 & +0.005 & +0.007 \\ 
- %1.0e-05 	 & 1.0e-02 	 & 40 & 401 	 & +0.004 & +0.003 & +0.002 & +0.004 \\  
- 1.0e-06 	 & 1.0e+00 	 & 20 & 219 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 40 & 240 	 & -0.020 & -0.019 & +0.005 & +0.007 \\ 
- %1.0e-06 	 & 1.0e-01 	 & 20 & 250 	 & +0.027 & +0.010 & +0.008 & +0.007 \\ 
- %1.0e-06 	 & 1.0e-01 	 & 40 & 365 	 & +0.000 & -0.007 & +0.004 & +0.005 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 379 	 & +0.070 & +0.025 & +0.005 & +0.007 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 386 	 & +0.004 & +0.003 & +0.002 & +0.004 \\ 
- 
- 1.0e-06 	 & 1.0e-04 	 & 20 & 356 	 & +0.101 & +0.028 & -0.002 & +0.021 \\ 
- 1.0e-06 	 & 1.0e-04 	 & 40 & 410 	 & -0.011 & -0.002 & -0.003 & +0.004 \\ 
+ 1.0e+00 	 & 1.0e+02 	 & 20 & 600 	 & +6.412 & +0.175 & +0.086 & +0.124 \\
+ 1.0e+00 	 & 1.0e+02 	 & 40 &  -   & +6.702 & +0.130 & +0.082 & +0.125 \\  
+ 1.0e+00 	 & 1.0e+00 	 & 20 & 300 	 & +5.538 & +0.324 & +0.148 & +0.128 \\ 
+ 1.0e+00 	 & 1.0e+00 	 & 40 & 346 	 & +11.392 & +0.873 & +0.242 & +0.154 \\ 
+ 1.0e+00 	 & 1.0e-02 	 & 20 & 415 	 & +18.156 & +1.378  & +0.389  & +0.251 \\ 
+ 1.0e+00 	 & 1.0e-02 	 & 40 & 856 	 & +64.050 & +17.408 & +15.950 & +0.614 \\ 
+ 1.0e+00 	 & 1.0e-04 	 & 20 & 417 	 & +17.747 & +1.465  & +0.406  & +0.258 \\ 
+ 1.0e+00 	 & 1.0e-04 	 & 40 & 946 	 & +72.594 & +17.985 & +16.702 & +0.641 \\
+ 1.0e+00 	 & 1.0e-06 	 & 20 & 399 	 & +17.407 & +1.466  & +0.406  & +0.258 \\ 
+ 1.0e+00 	 & 1.0e-06 	 & 40 & 863 	 & +60.448 & +18.043 & +16.732 & +0.641 \\
+ \hline
+ 1.0e-02 	 & 1.0e+02 	 & 20 & 351 	 & +0.865 & +0.001 & +0.017 & +0.027 \\ 
+ 1.0e-02 	 & 1.0e+02 	 & 40 & 404 	 & +0.846 & -0.049 & +0.010 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 20 & 254 	 & +0.018 & +0.007 & +0.008 & +0.007 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 40 & 218 	 & +0.020 & -0.006 & +0.001 & +0.003 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 20 & 381 	 & +0.127 & +0.057 & -0.001 & +0.016 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 40 & 543 	 & +0.099 & +0.087 & +0.002 & +0.023 \\
+ 1.0e-02 	 & 1.0e-04 	 & 20 & 641 	 & +0.171 & +0.082 & -0.003 & +0.091 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 40 & 879 	 & +0.303 & +0.383 & +0.079 & +0.222 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 20 & 547 	 & +0.173 & +0.084 & -0.003 & +0.092 \\
+ 1.0e-02 	 & 1.0e-06 	 & 40 & 844 	 & +0.332 & +0.416 & +0.095 & +0.239 \\ 
+ \hline 
+ 1.0e-04 	 & 1.0e+02 	 & 20 & 257 	 & +0.853 & -0.001 & +0.017 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e+02 	 & 40 & 532 	 & +0.822 & -0.051 & +0.010 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 164 	 & +0.008 & +0.003 & +0.008 & +0.007 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 203 	 & +0.005 & -0.012 & +0.001 & +0.003 \\  
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 313 	 & +0.071 & +0.021 & -0.001 & +0.007 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 294 	 & +0.004 & +0.004 & -0.001 & +0.001 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 & 265 	 & +0.108 & +0.035 & -0.002 & +0.014 \\
+ 1.0e-04 	 & 1.0e-04 	 & 40 & 401 	 & -0.010 & -0.002 & -0.002 & +0.004 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 20 & 452 	 & +0.066 & +0.021 & -0.003 & +0.031 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 40 & 330 	 & -0.014 & -0.013 & -0.003 & +0.004 \\ 
+ \hline
+ 1.0e-06 	 & 1.0e+02 	 & 20 & 274 	 & +0.850 & -0.001 & +0.017 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e+02 	 & 40 & 496 	 & +0.821 & -0.051 & +0.010 & +0.026 \\
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 176 	 & +0.008 & +0.003 & +0.008 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 207 	 & +0.006 & -0.012 & +0.001 & +0.003 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 223 	 & +0.075 & +0.024 & -0.001 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 392 	 & +0.000 & -0.001 & -0.001 & +0.002 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 20 & 429 	 & +0.085 & +0.027 & -0.002 & +0.025 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 40 & 241 	 & -0.020 & -0.030 & -0.005 & +0.005 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 20 & 591 	 & +0.060 & +0.021 & -0.003 & +0.048 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 40 & 343 	 & -0.014 & -0.010 & -0.003 & +0.004 \\ 
+% %1.0e+00 	 & 1.0e+00 	 & 10 & 128 	 & +1.587 & +0.217 & +0.091 & +0.119 \\ 
+% 
+% 1.0e+00 	 & 1.0e+00 	 & 20 & 268 	 & +5.537 & +0.321 & +0.152 & +0.128 \\ 
+% 1.0e+00 	 & 1.0e+00 	 & 40 & 381 	 & +12.346 & +0.890 & +0.249 & +0.154\\ 
+% 
+% 1.0e+00 	 & 1.0e-02 	 & 20 & 407 	 & +17.676 & +1.417 & +0.402 & +0.251 \\ 
+% 1.0e+00 	 & 1.0e-02 	 & 40 & 873 	 & +61.467 & +17.965 & +16.437 & +0.614 \\ 
+% 
+%% 1.0e+00 	 & 1.0e-04 	 & 10 & 130 	 & +1.558 & +0.216 & +0.091 & +0.119 \\ 
+% 1.0e+00 	 & 1.0e-04 	 & 20 & 497 	 & +19.414 & +1.514 & +0.422 & +0.259\\ 
+% 1.0e+00 	 & 1.0e-04 	 & 40 & 872 	 & +63.564 & +18.579 & +17.218 & +0.641 \\ 
+%
+% 1.0e-02 	 & 1.0e+00 	 & 20 & 157 	 & +0.016 & +0.004 & +0.008 & +0.007 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 40 & 277 	 & +0.020 & -0.006 & +0.001 & +0.003 \\ 
+% 
+% 1.0e-02 	 & 1.0e-02 	 & 20 & 447 	 & +0.130 & +0.055 & -0.000 & +0.016 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 40 & 458 	 & +0.098 & +0.088 & +0.002 & +0.023 \\ 
+% 
+% 1.0e-02 	 & 1.0e-04 	 & 20 & 595 	 & +0.175 & +0.081 & -0.003 & +0.090 \\ 
+% 1.0e-02 	 & 1.0e-04 	 & 40 & 976 	 & +0.320 & +0.398 & +0.088 & +0.226 \\ 
+% 
+%% 1.0e-04 	 & 1.0e+00 	 & 10 & 140 	 & -0.048 & +0.032 & +0.035 & +0.026 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 20 & 165 	 & +0.006 & +0.000 & +0.008 & +0.007 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 40 & 285 	 & +0.005 & -0.013 & +0.000 & +0.003 \\ 
+% %1.0e-04 	 & 1.0e-01 	 & 20 & 367 	 & +0.028 & +0.010 & +0.008 & +0.007 \\
+% %1.0e-04 	 & 1.0e-01 	 & 40 & 422 	 & +0.001 & -0.007 & +0.004 & +0.005 \\  
+% 1.0e-04 	 & 1.0e-02 	 & 20 & 258 	 & +0.068 & +0.023 & +0.005 & +0.006 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 40 & 339 	 & +0.004 & +0.002 & +0.002 & +0.003 \\  
+% 
+% %1.0e-04 	 & 1.0e-04 	 & 10 & 113 	 & -0.060 & +0.030 & +0.036 & +0.026 \\ 
+% 1.0e-04 	 & 1.0e-04 	 & 20 & 322 	 & +0.105 & +0.031 & -0.003 & +0.020 \\ 
+% 1.0e-04 	 & 1.0e-04 	 & 40 & 358 	 & -0.011 & -0.005 & -0.003 & +0.004 \\ 
+% 
+%% 1.0e-05 	 & 1.0e+00 	 & 20 & 237 	 & -0.006 & +0.004 & +0.013 & +0.008 \\ 
+% %1.0e-05 	 & 1.0e+00 	 & 40 & 358 	 & -0.018 & -0.019 & +0.005 & +0.007 \\  
+% %1.0e-05 	 & 1.0e-01 	 & 20 & 290 	 & +0.026 & +0.010 & +0.008 & +0.007 \\
+% %1.0e-05 	 & 1.0e-01 	 & 40 & 419 	 & +0.001 & -0.007 & +0.004 & +0.005 \\    
+% %1.0e-05 	 & 1.0e-02 	 & 20 & 316 	 & +0.071 & +0.025 & +0.005 & +0.007 \\ 
+% %1.0e-05 	 & 1.0e-02 	 & 40 & 401 	 & +0.004 & +0.003 & +0.002 & +0.004 \\  
+% 1.0e-06 	 & 1.0e+00 	 & 20 & 219 	 & -0.007 & +0.004 & +0.013 & +0.008 \\ 
+% 1.0e-06 	 & 1.0e+00 	 & 40 & 240 	 & -0.020 & -0.019 & +0.005 & +0.007 \\ 
+% %1.0e-06 	 & 1.0e-01 	 & 20 & 250 	 & +0.027 & +0.010 & +0.008 & +0.007 \\ 
+% %1.0e-06 	 & 1.0e-01 	 & 40 & 365 	 & +0.000 & -0.007 & +0.004 & +0.005 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 20 & 379 	 & +0.070 & +0.025 & +0.005 & +0.007 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 40 & 386 	 & +0.004 & +0.003 & +0.002 & +0.004 \\ 
+% 
+% 1.0e-06 	 & 1.0e-04 	 & 20 & 356 	 & +0.101 & +0.028 & -0.002 & +0.021 \\ 
+% 1.0e-06 	 & 1.0e-04 	 & 40 & 410 	 & -0.011 & -0.002 & -0.003 & +0.004 \\ 
 \end{tabular}
 \label{TAB::timesteps}
 \end{table} 
@@ -674,61 +790,114 @@ $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $
 \begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $&$|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
 \hline
+ 1.0e-02 	 & 1.0e+00 	 & 10 & 151 	 & +0.095 & +0.015 & +0.028 & +0.020 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 20 & 165 	 & +0.092 & -0.001 & -0.001 & +0.008 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 40 & 228 	 & +0.067 & -0.024 & -0.011 & +0.005 \\ 
+ 
+ 1.0e-02 	 & 1.0e-02 	 & 10 & 330 	 & +0.190 & +0.074 & +0.027 & +0.083 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 20 & 455 	 & +3.882 & +3.297 & +2.583 & +0.304 \\ 
+  1.0e-02 	 & 1.0e-02 	 & 40 & 523 	 & +7.466 & +6.454 & +5.537 & +0.388 \\ 
 
- %1.0e-04 	 & 1.0e+02 	 & 10 & 895 	 & +22.689 & +0.254 & +0.008 & +0.024 \\ 
- %1.0e-04 	 & 1.0e+02 	 & 20 & 1001 	 & +13.781 & +0.142 & -0.026 & +0.025 \\
- %1.0e-04 	 & 1.0e+02 	 & 40 & 1001 	 & +9.368 & +0.089 & -0.042 & +0.026 \\
+ 1.0e-02 	 & 1.0e-04 	 & 10 & 428 	 & +0.196 & +0.076 & +0.032 & +0.163 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 20 & 571 	 & +7.402 & +6.421 & +5.405 & +0.680 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 40 & 747 	 & +15.386 & +13.764 & +12.196 & +0.841 \\ 
+  
+  1.0e-04 	 & 1.0e+00 	 & 10 & 147 	 & +0.081 & +0.008 & +0.023 & +0.020 \\ 
+  1.0e-04 	 & 1.0e+00 	 & 20 & 167 	 & +0.051 & -0.026 & -0.009 & +0.008 \\ 
+  1.0e-04 	 & 1.0e+00 	 & 40 & 148 	 & +0.018 & -0.057 & -0.020 & +0.005 \\ 
+  
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 255 	 & +0.171 & +0.087 & +0.010 & +0.021 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 216 	 & -0.005 & -0.006 & -0.008 & +0.008 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 386 	 & -0.004 & -0.012 & -0.015 & +0.004 \\ 
+  
+  
+ 1.0e-04 	 & 1.0e-04 	 & 10 & 284 	 & +0.059 & +0.052 & +0.010 & +0.051 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 & 256 	 & -0.048 & -0.045 & -0.024 & +0.020 \\ 
+  1.0e-04 	 & 1.0e-04 	 & 40 & 277 	 & -0.071 & -0.074 & -0.050 & +0.018 \\ 
+  
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 163 	 & +0.082 & +0.008 & +0.023 & +0.020 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 156 	 & +0.054 & -0.027 & -0.009 & +0.008 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 284 	 & +0.020 & -0.055 & -0.019 & +0.005 \\
+  
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 290 	 & +0.155 & +0.075 & +0.011 & +0.021 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 239 	 & -0.004 & +0.002 & -0.006 & +0.008 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 378 	 & -0.005 & -0.013 & -0.016 & +0.004 \\ 
+  
+ 1.0e-06 	 & 1.0e-04 	 & 10 & 264 	 & +0.070 & +0.056 & +0.009 & +0.050 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 20 & 234 	 & -0.047 & -0.044 & -0.029 & +0.020 \\
+ 1.0e-06 	 & 1.0e-04 	 & 40 & 324 	 & -0.070 & -0.070 & -0.052 & +0.017 \\ 
+
+
+
+
+
+
+
  
-% 1.0e-06 	 & 1.0e+02 	 & 10 & 919 	 & +19.507 & +0.255 & +0.008 & +0.024 \\ 
-% 1.0e-06 	 & 1.0e+02 	 & 20 & 999 	 & +15.032 & +0.141 & -0.026 & +0.025 \\ 
-% 1.0e-06 	 & 1.0e+02 	 & 40 & 1001 	 & +9.809 & +0.088 & -0.043 & +0.026 \\ 
+
+
+
+
+
  
- 1.0e-02 	 & 1.0e+00 	 & 10 & 144 	 & +0.091 & +0.011 & +0.026 & +0.020 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 20 & 181 	 & +0.089 & -0.003 & -0.001 & +0.008 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 40 & 209 	 & +0.066 & -0.025 & -0.011 & +0.004 \\ 
-  
- 1.0e-02 	 & 1.0e-02 	 & 10 & 368 	 & +0.183 & +0.066 & +0.026 & +0.084 \\
- 1.0e-02 	 & 1.0e-02 	 & 20 & 451 	 & +3.859 & +3.282 & +2.577 & +0.302 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 40 & 518 	 & +7.347 & +6.417 & +5.478 & +0.384 \\ 
+
+
  
- 1.0e-04 	 & 1.0e+00 	 & 10 & 161 	 & +0.081 & +0.027 & +0.049 & +0.023 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 20 & 202 	 & +0.007 & -0.050 & +0.017 & +0.028 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 40 & 308 	 & -0.032 & -0.081 & +0.002 & +0.031 \\
-  
-% 1.0e-04 	 & 1.0e-01 	 & 10 & 185 	 & +0.123 & +0.046 & +0.037 & +0.021 \\ 
-% 1.0e-04 	 & 1.0e-01 	 & 20 & 336 	 & +0.028 & -0.009 & +0.009 & +0.023 \\
-% 1.0e-04 	 & 1.0e-01 	 & 40 & 379 	 & -0.004 & -0.033 & -0.006 & +0.026 \\ 
- 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 265 	 & +0.160 & +0.082 & +0.033 & +0.016 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 20 & 320 	 & +0.025 & +0.025 & +0.015 & +0.013 \\
- 1.0e-04 	 & 1.0e-02 	 & 40 & 377 	 & +0.006 & +0.006 & -0.001 & +0.008 \\ 
-  
- 
-% 1.0e-05 	 & 1.0e+00 	 & 10 & 192 	 & +0.083 & +0.026 & +0.049 & +0.023 \\ 
-% 1.0e-05 	 & 1.0e+00 	 & 20 & 195 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
-% 1.0e-05 	 & 1.0e+00 	 & 40 & 212 	 & -0.034 & -0.083 & +0.001 & +0.031 \\ 
- 
-% 1.0e-05 	 & 1.0e-01 	 & 10 & 223 	 & +0.118 & +0.047 & +0.037 & +0.020 \\ 
-%  1.0e-05 	 & 1.0e-01 	 & 20 & 320 	 & +0.029 & -0.011 & +0.009 & +0.026 \\
-%  1.0e-05 	 & 1.0e-01 	 & 40 & 396 	 & -0.007 & -0.036 & -0.006 & +0.028 \\ 
-  
-  
-%  1.0e-05 	 & 1.0e-02 	 & 10 & 267 	 & +0.159 & +0.084 & +0.033 & +0.016 \\ 
-%  1.0e-05 	 & 1.0e-02 	 & 20 & 351 	 & +0.023 & +0.017 & +0.011 & +0.019 \\ 
-%  1.0e-05 	 & 1.0e-02 	 & 40 & 374 	 & +0.009 & +0.007 & -0.003 & +0.014 \\ 
-  
-  
- 1.0e-06 	 & 1.0e+00 	 & 10 & 176 	 & +0.082 & +0.026 & +0.049 & +0.023 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 20 & 224 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 40 & 226 	 & -0.034 & -0.082 & +0.001 & +0.031 \\ 
-  
-% 1.0e-06 	 & 1.0e-01 	 & 10 & 229 	 & +0.120 & +0.046 & +0.037 & +0.021 \\ 
-%  1.0e-06 	 & 1.0e-01 	 & 20 & 334 	 & +0.027 & -0.012 & +0.009 & +0.026 \\  
-% 1.0e-06 	 & 1.0e-01 	 & 40 & 313 	 & -0.007 & -0.037 & -0.006 & +0.030 \\
-  
- 1.0e-06 	 & 1.0e-02 	 & 10 & 253 	 & +0.156 & +0.080 & +0.033 & +0.018 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 340 	 & +0.020 & +0.016 & +0.012 & +0.019 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 368 	 & +0.006 & +0.006 & -0.004 & +0.013 \\ 
+%
+% %1.0e-04 	 & 1.0e+02 	 & 10 & 895 	 & +22.689 & +0.254 & +0.008 & +0.024 \\ 
+% %1.0e-04 	 & 1.0e+02 	 & 20 & 1001 	 & +13.781 & +0.142 & -0.026 & +0.025 \\
+% %1.0e-04 	 & 1.0e+02 	 & 40 & 1001 	 & +9.368 & +0.089 & -0.042 & +0.026 \\
+% 
+%% 1.0e-06 	 & 1.0e+02 	 & 10 & 919 	 & +19.507 & +0.255 & +0.008 & +0.024 \\ 
+%% 1.0e-06 	 & 1.0e+02 	 & 20 & 999 	 & +15.032 & +0.141 & -0.026 & +0.025 \\ 
+%% 1.0e-06 	 & 1.0e+02 	 & 40 & 1001 	 & +9.809 & +0.088 & -0.043 & +0.026 \\ 
+% 
+% 1.0e-02 	 & 1.0e+00 	 & 10 & 144 	 & +0.091 & +0.011 & +0.026 & +0.020 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 20 & 181 	 & +0.089 & -0.003 & -0.001 & +0.008 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 40 & 209 	 & +0.066 & -0.025 & -0.011 & +0.004 \\ 
+%  
+% 1.0e-02 	 & 1.0e-02 	 & 10 & 368 	 & +0.183 & +0.066 & +0.026 & +0.084 \\
+% 1.0e-02 	 & 1.0e-02 	 & 20 & 451 	 & +3.859 & +3.282 & +2.577 & +0.302 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 40 & 518 	 & +7.347 & +6.417 & +5.478 & +0.384 \\ 
+% 
+% 1.0e-04 	 & 1.0e+00 	 & 10 & 161 	 & +0.081 & +0.027 & +0.049 & +0.023 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 20 & 202 	 & +0.007 & -0.050 & +0.017 & +0.028 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 40 & 308 	 & -0.032 & -0.081 & +0.002 & +0.031 \\
+%  
+%% 1.0e-04 	 & 1.0e-01 	 & 10 & 185 	 & +0.123 & +0.046 & +0.037 & +0.021 \\ 
+%% 1.0e-04 	 & 1.0e-01 	 & 20 & 336 	 & +0.028 & -0.009 & +0.009 & +0.023 \\
+%% 1.0e-04 	 & 1.0e-01 	 & 40 & 379 	 & -0.004 & -0.033 & -0.006 & +0.026 \\ 
+% 
+% 1.0e-04 	 & 1.0e-02 	 & 10 & 265 	 & +0.160 & +0.082 & +0.033 & +0.016 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 20 & 320 	 & +0.025 & +0.025 & +0.015 & +0.013 \\
+% 1.0e-04 	 & 1.0e-02 	 & 40 & 377 	 & +0.006 & +0.006 & -0.001 & +0.008 \\ 
+%  
+% 
+%% 1.0e-05 	 & 1.0e+00 	 & 10 & 192 	 & +0.083 & +0.026 & +0.049 & +0.023 \\ 
+%% 1.0e-05 	 & 1.0e+00 	 & 20 & 195 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
+%% 1.0e-05 	 & 1.0e+00 	 & 40 & 212 	 & -0.034 & -0.083 & +0.001 & +0.031 \\ 
+% 
+%% 1.0e-05 	 & 1.0e-01 	 & 10 & 223 	 & +0.118 & +0.047 & +0.037 & +0.020 \\ 
+%%  1.0e-05 	 & 1.0e-01 	 & 20 & 320 	 & +0.029 & -0.011 & +0.009 & +0.026 \\
+%%  1.0e-05 	 & 1.0e-01 	 & 40 & 396 	 & -0.007 & -0.036 & -0.006 & +0.028 \\ 
+%  
+%  
+%%  1.0e-05 	 & 1.0e-02 	 & 10 & 267 	 & +0.159 & +0.084 & +0.033 & +0.016 \\ 
+%%  1.0e-05 	 & 1.0e-02 	 & 20 & 351 	 & +0.023 & +0.017 & +0.011 & +0.019 \\ 
+%%  1.0e-05 	 & 1.0e-02 	 & 40 & 374 	 & +0.009 & +0.007 & -0.003 & +0.014 \\ 
+%  
+%  
+% 1.0e-06 	 & 1.0e+00 	 & 10 & 176 	 & +0.082 & +0.026 & +0.049 & +0.023 \\ 
+% 1.0e-06 	 & 1.0e+00 	 & 20 & 224 	 & +0.007 & -0.051 & +0.017 & +0.029 \\ 
+% 1.0e-06 	 & 1.0e+00 	 & 40 & 226 	 & -0.034 & -0.082 & +0.001 & +0.031 \\ 
+%  
+%% 1.0e-06 	 & 1.0e-01 	 & 10 & 229 	 & +0.120 & +0.046 & +0.037 & +0.021 \\ 
+%%  1.0e-06 	 & 1.0e-01 	 & 20 & 334 	 & +0.027 & -0.012 & +0.009 & +0.026 \\  
+%% 1.0e-06 	 & 1.0e-01 	 & 40 & 313 	 & -0.007 & -0.037 & -0.006 & +0.030 \\
+%  
+% 1.0e-06 	 & 1.0e-02 	 & 10 & 253 	 & +0.156 & +0.080 & +0.033 & +0.018 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 20 & 340 	 & +0.020 & +0.016 & +0.012 & +0.019 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 40 & 368 	 & +0.006 & +0.006 & -0.004 & +0.013 \\ 
 \end{tabular}
 \label{TAB::half}
 \end{table} 
@@ -740,55 +909,92 @@ $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $
 $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
 \hline
 
- 1.0e-02 	 & 1.0e+00 	 & 10 & 283 	 & -0.062 & +0.026 & +0.022 & +0.033 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 20 & 208 	 & -0.012 & +0.012 & +0.008 & +0.007 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 40 & 201 	 & +0.002 & +0.001 & +0.002 & +0.002 \\ 
- 
- 
- 1.0e-02 	 & 1.0e-02 	 & 10 & 238 	 & -0.068 & +0.026 & +0.022 & +0.033 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 20 & 492 	 & -0.001 & +0.013 & +0.004 & +0.010 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 40 & 572 	 & +0.040 & +0.014 & -0.002 & +0.004 \\ 
- 
- 
- 
- 1.0e-04 	 & 1.0e+00 	 & 10 & 246 	 & -0.046 & +0.038 & +0.023 & +0.031 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 20 & 228 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 40 & 279 	 & -0.007 & +0.000 & +0.003 & +0.002 \\  
-  
-% 1.0e-04 	 & 1.0e-01 	 & 10 & 292 	 & -0.052 & +0.038 & +0.024 & +0.032 \\  
-% 1.0e-04 	 & 1.0e-01 	 & 20 & 331 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
-% 1.0e-04 	 & 1.0e-01 	 & 40 & 313 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
- 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 338 	 & -0.053 & +0.038 & +0.024 & +0.032 \\ 
-  1.0e-04 	 & 1.0e-02 	 & 20 & 367 	 & +0.003 & +0.018 & +0.005 & +0.007 \\
-   1.0e-04 	 & 1.0e-02 	 & 40 & 273 	 & +0.017 & +0.006 & -0.001 & +0.001 \\  
-  
-% 1.0e-05 	 & 1.0e+00 	 & 10 & 290 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
-%  1.0e-05 	 & 1.0e+00 	 & 20 & 194 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
-%   1.0e-05 	 & 1.0e+00 	 & 40 & 238 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
-  
-% 1.0e-05 	 & 1.0e-01 	 & 10 & 316 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
-%  1.0e-05 	 & 1.0e-01 	 & 20 & 312 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
-%   1.0e-05 	 & 1.0e-01 	 & 40 & 317 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
-   
-   
- %1.0e-05 	 & 1.0e-02 	 & 10 & 389 	 & -0.052 & +0.038 & +0.024 & +0.033 \\ 
- % 1.0e-05 	 & 1.0e-02 	 & 20 & 266 	 & +0.004 & +0.018 & +0.005 & +0.007 \\ 
- %  1.0e-05 	 & 1.0e-02 	 & 40 & 336 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
-   
-   
- 1.0e-06 	 & 1.0e+00 	 & 10 & 282 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
-  1.0e-06 	 & 1.0e+00 	 & 20 & 179 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
-  1.0e-06 	 & 1.0e+00 	 & 40 & 261 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
- 
-  
-% 1.0e-06 	 & 1.0e-01 	 & 10 & 308 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
-%  1.0e-06 	 & 1.0e-01 	 & 20 & 245 	 & -0.002 & +0.018 & +0.006 & +0.006 \\ 
-%   1.0e-06 	 & 1.0e-01 	 & 40 & 318 	 & +0.004 & +0.003 & +0.000 & +0.002 \\
+ 1.0e-02 	 & 1.0e+00 	 & 10 & 250 	 & -0.038 & +0.035 & +0.019 & +0.033 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 20 & 225 	 & -0.002 & +0.015 & +0.007 & +0.007 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 40 & 255 	 & +0.003 & +0.002 & +0.001 & +0.002 \\ 
 
- 1.0e-06 	 & 1.0e-02 	 & 10 & 285 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 362 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 40 & 375 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 10 & 180 	 & -0.042 & +0.034 & +0.020 & +0.033 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 20 & 445 	 & +0.010 & +0.017 & +0.003 & +0.010 \\ 
+  1.0e-02 	 & 1.0e-02 	 & 40 & 429 	 & +0.037 & +0.014 & -0.003 & +0.004 \\ 
+  
+ 1.0e-02 	 & 1.0e-04 	 & 10 & 208 	 & -0.042 & +0.034 & +0.020 & +0.033 \\ 
+  1.0e-02 	 & 1.0e-04 	 & 20 & 530 	 & +0.012 & +0.017 & +0.003 & +0.020 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 40 & - 	 & +0.064 & +0.023 & -0.005 & +0.072 \\ 
+ 
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 209 	 & -0.043 & +0.033 & +0.019 & +0.033 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 212 	 & -0.007 & +0.014 & +0.007 & +0.007 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 40 & 258 	 & -0.002 & +0.001 & +0.001 & +0.002 \\ 
+ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 258 	 & -0.047 & +0.033 & +0.020 & +0.033 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 391 	 & +0.005 & +0.016 & +0.003 & +0.008 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 40 & 261 	 & +0.014 & +0.005 & -0.002 & +0.001 \\ 
+ 
+ 1.0e-04 	 & 1.0e-04 	 & 10 & 267 	 & -0.047 & +0.033 & +0.020 & +0.033 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 & 769 	 & +0.008 & +0.016 & +0.003 & +0.016 \\
+ 1.0e-04 	 & 1.0e-04 	 & 40 & 375 	 & +0.027 & +0.005 & -0.003 & +0.002 \\ 
+ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 198 	 & -0.042 & +0.033 & +0.019 & +0.033 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 222 	 & -0.007 & +0.014 & +0.007 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 40 & 280 	 & -0.001 & +0.001 & +0.001 & +0.002 \\ 
+ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 279 	 & -0.047 & +0.033 & +0.020 & +0.033 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 312 	 & +0.005 & +0.016 & +0.003 & +0.008 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 40 & 379 	 & +0.015 & +0.005 & -0.002 & +0.001 \\
+ 
+ 1.0e-06 	 & 1.0e-04 	 & 10 & 251 	 & -0.047 & +0.033 & +0.020 & +0.033 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 20 & 778 	 & +0.008 & +0.016 & +0.002 & +0.018 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 40 & 191 	 & +0.017 & +0.004 & -0.002 & +0.002 \\ 
+ 
+%
+% 1.0e-02 	 & 1.0e+00 	 & 10 & 283 	 & -0.062 & +0.026 & +0.022 & +0.033 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 20 & 208 	 & -0.012 & +0.012 & +0.008 & +0.007 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 40 & 201 	 & +0.002 & +0.001 & +0.002 & +0.002 \\ 
+% 
+% 
+% 1.0e-02 	 & 1.0e-02 	 & 10 & 238 	 & -0.068 & +0.026 & +0.022 & +0.033 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 20 & 492 	 & -0.001 & +0.013 & +0.004 & +0.010 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 40 & 572 	 & +0.040 & +0.014 & -0.002 & +0.004 \\ 
+% 
+% 
+% 
+% 1.0e-04 	 & 1.0e+00 	 & 10 & 246 	 & -0.046 & +0.038 & +0.023 & +0.031 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 20 & 228 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 40 & 279 	 & -0.007 & +0.000 & +0.003 & +0.002 \\  
+%  
+%% 1.0e-04 	 & 1.0e-01 	 & 10 & 292 	 & -0.052 & +0.038 & +0.024 & +0.032 \\  
+%% 1.0e-04 	 & 1.0e-01 	 & 20 & 331 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
+%% 1.0e-04 	 & 1.0e-01 	 & 40 & 313 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+% 
+% 1.0e-04 	 & 1.0e-02 	 & 10 & 338 	 & -0.053 & +0.038 & +0.024 & +0.032 \\ 
+%  1.0e-04 	 & 1.0e-02 	 & 20 & 367 	 & +0.003 & +0.018 & +0.005 & +0.007 \\
+%   1.0e-04 	 & 1.0e-02 	 & 40 & 273 	 & +0.017 & +0.006 & -0.001 & +0.001 \\  
+%  
+%% 1.0e-05 	 & 1.0e+00 	 & 10 & 290 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
+%%  1.0e-05 	 & 1.0e+00 	 & 20 & 194 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+%%   1.0e-05 	 & 1.0e+00 	 & 40 & 238 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
+%  
+%% 1.0e-05 	 & 1.0e-01 	 & 10 & 316 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+%%  1.0e-05 	 & 1.0e-01 	 & 20 & 312 	 & -0.001 & +0.018 & +0.006 & +0.006 \\ 
+%%   1.0e-05 	 & 1.0e-01 	 & 40 & 317 	 & +0.004 & +0.003 & +0.000 & +0.002 \\ 
+%   
+%   
+% %1.0e-05 	 & 1.0e-02 	 & 10 & 389 	 & -0.052 & +0.038 & +0.024 & +0.033 \\ 
+% % 1.0e-05 	 & 1.0e-02 	 & 20 & 266 	 & +0.004 & +0.018 & +0.005 & +0.007 \\ 
+% %  1.0e-05 	 & 1.0e-02 	 & 40 & 336 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
+%   
+%   
+% 1.0e-06 	 & 1.0e+00 	 & 10 & 282 	 & -0.047 & +0.038 & +0.023 & +0.031 \\ 
+%  1.0e-06 	 & 1.0e+00 	 & 20 & 179 	 & -0.008 & +0.016 & +0.009 & +0.006 \\ 
+%  1.0e-06 	 & 1.0e+00 	 & 40 & 261 	 & -0.007 & +0.000 & +0.002 & +0.002 \\ 
+% 
+%  
+%% 1.0e-06 	 & 1.0e-01 	 & 10 & 308 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+%%  1.0e-06 	 & 1.0e-01 	 & 20 & 245 	 & -0.002 & +0.018 & +0.006 & +0.006 \\ 
+%%   1.0e-06 	 & 1.0e-01 	 & 40 & 318 	 & +0.004 & +0.003 & +0.000 & +0.002 \\
+%
+% 1.0e-06 	 & 1.0e-02 	 & 10 & 285 	 & -0.052 & +0.038 & +0.024 & +0.032 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 20 & 362 	 & +0.003 & +0.018 & +0.005 & +0.007 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 40 & 375 	 & +0.015 & +0.005 & -0.001 & +0.001 \\ 
 \end{tabular}
 \label{TAB::double}
 \end{table} 
@@ -801,61 +1007,87 @@ $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel}
 \begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel} $ & $D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel}$ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $\\
 \hline
- %1.0e+00 	 & 1.0e+00 	 & 10 & 218 	 & +4.266 & +0.304 & +0.092 & +0.135 \\ 
- %1.0e+00 	 & 1.0e-01 	 & 10 & 223 	 & +4.565 & +0.304 & +0.090 & +0.142 \\ 
-% 1.0e+00 	 & 1.0e-02 	 & 10 & 199 	 & +4.268 & +0.305 & +0.090 & +0.143 \\ 
-% 1.0e+00 	 & 1.0e-03 	 & 10 & 222 	 & +4.274 & +0.305 & +0.090 & +0.143 \\ 
-% 1.0e+00 	 & 1.0e-04 	 & 10 & 211 	 & +4.448 & +0.306 & +0.090 & +0.143 \\ 
-% 1.0e+00 	 & 1.0e-05 	 & 10 & 227 	 & +4.527 & +0.304 & +0.090 & +0.143 \\ 
-%1.0e+00 	 & 1.0e-06 	 & 10 & 263 	 & +4.266 & +0.306 & +0.091 & +0.143 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 10 & 151 	 & -0.030 & +0.041 & +0.036 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 10 & 120 	 & -0.032 & +0.039 & +0.036 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 10 & 125 	 & -0.038 & +0.039 & +0.037 & +0.026 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 10 & 167 	 & -0.040 & +0.039 & +0.036 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 161 	 & -0.038 & +0.039 & +0.035 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 95 	 & -0.047 & +0.036 & +0.036 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 10 & 75 	 & -0.041 & +0.036 & +0.035 & +0.026 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 10 & 136 	 & -0.044 & +0.036 & +0.036 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 134 	 & -0.034 & +0.037 & +0.037 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 112 	 & -0.046 & +0.038 & +0.036 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 10 & 111 	 & -0.043 & +0.036 & +0.037 & +0.026 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 10 & 214 	 & -0.049 & +0.037 & +0.036 & +0.026 \\
+  
+ 1.0e-02 	 & 1.0e+00 	 & 20 & 190 	 & +0.013 & +0.006 & +0.008 & +0.007 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 20 & 392 	 & +0.126 & +0.057 & +0.001 & +0.017 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 20 & 677 	 & +0.164 & +0.074 & -0.001 & +0.093 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 20 & 600 	 & +0.179 & +0.081 & -0.001 & +0.098 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 224 	 & +0.006 & +0.004 & +0.008 & +0.007 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 & 465 	 & +0.074 & +0.022 & -0.003 & +0.008 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 & 586 	 & +0.071 & +0.023 & -0.005 & +0.056 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 20 & 472 	 & +0.081 & +0.024 & -0.003 & +0.056 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 157 	 & +0.011 & +0.003 & +0.009 & +0.007 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 352 	 & +0.076 & +0.021 & +0.000 & +0.008 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 20 & 738 	 & +0.083 & +0.026 & -0.004 & +0.065 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 20 & 599 	 & +0.056 & +0.021 & -0.003 & +0.106 \\ 
  
- %1.0e-01 	 & 1.0e+00 	 & 10 & 167 	 & +0.131 & +0.093 & +0.041 & +0.027 \\ 
-% 1.0e-01 	 & 1.0e-01 	 & 10 & 195 	 & +0.125 & +0.093 & +0.039 & +0.046 \\ 
-% 1.0e-01 	 & 1.0e-02 	 & 10 & 218 	 & +0.126 & +0.093 & +0.040 & +0.056 \\ 
-% 1.0e-01 	 & 1.0e-03 	 & 10 & 161 	 & +0.129 & +0.094 & +0.040 & +0.057 \\ 
-% 1.0e-01 	 & 1.0e-04 	 & 10 & 180 	 & +0.135 & +0.092 & +0.042 & +0.057 \\ 
-% 1.0e-01 	 & 1.0e-05 	 & 10 & 169 	 & +0.123 & +0.093 & +0.041 & +0.057 \\ 
-% 1.0e-01 	 & 1.0e-06 	 & 10 & 201 	 & +0.119 & +0.093 & +0.040 & +0.057 \\ 
-
- 1.0e-02 	 & 1.0e+00 	 & 10 & 183 	 & +0.013 & +0.067 & +0.040 & +0.018 \\ 
-% 1.0e-02 	 & 1.0e-01 	 & 10 & 149 	 & +0.002 & +0.066 & +0.038 & +0.021 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 10 & 185 	 & -0.005 & +0.065 & +0.040 & +0.040 \\ 
-% 1.0e-02 	 & 1.0e-03 	 & 10 & 213 	 & +0.004 & +0.066 & +0.038 & +0.049 \\ 
- 1.0e-02 	 & 1.0e-04 	 & 10 & 151 	 & +0.008 & +0.066 & +0.039 & +0.047 \\ 
-% 1.0e-02 	 & 1.0e-05 	 & 10 & 197 	 & +0.004 & +0.064 & +0.040 & +0.051 \\ 
- 1.0e-02 	 & 1.0e-06 	 & 10 & 185 	 & +0.012 & +0.063 & +0.038 & +0.049 \\ 
-
-% 1.0e-03 	 & 1.0e+00 	 & 10 & 183 	 & +0.007 & +0.062 & +0.038 & +0.019 \\ 
-% 1.0e-03 	 & 1.0e-01 	 & 10 & 181 	 & -0.011 & +0.063 & +0.039 & +0.019 \\ 
-% 1.0e-03 	 & 1.0e-02 	 & 10 & 122 	 & -0.008 & +0.063 & +0.040 & +0.025 \\ 
-% 1.0e-03 	 & 1.0e-03 	 & 10 & 158 	 & -0.004 & +0.062 & +0.040 & +0.028 \\ 
-% 1.0e-03 	 & 1.0e-04 	 & 10 & 168 	 & -0.013 & +0.063 & +0.038 & +0.029 \\ 
-% 1.0e-03 	 & 1.0e-05 	 & 10 & 120 	 & -0.010 & +0.063 & +0.040 & +0.028 \\ 
-% 1.0e-03 	 & 1.0e-06 	 & 10 & 132 	 & -0.002 & +0.062 & +0.039 & +0.028 \\ 
-
- 1.0e-04 	 & 1.0e+00 	 & 10 & 176 	 & +0.000 & +0.063 & +0.039 & +0.019 \\ 
- %1.0e-04 	 & 1.0e-01 	 & 10 & 180 	 & -0.001 & +0.062 & +0.039 & +0.019 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 120 	 & +0.000 & +0.063 & +0.039 & +0.024 \\ 
- %1.0e-04 	 & 1.0e-03 	 & 10 & 119 	 & -0.004 & +0.062 & +0.039 & +0.026 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 10 & 77 	 & -0.005 & +0.061 & +0.038 & +0.027 \\ 
- %1.0e-04 	 & 1.0e-05 	 & 10 & 104 	 & -0.004 & +0.062 & +0.038 & +0.027 \\ 
- 1.0e-04 	 & 1.0e-06 	 & 10 & 109 	 & -0.007 & +0.062 & +0.039 & +0.027 \\ 
-
- %1.0e-05 	 & 1.0e+00 	 & 10 & 220 	 & +0.005 & +0.063 & +0.039 & +0.019 \\ 
- %1.0e-05 	 & 1.0e-01 	 & 10 & 193 	 & -0.009 & +0.062 & +0.039 & +0.019 \\ 
- %1.0e-05 	 & 1.0e-02 	 & 10 & 163 	 & -0.013 & +0.063 & +0.039 & +0.021 \\ 
- %1.0e-05 	 & 1.0e-03 	 & 10 & 115 	 & -0.007 & +0.063 & +0.040 & +0.026 \\ 
- %1.0e-05 	 & 1.0e-04 	 & 10 & 82 	 & -0.007 & +0.062 & +0.038 & +0.027 \\ 
- %1.0e-05 	 & 1.0e-05 	 & 10 & 145 	 & -0.001 & +0.062 & +0.039 & +0.027 \\ 
- %1.0e-05 	 & 1.0e-06 	 & 10 & 147 	 & -0.012 & +0.061 & +0.040 & +0.027 \\ 
-
- 1.0e-06 	 & 1.0e+00 	 & 10 & 138 	 & +0.002 & +0.063 & +0.039 & +0.019 \\ 
- %1.0e-06 	 & 1.0e-01 	 & 10 & 184 	 & -0.006 & +0.063 & +0.039 & +0.019 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 10 & 83 	 & -0.006 & +0.063 & +0.040 & +0.025 \\ 
- %1.0e-06 	 & 1.0e-03 	 & 10 & 91 	 & -0.013 & +0.063 & +0.039 & +0.026 \\ 
- 1.0e-06 	 & 1.0e-04 	 & 10 & 109 	 & -0.005 & +0.062 & +0.038 & +0.027 \\ 
- %1.0e-06 	 & 1.0e-05 	 & 10 & 116 	 & -0.007 & +0.063 & +0.039 & +0.027 \\ 
- 1.0e-06 	 & 1.0e-06 	 & 10 & 108 	 & +0.001 & +0.062 & +0.040 & +0.027 \\ 
+% %1.0e+00 	 & 1.0e+00 	 & 10 & 218 	 & +4.266 & +0.304 & +0.092 & +0.135 \\ 
+% %1.0e+00 	 & 1.0e-01 	 & 10 & 223 	 & +4.565 & +0.304 & +0.090 & +0.142 \\ 
+%% 1.0e+00 	 & 1.0e-02 	 & 10 & 199 	 & +4.268 & +0.305 & +0.090 & +0.143 \\ 
+%% 1.0e+00 	 & 1.0e-03 	 & 10 & 222 	 & +4.274 & +0.305 & +0.090 & +0.143 \\ 
+%% 1.0e+00 	 & 1.0e-04 	 & 10 & 211 	 & +4.448 & +0.306 & +0.090 & +0.143 \\ 
+%% 1.0e+00 	 & 1.0e-05 	 & 10 & 227 	 & +4.527 & +0.304 & +0.090 & +0.143 \\ 
+%%1.0e+00 	 & 1.0e-06 	 & 10 & 263 	 & +4.266 & +0.306 & +0.091 & +0.143 \\ 
+% 
+% %1.0e-01 	 & 1.0e+00 	 & 10 & 167 	 & +0.131 & +0.093 & +0.041 & +0.027 \\ 
+%% 1.0e-01 	 & 1.0e-01 	 & 10 & 195 	 & +0.125 & +0.093 & +0.039 & +0.046 \\ 
+%% 1.0e-01 	 & 1.0e-02 	 & 10 & 218 	 & +0.126 & +0.093 & +0.040 & +0.056 \\ 
+%% 1.0e-01 	 & 1.0e-03 	 & 10 & 161 	 & +0.129 & +0.094 & +0.040 & +0.057 \\ 
+%% 1.0e-01 	 & 1.0e-04 	 & 10 & 180 	 & +0.135 & +0.092 & +0.042 & +0.057 \\ 
+%% 1.0e-01 	 & 1.0e-05 	 & 10 & 169 	 & +0.123 & +0.093 & +0.041 & +0.057 \\ 
+%% 1.0e-01 	 & 1.0e-06 	 & 10 & 201 	 & +0.119 & +0.093 & +0.040 & +0.057 \\ 
+%
+% 1.0e-02 	 & 1.0e+00 	 & 10 & 183 	 & +0.013 & +0.067 & +0.040 & +0.018 \\ 
+%% 1.0e-02 	 & 1.0e-01 	 & 10 & 149 	 & +0.002 & +0.066 & +0.038 & +0.021 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 10 & 185 	 & -0.005 & +0.065 & +0.040 & +0.040 \\ 
+%% 1.0e-02 	 & 1.0e-03 	 & 10 & 213 	 & +0.004 & +0.066 & +0.038 & +0.049 \\ 
+% 1.0e-02 	 & 1.0e-04 	 & 10 & 151 	 & +0.008 & +0.066 & +0.039 & +0.047 \\ 
+%% 1.0e-02 	 & 1.0e-05 	 & 10 & 197 	 & +0.004 & +0.064 & +0.040 & +0.051 \\ 
+% 1.0e-02 	 & 1.0e-06 	 & 10 & 185 	 & +0.012 & +0.063 & +0.038 & +0.049 \\ 
+%
+%% 1.0e-03 	 & 1.0e+00 	 & 10 & 183 	 & +0.007 & +0.062 & +0.038 & +0.019 \\ 
+%% 1.0e-03 	 & 1.0e-01 	 & 10 & 181 	 & -0.011 & +0.063 & +0.039 & +0.019 \\ 
+%% 1.0e-03 	 & 1.0e-02 	 & 10 & 122 	 & -0.008 & +0.063 & +0.040 & +0.025 \\ 
+%% 1.0e-03 	 & 1.0e-03 	 & 10 & 158 	 & -0.004 & +0.062 & +0.040 & +0.028 \\ 
+%% 1.0e-03 	 & 1.0e-04 	 & 10 & 168 	 & -0.013 & +0.063 & +0.038 & +0.029 \\ 
+%% 1.0e-03 	 & 1.0e-05 	 & 10 & 120 	 & -0.010 & +0.063 & +0.040 & +0.028 \\ 
+%% 1.0e-03 	 & 1.0e-06 	 & 10 & 132 	 & -0.002 & +0.062 & +0.039 & +0.028 \\ 
+%
+% 1.0e-04 	 & 1.0e+00 	 & 10 & 176 	 & +0.000 & +0.063 & +0.039 & +0.019 \\ 
+% %1.0e-04 	 & 1.0e-01 	 & 10 & 180 	 & -0.001 & +0.062 & +0.039 & +0.019 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 10 & 120 	 & +0.000 & +0.063 & +0.039 & +0.024 \\ 
+% %1.0e-04 	 & 1.0e-03 	 & 10 & 119 	 & -0.004 & +0.062 & +0.039 & +0.026 \\ 
+% 1.0e-04 	 & 1.0e-04 	 & 10 & 77 	 & -0.005 & +0.061 & +0.038 & +0.027 \\ 
+% %1.0e-04 	 & 1.0e-05 	 & 10 & 104 	 & -0.004 & +0.062 & +0.038 & +0.027 \\ 
+% 1.0e-04 	 & 1.0e-06 	 & 10 & 109 	 & -0.007 & +0.062 & +0.039 & +0.027 \\ 
+%
+% %1.0e-05 	 & 1.0e+00 	 & 10 & 220 	 & +0.005 & +0.063 & +0.039 & +0.019 \\ 
+% %1.0e-05 	 & 1.0e-01 	 & 10 & 193 	 & -0.009 & +0.062 & +0.039 & +0.019 \\ 
+% %1.0e-05 	 & 1.0e-02 	 & 10 & 163 	 & -0.013 & +0.063 & +0.039 & +0.021 \\ 
+% %1.0e-05 	 & 1.0e-03 	 & 10 & 115 	 & -0.007 & +0.063 & +0.040 & +0.026 \\ 
+% %1.0e-05 	 & 1.0e-04 	 & 10 & 82 	 & -0.007 & +0.062 & +0.038 & +0.027 \\ 
+% %1.0e-05 	 & 1.0e-05 	 & 10 & 145 	 & -0.001 & +0.062 & +0.039 & +0.027 \\ 
+% %1.0e-05 	 & 1.0e-06 	 & 10 & 147 	 & -0.012 & +0.061 & +0.040 & +0.027 \\ 
+%
+% 1.0e-06 	 & 1.0e+00 	 & 10 & 138 	 & +0.002 & +0.063 & +0.039 & +0.019 \\ 
+% %1.0e-06 	 & 1.0e-01 	 & 10 & 184 	 & -0.006 & +0.063 & +0.039 & +0.019 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 10 & 83 	 & -0.006 & +0.063 & +0.040 & +0.025 \\ 
+% %1.0e-06 	 & 1.0e-03 	 & 10 & 91 	 & -0.013 & +0.063 & +0.039 & +0.026 \\ 
+% 1.0e-06 	 & 1.0e-04 	 & 10 & 109 	 & -0.005 & +0.062 & +0.038 & +0.027 \\ 
+% %1.0e-06 	 & 1.0e-05 	 & 10 & 116 	 & -0.007 & +0.063 & +0.039 & +0.027 \\ 
+% 1.0e-06 	 & 1.0e-06 	 & 10 & 108 	 & +0.001 & +0.062 & +0.040 & +0.027 \\ 
 \end{tabular}
 \label{Tab::Noise0.03}
 \end{table} 
@@ -865,55 +1097,82 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel} $ & $D_{\Omega_2}\sp{rel
 \begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel}_{L\sp{2}(\Omega_1)} $ \\
 \hline
-% 1.0e+00 	 & 1.0e+00 	 & 10 & 212 	 & +4.268 & +0.310 & +0.073 & +0.138 \\ 
- %1.0e+00 	 & 1.0e-01 	 & 10 & 211 	 & +4.122 & +0.302 & +0.085 & +0.146 \\ 
-% 1.0e+00 	 & 1.0e-02 	 & 10 & 221 	 & +4.773 & +0.298 & +0.089 & +0.147 \\ 
- %1.0e+00 	 & 1.0e-03 	 & 10 & 257 	 & +4.872 & +0.301 & +0.090 & +0.147 \\ 
-% 1.0e+00 	 & 1.0e-04 	 & 10 & 238 	 & +4.186 & +0.293 & +0.097 & +0.148 \\ 
- %1.0e+00 	 & 1.0e-05 	 & 10 & 204 	 & +4.251 & +0.313 & +0.085 & +0.147 \\ 
-% 1.0e+00 	 & 1.0e-06 	 & 10 & 223 	 & +4.493 & +0.310 & +0.085 & +0.147 \\ 
- %1.0e-01 	 & 1.0e+00 	 & 10 & 145 	 & +0.126 & +0.100 & +0.054 & +0.035 \\ 
- %1.0e-01 	 & 1.0e-01 	 & 10 & 199 	 & +0.115 & +0.125 & +0.026 & +0.060 \\ 
- %1.0e-01 	 & 1.0e-02 	 & 10 & 217 	 & +0.128 & +0.092 & +0.036 & +0.071 \\ 
- %1.0e-01 	 & 1.0e-03 	 & 10 & 242 	 & +0.109 & +0.093 & +0.031 & +0.073 \\ 
- %1.0e-01 	 & 1.0e-04 	 & 10 & 275 	 & +0.187 & +0.094 & +0.028 & +0.073 \\ 
- %1.0e-01 	 & 1.0e-05 	 & 10 & 237 	 & +0.048 & +0.099 & +0.039 & +0.073 \\ 
- %1.0e-01 	 & 1.0e-06 	 & 10 & 225 	 & +0.092 & +0.111 & +0.055 & +0.073 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 10 & 208 	 & +0.017 & +0.075 & +0.037 & +0.029 \\ 
- %1.0e-02 	 & 1.0e-01 	 & 10 & 199 	 & -0.013 & +0.068 & +0.046 & +0.040 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 10 & 348 	 & -0.043 & +0.073 & +0.041 & +0.063 \\ 
-% 1.0e-02 	 & 1.0e-03 	 & 10 & 400 	 & +0.056 & +0.058 & +0.031 & +0.075 \\ 
- 1.0e-02 	 & 1.0e-04 	 & 10 & 393 	 & -0.050 & +0.088 & +0.044 & +0.077 \\ 
- %1.0e-02 	 & 1.0e-05 	 & 10 & 359 	 & +0.022 & +0.068 & +0.027 & +0.076 \\ 
- 1.0e-02 	 & 1.0e-06 	 & 10 & 369 	 & +0.001 & +0.074 & +0.024 & +0.076 \\ 
- %1.0e-03 	 & 1.0e+00 	 & 10 & 207 	 & -0.001 & +0.065 & +0.051 & +0.029 \\ 
-% 1.0e-03 	 & 1.0e-01 	 & 10 & 280 	 & +0.028 & +0.051 & +0.053 & +0.038 \\ 
- %1.0e-03 	 & 1.0e-02 	 & 10 & 565 	 & -0.059 & +0.076 & +0.033 & +0.053 \\ 
-% 1.0e-03 	 & 1.0e-03 	 & 10 & 673 	 & -0.035 & +0.066 & +0.032 & +0.108 \\ 
- %\rowcolor{orange} 1.0e-03 	 & 1.0e-04 	 & 10 & 604 	 & -0.026 & +0.061 & +0.049 & +0.182 \\ 
- %1.0e-03 	 & 1.0e-05 	 & 10 & 666 	 & +0.012 & +0.070 & +0.038 & +0.182 \\ 
- %\rowcolor{orange} 1.0e-03 	 & 1.0e-06 	 & 10 & 893 	 & +0.027 & +0.070 & +0.022 & +0.180 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 10 & 204 	 & +0.015 & +0.062 & +0.043 & +0.030 \\ 
- %1.0e-04 	 & 1.0e-01 	 & 10 & 269 	 & +0.005 & +0.057 & +0.037 & +0.038 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 559 	 & -0.072 & +0.067 & +0.044 & +0.050 \\ 
-%\rowcolor{orange} 1.0e-04 	 & 1.0e-03 	 & 10 & 691 	 & -0.023 & +0.055 & +0.040 & +0.175 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 10 & -	 & -0.012 & +0.066 & +0.030 & +0.745 \\ 
-%\rowcolor{red}  1.0e-04 	 & 1.0e-05 	 & 10 & 1001 	 & +0.038 & +0.057 & +0.034 & +1.113 \\ 
-1.0e-04 	 & 1.0e-06 	 & 10 & -	 & +0.015 & +0.063 & +0.035 & +1.127 \\ 
-% 1.0e-05 	 & 1.0e+00 	 & 10 & 184 	 & -0.025 & +0.076 & +0.041 & +0.029 \\ 
- %1.0e-05 	 & 1.0e-01 	 & 10 & 357 	 & -0.011 & +0.070 & +0.052 & +0.038 \\ 
-% 1.0e-05 	 & 1.0e-02 	 & 10 & 399 	 & +0.041 & +0.075 & +0.042 & +0.049 \\ 
-%1.0e-05 	 & 1.0e-03 	 & 10 & 689 	 & +0.044 & +0.062 & +0.020 & +0.172 \\ 
-%\rowcolor{red} 1.0e-05 	 & 1.0e-04 	 & 10 & 915 	 & +0.030 & +0.077 & +0.039 & +1.027 \\ 
- %1.0e-05 	 & 1.0e-05 	 & 10 & - 	 & +0.017 & +0.061 & +0.045 & +1.953 \\ 
-%\rowcolor{red}  1.0e-05 	 & 1.0e-06 	 & 10 & - 	 & -0.018 & +0.071 & +0.045 & +2.545 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 10 & 177 	 & +0.060 & +0.069 & +0.039 & +0.029 \\ 
-% 1.0e-06 	 & 1.0e-01 	 & 10 & 302 	 & +0.011 & +0.039 & +0.039 & +0.038 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 10 & 457 	 & +0.011 & +0.055 & +0.036 & +0.050 \\ 
-%\rowcolor{orange} 1.0e-06 	 & 1.0e-03 	 & 10 & 738 	 & -0.022 & +0.055 & +0.042 & +0.172 \\ 
- 1.0e-06 	 & 1.0e-04 	 & 10 & -	 & -0.043 & +0.042 & +0.054 & +1.180 \\ 
-%\rowcolor{red}  1.0e-06 	 & 1.0e-05 	 & 10 & 1001 	 & +0.006 & +0.052 & +0.033 & +3.365 \\ 
- 1.0e-06 	 & 1.0e-06 	 & 10 & - & -0.002 & +0.065 & +0.051 & +3.402 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 10 & 144 	 & +0.012 & +0.055 & +0.027 & +0.036 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 10 & 476 	 & -0.009 & +0.049 & +0.035 & +0.051 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 10 & 476 	 & -0.097 & +0.042 & +0.054 & +0.054 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 10 & 558 	 & -0.071 & +0.047 & +0.039 & +0.054 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 182 	 & -0.040 & +0.033 & +0.051 & +0.037 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 471 	 & +0.021 & +0.038 & +0.036 & +0.056 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 10 & 792 	 & -0.058 & +0.042 & +0.031 & +0.565 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 10 &  -   & -0.050 & +0.029 & +0.040 & +1.062 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 178 	 & +0.012 & +0.033 & +0.021 & +0.036 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 537 	 & -0.018 & +0.040 & +0.025 & +0.057 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 10 &  -	 & -0.038 & +0.040 & +0.030 & +1.452 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 10 &  - 	 & +0.003 & +0.035 & +0.046 & +3.621 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 20 & 213 	 & +0.009 & +0.015 & +0.009 & +0.016 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 20 & 719 	 & +0.228 & +0.088 & -0.032 & +0.085 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 20 &  -   & +0.100 & +0.071 & -0.013 & +0.271 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 20 &   -  & +0.223 & +0.097 & -0.027 & +0.282 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 245 	 & +0.038 & +0.013 & -0.001 & +0.016 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 &  - 	 & +0.050 & +0.054 & -0.024 & +0.116 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 &  - 	 & -0.087 & +0.059 & -0.077 & +5.763 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 20 &  -	 & +0.001 & +0.083 & -0.038 & +7.485 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 242 	 & -0.009 & +0.008 & +0.015 & +0.016 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 947 	 & +0.122 & +0.093 & -0.040 & +0.115 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 20 &  - 	 & -0.076 & +0.041 & -0.020 & +7.700 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 20 &  - 	 & +0.147 & +0.113 & -0.023 & +10.936 \\ 
+ 
+ 
+ 
+%% 1.0e+00 	 & 1.0e+00 	 & 10 & 212 	 & +4.268 & +0.310 & +0.073 & +0.138 \\ 
+% %1.0e+00 	 & 1.0e-01 	 & 10 & 211 	 & +4.122 & +0.302 & +0.085 & +0.146 \\ 
+%% 1.0e+00 	 & 1.0e-02 	 & 10 & 221 	 & +4.773 & +0.298 & +0.089 & +0.147 \\ 
+% %1.0e+00 	 & 1.0e-03 	 & 10 & 257 	 & +4.872 & +0.301 & +0.090 & +0.147 \\ 
+%% 1.0e+00 	 & 1.0e-04 	 & 10 & 238 	 & +4.186 & +0.293 & +0.097 & +0.148 \\ 
+% %1.0e+00 	 & 1.0e-05 	 & 10 & 204 	 & +4.251 & +0.313 & +0.085 & +0.147 \\ 
+%% 1.0e+00 	 & 1.0e-06 	 & 10 & 223 	 & +4.493 & +0.310 & +0.085 & +0.147 \\ 
+% %1.0e-01 	 & 1.0e+00 	 & 10 & 145 	 & +0.126 & +0.100 & +0.054 & +0.035 \\ 
+% %1.0e-01 	 & 1.0e-01 	 & 10 & 199 	 & +0.115 & +0.125 & +0.026 & +0.060 \\ 
+% %1.0e-01 	 & 1.0e-02 	 & 10 & 217 	 & +0.128 & +0.092 & +0.036 & +0.071 \\ 
+% %1.0e-01 	 & 1.0e-03 	 & 10 & 242 	 & +0.109 & +0.093 & +0.031 & +0.073 \\ 
+% %1.0e-01 	 & 1.0e-04 	 & 10 & 275 	 & +0.187 & +0.094 & +0.028 & +0.073 \\ 
+% %1.0e-01 	 & 1.0e-05 	 & 10 & 237 	 & +0.048 & +0.099 & +0.039 & +0.073 \\ 
+% %1.0e-01 	 & 1.0e-06 	 & 10 & 225 	 & +0.092 & +0.111 & +0.055 & +0.073 \\ 
+% 1.0e-02 	 & 1.0e+00 	 & 10 & 208 	 & +0.017 & +0.075 & +0.037 & +0.029 \\ 
+% %1.0e-02 	 & 1.0e-01 	 & 10 & 199 	 & -0.013 & +0.068 & +0.046 & +0.040 \\ 
+% 1.0e-02 	 & 1.0e-02 	 & 10 & 348 	 & -0.043 & +0.073 & +0.041 & +0.063 \\ 
+%% 1.0e-02 	 & 1.0e-03 	 & 10 & 400 	 & +0.056 & +0.058 & +0.031 & +0.075 \\ 
+% 1.0e-02 	 & 1.0e-04 	 & 10 & 393 	 & -0.050 & +0.088 & +0.044 & +0.077 \\ 
+% %1.0e-02 	 & 1.0e-05 	 & 10 & 359 	 & +0.022 & +0.068 & +0.027 & +0.076 \\ 
+% 1.0e-02 	 & 1.0e-06 	 & 10 & 369 	 & +0.001 & +0.074 & +0.024 & +0.076 \\ 
+% %1.0e-03 	 & 1.0e+00 	 & 10 & 207 	 & -0.001 & +0.065 & +0.051 & +0.029 \\ 
+%% 1.0e-03 	 & 1.0e-01 	 & 10 & 280 	 & +0.028 & +0.051 & +0.053 & +0.038 \\ 
+% %1.0e-03 	 & 1.0e-02 	 & 10 & 565 	 & -0.059 & +0.076 & +0.033 & +0.053 \\ 
+%% 1.0e-03 	 & 1.0e-03 	 & 10 & 673 	 & -0.035 & +0.066 & +0.032 & +0.108 \\ 
+% %\rowcolor{orange} 1.0e-03 	 & 1.0e-04 	 & 10 & 604 	 & -0.026 & +0.061 & +0.049 & +0.182 \\ 
+% %1.0e-03 	 & 1.0e-05 	 & 10 & 666 	 & +0.012 & +0.070 & +0.038 & +0.182 \\ 
+% %\rowcolor{orange} 1.0e-03 	 & 1.0e-06 	 & 10 & 893 	 & +0.027 & +0.070 & +0.022 & +0.180 \\ 
+% 1.0e-04 	 & 1.0e+00 	 & 10 & 204 	 & +0.015 & +0.062 & +0.043 & +0.030 \\ 
+% %1.0e-04 	 & 1.0e-01 	 & 10 & 269 	 & +0.005 & +0.057 & +0.037 & +0.038 \\ 
+% 1.0e-04 	 & 1.0e-02 	 & 10 & 559 	 & -0.072 & +0.067 & +0.044 & +0.050 \\ 
+%%\rowcolor{orange} 1.0e-04 	 & 1.0e-03 	 & 10 & 691 	 & -0.023 & +0.055 & +0.040 & +0.175 \\ 
+% 1.0e-04 	 & 1.0e-04 	 & 10 & -	 & -0.012 & +0.066 & +0.030 & +0.745 \\ 
+%%\rowcolor{red}  1.0e-04 	 & 1.0e-05 	 & 10 & 1001 	 & +0.038 & +0.057 & +0.034 & +1.113 \\ 
+%1.0e-04 	 & 1.0e-06 	 & 10 & -	 & +0.015 & +0.063 & +0.035 & +1.127 \\ 
+%% 1.0e-05 	 & 1.0e+00 	 & 10 & 184 	 & -0.025 & +0.076 & +0.041 & +0.029 \\ 
+% %1.0e-05 	 & 1.0e-01 	 & 10 & 357 	 & -0.011 & +0.070 & +0.052 & +0.038 \\ 
+%% 1.0e-05 	 & 1.0e-02 	 & 10 & 399 	 & +0.041 & +0.075 & +0.042 & +0.049 \\ 
+%%1.0e-05 	 & 1.0e-03 	 & 10 & 689 	 & +0.044 & +0.062 & +0.020 & +0.172 \\ 
+%%\rowcolor{red} 1.0e-05 	 & 1.0e-04 	 & 10 & 915 	 & +0.030 & +0.077 & +0.039 & +1.027 \\ 
+% %1.0e-05 	 & 1.0e-05 	 & 10 & - 	 & +0.017 & +0.061 & +0.045 & +1.953 \\ 
+%%\rowcolor{red}  1.0e-05 	 & 1.0e-06 	 & 10 & - 	 & -0.018 & +0.071 & +0.045 & +2.545 \\ 
+% 1.0e-06 	 & 1.0e+00 	 & 10 & 177 	 & +0.060 & +0.069 & +0.039 & +0.029 \\ 
+%% 1.0e-06 	 & 1.0e-01 	 & 10 & 302 	 & +0.011 & +0.039 & +0.039 & +0.038 \\ 
+% 1.0e-06 	 & 1.0e-02 	 & 10 & 457 	 & +0.011 & +0.055 & +0.036 & +0.050 \\ 
+%%\rowcolor{orange} 1.0e-06 	 & 1.0e-03 	 & 10 & 738 	 & -0.022 & +0.055 & +0.042 & +0.172 \\ 
+% 1.0e-06 	 & 1.0e-04 	 & 10 & -	 & -0.043 & +0.042 & +0.054 & +1.180 \\ 
+%%\rowcolor{red}  1.0e-06 	 & 1.0e-05 	 & 10 & 1001 	 & +0.006 & +0.052 & +0.033 & +3.365 \\ 
+% 1.0e-06 	 & 1.0e-06 	 & 10 & - & -0.002 & +0.065 & +0.051 & +3.402 \\ 
 \end{tabular}
 \label{Tab::Noise0.3}
 \end{table} 
