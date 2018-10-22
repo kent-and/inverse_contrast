@@ -202,7 +202,7 @@ and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}
 \begin{figure}
 \centering
 \includegraphics[width=0.70\textwidth]{T1function.png} 
-\caption{Show the  function defined in \eqref{scaledmagnetization}. }
+\caption{Show the  function defined in \eqref{scaledmagnetization} with the white region indicating $T_1$ values for white matter,the grey region indicating $T_1$ values for grey matter,the blue region indicating $T_1$ values for CSF.  }
 \label{figuredti} 
 \end{figure}
 
@@ -328,11 +328,11 @@ with $X$ as an arbitrary scalar control parameter. For the boundary parameter $g
 \begin{equation}
 || g ||\sp{rel}_{L\sp{2}(\Omega_1)} = \frac{ \sum\limits_t\sp{k}|| g_{found}(t) -g_{true}(t)||_{L(\Omega_1)} }{  \sum\limits_t\sp{k}||g_{true}(t)||_{L(\Omega_1)} }
 \end{equation}
-In the case that the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{TAB::timesteps} Table~\ref{TAB::double}} and Table~\ref{Tab::Noise0.3}
+In the case that the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{TAB::timesteps}, Table~\ref{TAB::double} and Table~\ref{Tab::Noise0.3}
 
 \subsubsection{The relaxation parameters}
 
-The convergence of the objective functional $F$ is influenced by the values of the regularization parameters $\alpha$ and $\beta$. Therefore the convergence was examined by a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
+The convergence of the minimization is influenced by the values of the regularization parameters $\alpha$ and $\beta$. Therefore the convergence was examined by a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
 
 %To assess the sensitivity of the the objective functional defined in Eq.\ref{Eq::F} with respect to the regularization parameters $\alpha$ and $\beta$ 
 %we perform a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
@@ -391,7 +391,7 @@ The MRI data contains noise, hence an investigation to the noise susceptibility 
 different noise levels with $\alpha=0.0001$ and $\beta=1.0$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 
-In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative error. However, in Tabel~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition) and it is observed that for  $\alpha \leq 1.0e-4$  and $\beta \leq 1.0e-4$ the optimization failed to converge before reaching maximum iteration of 1000 steps. Furthermore, the relative boundary error $||g||\sp{rel}_{L\sp{2}(\Omega_1)}$ is larger for lower values of $\beta$.  
+In Tabel~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative error. Then in Tabel~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise addition caused the number of iteration to increase, and in combination with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}_{L\sp{2}(\Omega_1)}$ is significantly larger for $\alpha< 1.0e-2 $ and $\beta < 1.0e-2$.  
 
 
 
@@ -426,7 +426,7 @@ The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16
 
 The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$ denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $\epsilon=6.0e-1$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 hour$ and $dt = 1 hour$.   
 
-The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data},it can be observed that $D_w$ have a higher value for $\alpha =1.0e-2$.
+The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data},it can be observed that $D_w$ have 24\% higher value on average for $\alpha =1.0e-2$. It can also be observed that the $D_g$ have a consistent increases with a decreasing $\beta$. 
 
 \subsubsection{Comparison with results obtained from DTI analysis}
 
@@ -434,10 +434,10 @@ The median diffusion coefficient in the DTI was estimated to be $8.7e-4 \mathrm{
 
 The oscillation in Fig.\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0e-2$ there is a clear discrepancy in the diffusion coefficients compared to other values $\alpha$. This prompt the exclusion of the corresponding values, which gives an average computed values $ 0.65 \mathrm{mm\sp{2}/h}$ and  $ 0.8 \mathrm{mm\sp{2}/h}$ in respectively grey and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8e-4\mathrm{mm\sp{2}/s}$ and $2.22e-4 \mathrm{mm\sp{2}/s}$. 
 
-\subsection*{Compare high DTI values with computed}
+\subsection*{Compare high DTI values in white matter with computed}
 This gives a difference of $42 \%$ in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
 
-In Fig.\ref{Fig::realdata}, it can be seen that there were regions with negligible amount of tracers and vice versa. The regions with above average amount of tracers corresponds with high diffusivity regions in Figure~\ref{figuredti}. This suggests that the computed diffusion coefficients corresponds to these values. The ADC value in the high diffusivity regions are closer to  $1.4e-3 \mathrm{mm\sp{2}/s}$, which corresponds to estimated diffusion coefficient of value $1.5e-3 \mathrm{mm\sp{2}/s}$. This gives a difference of $ 46 \%$ compared to the computed values. 
+In Fig.\ref{Fig::realdata}, it can be seen that there were regions with negligible amount of tracers and vice versa. The regions with above average amount of tracers corresponds with high diffusivity regions in Figure~\ref{figuredti}. This suggests that the computed diffusion coefficients corresponds to these values. The ADC value in the high diffusivity regions are closer to  $1.4e-3 \mathrm{mm\sp{2}/s}$, which corresponds to estimated diffusion coefficient of value $1.5e-3 \mathrm{mm\sp{2}/s}$. This gives a difference of $ 46 \%$ compared to the computed values.  
 
 
 
@@ -476,17 +476,17 @@ In Fig.\ref{Fig::realdata}, it can be seen that there were regions with negligib
 %The region with high diffusivity in the white matter, shown in Fig\ref{FIG::DTI}, gives a upper bound on the diffusion coefficient to be 1.3 $\mathrm{mm\sp{2}/s}$
 
 \section{Discussion}
-
 The methodology presented here for identification of diffusion coefficients and boundary conditions with application to the glymphatic system appears to work quite 
-well for regularization parameters varying by orders of magnitude. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
-in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise levels of 30\% \kam{is this correctly stated}{\color{red} (0.3,-0.3) added to all values in range (0,g(t))}. 
+well for regularization parameters varying by orders of magnitude. The regularization parameters  $\alpha \in \lbrace 1.0e-6, 1.0e-2 \rbrace$, $\beta \in \lbrace 1.0e-2 , 1.0 \rbrace$ with the requirement $\alpha / \beta < 1.0e-2$ gave a relative error of  
+4.1\% in grey matter and 3.6 \% in white matter. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
+in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise amplitude of 23\% of maximum value. However, the addition of noise required that $\beta = 1.0 $ to obtain consistent convergence. 
 Crucial in our application is the interplay between the regularization term that regulates the smoothness of the boundary conditions as well as
 the integrate magnitude of the boundary conditions over time, i.e. $\alpha$ and $\beta$, and the
 importance of interplay of these parameter increases with the number of time steps. This is, however, not surprising because our observations are sparse
-in time and hence an oscillating boundary condition in time will minimized the integrated boundary condition at the cost of reducing the smoothness in time.         
+in time and hence an oscillating boundary condition in time will minimized the integrated boundary condition at the cost of reducing the smoothness in time. The selected range of regularization parameters showed a decrease in error with more timesteps, rather than oscillation.     
 
 While a more comprehensive study involving more patients would be required in order to assess whether the clearance here happens faster than diffusion (\kam{egentlig er
-vel dette det motsatte av clearance} a few remarks are in order. We find that the diffusion coefficients is XXX larger than what was found by the DTI modality.  
+vel dette det motsatte av clearance} a few remarks are in order. We find that the diffusion coefficients is 42-100\% larger than what was found by the DTI modality.  
 However, we have not yet been able to assessment the self-diffusion of water as well as the diffusivity of Gadovist used in this study in phantom models. As such 
 the constants in equation XXX must be taken with caution. Furthermore,    
 the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Therefore  observation of tracer in regions with anisotropy can be considered a requirement for adding anisotropy to the model.
@@ -540,7 +540,7 @@ seems significant and it is difficult to explain or ignore.
  
 
 
-
+\clearpage
  
 \begin{figure}
 \centering
