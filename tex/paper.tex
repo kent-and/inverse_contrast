@@ -28,17 +28,17 @@ bla bla
 \section{Introduction}
 Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
 that is responsible for waste clearance. 
-In 2011,~\citet{iliff2012paravascular} discovered a novel system within our brain's metabolism system, which changed our understanding of the brain. 
+In 2011,~\citet{iliff2012paravascular} discovered a novel system within our brain's metabolic system, which changed our understanding of the brain. 
 The system involves a new pathway, called the paravascular pathway as it runs in parallel with the vasculature system in a surrounding compartment.
 The important novelty in the 2011 findings was that waste from the brain is cleared through the paravascular path, and that a malfunction of this system 
 is linked to the development of dementia such as Alzheimer's and Parkinson's diseases. In 2013,~\citet{xie2013sleep} found
 that this system is particularly active during sleep.
 These mentioned breakthroughs were all performed in mice. In 2018, the action of the glymphatic system was for the first time demonstrated in humans. Further, it was shown that this action differs
-between healthy controls and patients with dementia~\citet{ringstad2018brain}.
+between healthy controls and patients with dementia~\cite{ringstad2018brain}.
 However, the biomechanical mechanisms behind the glymphatic system is not well understood from a fluid mechanics perspective,
-and so far the modeling attempts have mostly failed~\citet{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}. 
+and so far the modeling attempts have mostly failed~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}. 
 In particular the system seems to facilitate waste transport faster than  
-the diffusion \lars{?} \fixme{which diffusion?}, which since the pioneering works of \citet{sykova2008diffusion} 
+the extracellular diffusion, which since the pioneering works of \citet{sykova2008diffusion} 
 has been the prevailing paradigm.
 
 
@@ -72,17 +72,17 @@ Furthermore, images were obtained only at a few time-points during the investiga
 The pioneering work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
 that diffusion was a governing transport mechanism in the brain and estimated to be on the order
 of $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \cite{Helenius194},
-while subjects with dementia typically have values of XXX \kam{Geir vet du dette?}. Of course diffusion coefficients, 
+while subjects with dementia typically have values of XXX \kam{Geir enig?}. Of course diffusion coefficients, 
 measured by DTI at a time-scale of 7-30 minutes, may not be representative for the process on a
 longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vasculature system occupies around 3\% of the brain volume 
-and the paravascular network is substantially smaller potentially renders it \fixme{what is it here?} invisible at the short time-scales of a DTI investigation 
-while it may still be effective on longer time scales. 
+and the paravascular network is substantially smaller potentially renders the paravascular transport  invisible at the short time-scales of a DTI acquisition while it may still be effective on longer time scales. 
 
 
 Our purpose in this paper is to attempt a more rigorous methodology 
-for assessing the apparent diffusion process where
+for assessing the paravascular transport process where
 the complex geometry of the brain as well as time-scales of hours or days are taken into account.
-\fixme{In this paper, we aim to investigate whether we can assess the effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to magnetic resonance imaging (MRI) data.}
+That is, we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to magnetic resonance imaging (MRI) data. If the fit between observation and model is good and we identify diffusion coefficients that are 
+in line with those predicted by DTI then paravascular transport can be ignored on the scale of our study. 
 Our approach is to solve an optimization problem constrained by a partial differential equation (PDE) using the adjoint method where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
 the complete domain. Hence, the challenges faced from a mathematical point of view 
 are that 1) the images are subject to noise, 2) resolution in space is limited to slightly less than (1 mm)$^3$ and 3)
@@ -104,7 +104,7 @@ and a comparison with DTI data in Section 3.5. Finally, in Section 4, the method
    
 \section{Methodology}
 
-Sections 2.1-2.3 describe the details of the imaging relevant for this study. More details can however be
+Sections 2.1-2.3 briefly describe the details of the imaging relevant for this study. More details on the MRI protocols can be
 found in e.g. \cite{ringstad2018brain}. Sections 2.4-2.5 describe the solution of PDE constrained optimization problems and
 its implementation in FEniCS. The exposition is, however, brief and we refer to XXX for more details. 
 
@@ -250,7 +250,7 @@ u&=g && \text{on} \qquad \partial\Omega_1  \times \left\lbrace 0 , T \right)
 \label{Eq::PDE}
 \end{equation}
 Here, $u$ is the contrast distribution, $D$ is the apparent diffusion 
-coefficient, $g$ is the boundary condition, $\Omega$ is the domain, and $T$ is the final simulation time. \lars{We use c in section 2.2 }\fixme{Should we use $c$ instead of $u$?} We assume that the domain $\Omega$ consists of three sub domains, each with a different diffusion coefficient. We denote the CSF domain as $\Omega_1$, the grey matter as $\Omega_2$ and the white matter as $\Omega_3$. 
+coefficient, $g$ is the boundary condition, $\Omega$ is the domain, and $T$ is the final simulation time. \lars{We use c in section 2.2 }\fixme{Should we use $c$ instead of $u$?} We assume that the domain $\Omega$ consists of three sub domains, each with a different diffusion coefficient. We denote the CSF (or subarachnoid) domain as $\Omega_1=\Omega_{CSF}$, the grey matter as $\Omega_{GM}$ and the white matter as $\Omega_{WM}$. 
 The apparent
 diffusion constant is assumed to be constant within the CSF, grey and 
 white matter but each region may have different values.  
@@ -262,7 +262,7 @@ The mesh construction was patient-specific and used the MRI of a patient diagnos
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
-\caption{A) Shows the mesh created from the baseline MR image with 3 domains. B) Shows the mesh created from the baseline MR image with 2 domains. The blue domain corresponds to $\Omega_1$, the purple domain corresponds to $\Omega_2$ and the white domain corresponds to $\Omega_3$ }
+\caption{The leftmost image A) shows the mesh created from the baseline MR image with 3 domains, while the rightmost image  B) shows the mesh created from the baseline MR image with 2 domains. The blue domain corresponds to CSF domain, $\Omega_{CSF}$, the purple domain corresponds to grey matter,  $\Omega_{GM}$, and the white domain corresponds to white matter, $\Omega_{WM}$. }
 \label{Fig::Mesh}
 \end{figure}
 The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. The mesh coordinates (X,Y,Z) are given in $\mathrm{mm}$ \lars{ with $X \in \lbrace -70.5,-18\rbrace, Y \in \lbrace -73.5,28.8  \rbrace ,Z \in \lbrace 16.6,60.7 \rbrace$ }.
@@ -281,7 +281,7 @@ The timestep was $dt = 0.2$, and the diffusion coefficients were selected to be 
 \begin{equation}
 D_{\Omega_1} = 1000.0, \quad D_{\Omega_2} = 4.0, \quad D_{\Omega_3} = 8.0 
 \end{equation}  
-The magnitude order for $D_{\Omega_1} $ and $D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. The diffusion coefficient in the CSF was chosen given \citet{Haga}, and the initial condition was set to 0 everywhere. %and the initial condition was set to 1.0 in $\Omega_1$ and 0 elsewhere.
+The magnitude order for $D_{\Omega_1} $ and $D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. The diffusion coefficient in the CSF was chosen given \citet{Haga}, and the initial condition was set to 0 everywhere. \fixme{some more details}%and the initial condition was set to 1.0 in $\Omega_1$ and 0 elsewhere.
 The manufactured forward computation gave a total of 120 possible observation times.
 
 
@@ -311,7 +311,7 @@ The computational experiments were performed on the Abel Cluster, owned by the U
 \section{Results}
 
 \subsection{Verification in terms of the manufactured solution}
-Below we will discuss the parameter identification and its sensitivity with respect to the regularization parameters, noise and time-resolution \fixme{of the forward model or observations?}. When presenting the results, we denote the relative error of the diffusion parameters as 
+Below we will discuss the parameter identification and its sensitivity with respect to the regularization parameters, noise, number of observations and time-resolution of the forward model. When presenting the results, we denote the relative error of the diffusion parameters as 
 \begin{equation}
  D_{\Omega_i}\sp{rel} = \frac{D_{\Omega_i}\sp{found} -D_{\Omega_i}\sp{true} }{D_{\Omega_i}\sp{true} }, \text{ for } i=1,2,3
 \end{equation}
@@ -408,7 +408,7 @@ In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \subsubsection{Results obtained when using real observations}
 The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24., 48., 698. $\rbrace (hours)$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace $ 0.00, 0.16, 0.39, 0.55, 0.77 $ \rbrace$. This prompted the use of the following observation times  $0.00, 2.09, 6.05, 24., 48.$. 
 
-The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_w$ and $D_g$\fixme{check consistency of notation.}\lars{Kent what do you think ? easier to relate grey to g and white to w } denotes white and grey diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $\epsilon=6.0\mathrm{e}{-1}$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 hour$ and $dt = 1 hour$.   
+The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{GM}$ and $D_{WM}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted to $\epsilon=6.0\mathrm{e}{-1}$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 hour$ and $dt = 1 hour$.   
 
 The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data},it can be observed that $D_w$ has 24\% higher value on average for $\alpha =1.0\mathrm{e}{-2}$. It can also be observed that the $D_g$ have a consistent increases with a decreasing $\beta$. 
 
@@ -469,8 +469,11 @@ the integrate magnitude of the boundary conditions over time, i.e. $\alpha$ and 
 importance of interplay of these parameter increases with the number of time steps. This is, however, not surprising because our observations are sparse
 in time and hence an oscillating boundary condition in time will minimized the integrated boundary condition at the cost of reducing the smoothness in time. The selected range of regularization parameters showed a decrease in error with more timesteps, rather than oscillation.     
 
-While a more comprehensive study involving more patients would be required in order to assess whether the clearance here happens faster than diffusion (\kam{egentlig er
-vel dette det motsatte av clearance} a few remarks are in order. We find that the diffusion coefficients is 42-100\% larger than what was found by the DTI modality.  
+While a more comprehensive study involving more patients would be required in order to assess clearance in health and disease, a few remarks here are in order. 
+First of all, the process investigated here is the clearance of Gadovist from CSF into the interstitium which may differ from the clearance of metabolic waste 
+from the interstitium via the CSF. That said, 
+we find that the diffusion coefficients is 42-100\% larger than what was found by the DTI modality. As such, we predict that the paravascular system 
+plays a significant role.  
 However, we have not yet been able to assessment the self-diffusion of water as well as the diffusivity of Gadovist used in this study in phantom models. As such 
 the constants in equation XXX must be taken with caution. Furthermore,    
 the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Therefore  observation of tracer in regions with anisotropy can be considered a requirement for adding anisotropy to the model.
@@ -513,10 +516,9 @@ seems significant and it is difficult to explain or ignore.
 % 
 %
 % 
-\section{References}
 
 
-\bibliographystyle{amsplain}
+\bibliographystyle{plainnat}
 \bibliography{references}
 
  
