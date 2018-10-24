@@ -265,7 +265,8 @@ The mesh construction was patient-specific and used the MRI of a patient diagnos
 \caption{The leftmost image A) shows the mesh created from the baseline MR image with 3 domains, while the rightmost image  B) shows the mesh created from the baseline MR image with 2 domains. The blue domain corresponds to CSF domain, $\Omega_{CSF}$, the purple domain corresponds to grey matter,  $\Omega_{GM}$, and the white domain corresponds to white matter, $\Omega_{WM}$. }
 \label{Fig::Mesh}
 \end{figure}
-The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. The mesh coordinates (X,Y,Z) are given in $\mathrm{mm}$ \lars{ with $X \in \lbrace -70.5,-18\rbrace, Y \in \lbrace -73.5,28.8  \rbrace ,Z \in \lbrace 16.6,60.7 \rbrace$ }.
+The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. 
+%The mesh coordinates (X,Y,Z) are given in $\mathrm{mm}$ \lars{ with $X \in \lbrace -70.5,-18\rbrace, Y \in \lbrace -73.5,28.8  \rbrace ,Z \in \lbrace 16.6,60.7 \rbrace$ }.
 
 
 \subsection{Manufactured Solution}
@@ -277,7 +278,8 @@ The manufactured observations were obtained by forward computation of Eq.\ref{Eq
 g(t) = 0.3 +0.167t - 0.007t\sp{2} \qquad \text{ for } 0 \leq t \leq 24.
 \label{EQ::DIRI}
 \end{equation}
-The timestep was $dt = 0.2$, and the diffusion coefficients were selected to be \fixme{describe discretisation in time and space}\lars{ cell-radius ratio ? angle ?}
+The timestep was $dt = 0.2$, and the diffusion coefficients were selected to be 
+%\fixme{describe discretisation in time and space}\lars{ cell-radius ratio ? angle ?}
 \begin{equation}
 D_{\Omega_1} = 1000.0, \quad D_{\Omega_2} = 4.0, \quad D_{\Omega_3} = 8.0 
 \end{equation}  
@@ -303,9 +305,6 @@ with $\Delta t = t_j-t$ and $dt = t_j - t_{j-1}$.
 The implementation used the first observation as initial conditions of Eq.\ref{Eq::PDE}. Then for each time-step, the next observation was used as the initial value for boundary control $g$. In order to increase the convergence speed of the optimization, $D_{\Omega_1}$ was scaled so that $D_{\Omega_1} = 100 D_{\Omega_1}\sp{\star} $. The initial values of the diffusion coefficients in the optimization algorithm were $(D_{\Omega_1}\sp{\star}, D_{\Omega_2}, D_{\Omega_3})=$  $(1, 1, 1)$. 
 
 The noise susceptibility was tested by pointwise adding a uniform distributed noise to the observations. The noise term was constructed using the random library in numpy and adjusted so that the noise range was $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ denoted as noise amplitude.
-
-\subsection{Acknowledgements}
-The computational experiments were performed on the Abel Cluster, owned by the University of Oslo and Uninett\textbackslash Sigma2, and operated by the Department for Research Computing at USIT,the University of Oslo IT-department. \url{http://www.hpc.uio.no/} 
 
 
 \section{Results}
@@ -516,6 +515,10 @@ seems significant and it is difficult to explain or ignore.
 % 
 %
 % 
+
+\subsection{Acknowledgements}
+The computational experiments were performed on the Abel Cluster, owned by the University of Oslo and Uninett\textbackslash Sigma2, and operated by the Department for Research Computing at USIT,the University of Oslo IT-department. \url{http://www.hpc.uio.no/} 
+
 
 
 \bibliographystyle{plainnat}
