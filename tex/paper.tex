@@ -8,7 +8,7 @@
 \usepackage{subcaption}
 \usepackage[numbers]{natbib}
 
-\title{Assessing paravascular transport in the parenchyma by PDE constrained optimization.}
+\title{Assessing paravascular transport in the parenchyma by PDE (partial differential equations) constrained optimization.}
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
 
@@ -26,19 +26,27 @@ Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 bla bla 
 \end{abstract}
 \section{Introduction}
-Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
-that is responsible for waste clearance. 
-In 2011,~\citet{iliff2012paravascular} discovered a novel system within our brain's metabolic system, which changed our understanding of the brain. 
-The system involves a new pathway, called the paravascular pathway as it runs in parallel with the vasculature system in a surrounding compartment.
-The important novelty in the 2011 findings was that waste from the brain is cleared through the paravascular path, and that a malfunction of this system 
-is linked to the development of dementia such as Alzheimer's and Parkinson's diseases. In 2013,~\citet{xie2013sleep} found
-that this system is particularly active during sleep.
-These mentioned breakthroughs were all performed in mice. In 2018, the action of the glymphatic system was for the first time demonstrated in humans. Further, it was shown that this action differs
-between healthy controls and patients with dementia~\cite{ringstad2018brain}.
-However, the biomechanical mechanisms behind the glymphatic system is not well understood from a fluid mechanics perspective,
+In 2012, Iliff et al ~\citet{iliff2012paravascular} provided evidence for a a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during sleep ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 \citet{eide2015mri}, and in 2017 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
+Several aspects of the glympahtic system are still debated, for example whether glymphatic transport of solutes is by convective mechanisms or by diffusion.
+
+%Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
+%that is responsible for waste clearance. 
+%In 2011,~\citet{iliff2012paravascular} discovered a novel system within our brain's metabolic system, which changed our understanding of the brain. 
+%The system involves a new pathway, called the paravascular pathway as it runs in parallel with the vasculature system in a surrounding compartment.
+%The important novelty in the 2011 findings was that waste from the brain is cleared through the paravascular path, and that a malfunction of this system 
+%is linked to the development of dementia such as Alzheimer's and Parkinson's diseases. In 2013,~\citet{xie2013sleep} found
+%that this system is particularly active during sleep.
+%These mentioned breakthroughs were all performed in mice. In 2018, the action of the glymphatic system was for the first time demonstrated in humans. Further, it was shown that this action differs between healthy controls and patients with dementia~\cite{ringstad2018brain}.
+%However, the biomechanical mechanisms behind the glymphatic system is not well understood from a fluid mechanics perspective,
+%and so far the modeling attempts have mostly failed~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}. 
+%In particular the system seems to facilitate waste transport faster than  
+%the extracellular diffusion, which has been the prevailing paradigm since the pioneering works of \citet{sykova2008diffusion}.
+
+
+The biomechanical mechanisms are not well understood from a fluid mechanics perspective,
 and so far the modeling attempts have mostly failed~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}. 
 In particular the system seems to facilitate waste transport faster than  
-the extracellular diffusion, which has been the prevailing paradigm since the pioneering works of \citet{sykova2008diffusion}.
+the extracellular diffusion, which has been the prevailing paradigm since the pioneering works of \citet{sykova2008diffusion}
 
 
 %A novel pathway of the brain's metabolism system called the paravascular pathway, because it runs in parallel with 
@@ -68,12 +76,11 @@ is however that the contrast in the surrounding cerebral spinal fluid (CSF) is h
 and changes significantly during the 24 hours of the investigations. 
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}. As such, the sparseness in time prevents a direct computation of the diffusion coefficients.
 
-The pioneering work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
-that diffusion was a governing transport mechanism in the brain and estimated to be on the order
-of $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
+The work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
+that diffusion was a governing transport mechanism in the brain and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
 while subjects with dementia typically have higher value and variation \cite{goujon2018can} . Of course diffusion coefficients, 
 measured by DTI at a time-scale of 7-30 minutes, may not be representative for the process on a
-longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around 3\% of the brain volume 
+longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around X\% of the brain volume 
 and the paravascular network is substantially smaller potentially renders the paravascular transport  invisible at the short time-scales of a DTI acquisition while it may still be effective on longer time scales. 
 
 
@@ -109,28 +116,24 @@ its implementation in FEniCS. The exposition is, however, brief and we refer to 
 
 
 
-
-
-
-
 \subsection{MRI Data}
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
-\caption{Shows the percentage intensity increase from baseline at different observation times. The colorbar was restricted to the range $(0,100)$.}
+\caption{Shows the percentage change in T1 signal unit ratios from baseline at different observation times. The colorbar was restricted to the range $(0,100)$.\fixme{copyright issues}. \lars{Reconstructed based on data obtained from \cite{eidevalnes}. eller fjerne upper row? } }
 \label{fig1} 
 \end{figure}
 
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
-\caption{Shows the percentage intensity increase from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis. The color bar was restricted to the range $(0,100)$. }
+\caption{Shows the percentage change in T1 signal unit ratios from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis. The color bar was restricted to the range $(0,100)$. }
 \label{fig2} 
 \end{figure}
-Figure~\ref{fig1} shows the distribution of tracers during 24 hours, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
+Figure~\ref{fig1} shows distribution of a CSF tracer, as a percentage change in T1 signal unit ratios, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
 Our data (not all shown) consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed over 5 observations within 1-2 hours after injection, a single observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
 Figure~\ref{fig2} shows the region selected for our computations. 
 The software Freesurfer \cite{Dale1999179, FischlLiuDale, spf2007, reuter:robreg10} was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. 
 
-The MRI data was part of a larger study, which involves around 100 patients with the same MRI acquisitions. However, there are clinical differences in each patient, thus a thorough analysis is needed to obtain a robust and accurate method.
+%The MRI data was part of a larger study, which involves around 100 patients with the same MRI acquisitions. However, there are clinical differences in each patient, thus a thorough analysis is needed to obtain a robust and accurate method.
 
 \subsection{Contrast concentration - Image Intensity Relation}
 Below, we briefly describe the relationship between the imaging intensity 
@@ -210,7 +213,7 @@ In addition to the T1 and T2 weighted sequences described above we have also obt
 coefficients on short time-scales. Images are shown in Figure~\ref{figuredti} where the largest diffusion coefficient (shown in 
 red in the middle figure) is shown to be around $1.0\mathrm{e}{-3} mm^2/s$. We remark that we have not included possible anisotropy, shown in 
 the right-most image in Figure~\ref{figuredti} and that these images show the apparent diffusion coefficient for free water molecules (18 Da).      
-The diffusivity of the Gadovist (600 Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This is due to the fact that both molecules have similar mass, and based on Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \citet{GdDPTA-DIFFUSION} to be $3.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$.
+The diffusivity of the Gadovist (\fixme{600} Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This is due to the fact that both molecules have similar mass, and based on Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \citet{GdDPTA-DIFFUSION} to be $3.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$.
 The fractional anisotropy is defined as 
 \begin{equation}
 FA\sp{2} =  \frac{3}{2} \frac{ (\lambda_1 - MD )\sp{2} +(\lambda_2 - MD )\sp{2} +(\lambda_3 - MD )\sp{2}}{\lambda\sp{2}_1 + \lambda\sp{2}_2  +\lambda\sp{2}_3 },
@@ -269,7 +272,7 @@ The mesh construction was patient-specific and used the MRI of a patient diagnos
 \caption{The leftmost image A) shows the mesh created from the baseline MR image with 3 domains, while the rightmost image  B) shows the mesh created from the baseline MR image with 2 domains. The blue domain corresponds to CSF domain, $\Omega_{CSF}$, the purple domain corresponds to grey matter,  $\Omega_{GM}$, and the white domain corresponds to white matter, $\Omega_{WM}$. }
 \label{Fig::Mesh}
 \end{figure}
-The 3 domain mesh in Fig.\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Fig.\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. 
+The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Figure~\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. 
 %The mesh coordinates (X,Y,Z) are given in $\mathrm{mm}$ \lars{ with $X \in \lbrace -70.5,-18\rbrace, Y \in \lbrace -73.5,28.8  \rbrace ,Z \in \lbrace 16.6,60.7 \rbrace$ }.
 
 
@@ -473,22 +476,21 @@ we find that the diffusion coefficients is 42-100\% larger than what was found b
 plays a significant role.  
 However, we have not yet been able to assess the self-diffusion of water as well as the diffusivity of Gadovist used in this study with phantom models. As such 
 the values used with \eqref{tortuosity} must be taken with caution. Furthermore,    
-the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Therefore  observation of tracer in regions with anisotropy can be considered a requirement for adding anisotropy to the model.
+the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Hence observations of tracer in regions with anisotropy can be considered a requirement for adding anisotropy to the model.
 
 The computational model uses 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{figuredti} that diffusion coefficients can be considered a spacial function. However, the implementation of control parameters for each degree of freedom would significantly increase the computational cost. Since the diffusivity appears to be regional, using region specific control parameters seems to be a better option.
-It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of increased clearance in rodents during sleep \cite{xie2013sleep}. This would indicate a time-dependent diffusivity, since the clearance in the brain is driven by diffusion. The time-dependency would correspond to a change in tortuosity, since properties of the tracer molecule do not change.
+It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of increased clearance in rodents during sleep \cite{xie2013sleep}. This would indicate a time-dependent diffusivity, given that the clearance in the brain is driven by diffusion. %The time-dependency would correspond to a change in tortuosity, since properties of the tracer molecule do not change.
+The hypothesis of the glymphatic system \cite{iliff2012paravascular} states that the waste is cleared through the veins in the parenchyma. This gives the tracer additional pathways that is not considered in the computational model. These additional pathways can be modeled as a drainage, which can be included as a control source term. 
 
 In Tab.\ref{Tab::Real-data}, it is shown that the grey matter diffusion coefficient have a consistent increase based on the decrease in the relaxation parameter $\beta$. This can be caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering that the grey matter volume has a depth less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Fig.\ref{12hourswithnoise} and Fig.\ref{24hourswithnoise}, where the noise is present at the boundary.
   
-
-The hypothesis of the glymphatic system \cite{iliff2012paravascular} states that the waste is cleared through the veins in the parenchyma. This gives the tracer additional pathways that is not considered in the computational model. These additional pathways can be modeled as a drainage, which can be included as a control source term. 
-
 Previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that diffusion dominates in the interstitium. Furthermore, 
 ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two
 to diffusion for solute transportation. If we take into account then that the vasculature occupy 3-5\% of the volume
 of the brain and the paravascular space presumably occupy less space, then the factor 30\% (?) that we find here 
 seems significant and it is difficult to explain or ignore.      
 
+In summary, using this model, we estimated diffusion coefficients that were 43-100\% larger than estimated by DTI acquisitions. Our results indicate that dissipation of solutes along the paravascular rout has a factor of 30, as compared to diffusion alone. However, the present study did not examine whether transport is by convective mechanisms.
 
 
  
