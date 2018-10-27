@@ -8,7 +8,7 @@
 \usepackage{subcaption}
 \usepackage[numbers]{natbib}
 
-\title{Assessing paravascular transport in the parenchyma by PDE (partial differential equations) constrained optimization.}
+\title{Assessing paravascular transport in the parenchyma by partial differential equation (PDE) constrained optimization.}
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
 
@@ -26,7 +26,7 @@ Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 bla bla 
 \end{abstract}
 \section{Introduction}
-In 2012, Iliff et al ~\citet{iliff2012paravascular} provided evidence for a a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during sleep ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 \citet{eide2015mri}, and in 2017 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
+In 2012, ~\citet{iliff2012paravascular} provided evidence for a a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during sleep ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 \citet{eide2015mri}, and in 2017 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
 Several aspects of the glympahtic system are still debated, for example whether glymphatic transport of solutes is by convective mechanisms or by diffusion.
 
 %Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
@@ -80,22 +80,24 @@ The work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
 that diffusion was a governing transport mechanism in the brain and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
 while subjects with dementia typically have higher value and variation \cite{goujon2018can} . Of course diffusion coefficients, 
 measured by DTI at a time-scale of 7-30 minutes, may not be representative for the process on a
-longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around X\% of the brain volume 
+longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around 3\% \fixme{Eide ? } of the brain volume 
 and the paravascular network is substantially smaller potentially renders the paravascular transport  invisible at the short time-scales of a DTI acquisition while it may still be effective on longer time scales. 
 
 
 Our purpose in this paper is to attempt a more rigorous methodology 
 for assessing the paravascular transport process where
 the complex geometry of the brain as well as time-scales of hours or days are taken into account.
-That is, we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to magnetic resonance imaging (MRI) data. If the fit between observation and model is good and we identify diffusion coefficients that are 
+%That is,
+Thus we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to magnetic resonance imaging (MRI) data. If the fit between observation and model is good and we identify diffusion coefficients that are 
 in line with those predicted by DTI then paravascular transport can be ignored on the scale of our study. 
 Our approach is to solve an optimization problem constrained by a partial differential equation (PDE) using the adjoint method where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
 the complete domain. Hence, the challenges faced from a mathematical point of view 
-are that 1) the images are subject to noise, 2) resolution in space is limited to slightly less than (1 $\mathrm{mm}^3$ and 3)
-the sparse observations through the time domain.  As such we need to assess the sensitivity of
-the approach with respect to important parameters such as the regularization parameters, noise levels and 
-time resolution to determine whether this approach is a viable method
-to obtain parameters involved time-scales. We remark that the purpose
+are that 1) the images are subject to noise, 2) resolution in space is limited to slightly less than 1 $\mathrm{mm}^3$ and 3)
+the sparse observations through the time domain. 
+Therefore we need to assess the sensitivity of the approach with respect to important factors, such noise levels and time resolution to determine whether this approach is a viable method to obtain parameters involved time-scales. 
+
+%As such we need to assess the sensitivity of the approach with respect to important parameters such as the regularization parameters, noise levels and  time resolution to determine whether this approach is a viable method to obtain parameters involved time-scales. 
+We remark that the purpose
 of this paper is a systematic study of the mathematical challenges and that assessing  
 whether clearance is governed by a process that is faster than diffusion is not the topic of the current paper. 
 
@@ -197,7 +199,7 @@ The signal difference between observation times were adjusted in \cite{eidevalne
 \begin{equation}
 f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
-and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patients specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
+and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping of the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patients specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
 The tracer concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline signal increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
 
 \begin{figure}
@@ -211,9 +213,9 @@ The tracer concentration was estimated in a preprocessing step, using the parame
 \subsection{Diffusion tensor imaging}
 In addition to the T1 and T2 weighted sequences described above we have also obtained diffusion tensor imaging to assess the apparent diffusion 
 coefficients on short time-scales. Images are shown in Figure~\ref{figuredti} where the largest diffusion coefficient (shown in 
-red in the middle figure) is shown to be around $1.0\mathrm{e}{-3} mm^2/s$. We remark that we have not included possible anisotropy, shown in 
+red in the middle figure) is shown to be around $1.0\mathrm{e}{-3}  \mathrm{mm^2/s}$. We remark that we have not included possible anisotropy, shown in 
 the right-most image in Figure~\ref{figuredti} and that these images show the apparent diffusion coefficient for free water molecules (18 Da).      
-The diffusivity of the Gadovist (\fixme{600} Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This is due to the fact that both molecules have similar mass, and based on Stoke-Einstein equation should have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \citet{GdDPTA-DIFFUSION} to be $3.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$.
+The diffusivity of the Gadovist (\fixme{600} Da \cite{MGadobutrol}) was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da \cite{MGgDPTA}). This is due to the fact that both molecules have similar mass, and based on Stoke-Einstein equation should also have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \citet{GdDPTA-DIFFUSION} to be $3.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$.
 The fractional anisotropy is defined as 
 \begin{equation}
 FA\sp{2} =  \frac{3}{2} \frac{ (\lambda_1 - MD )\sp{2} +(\lambda_2 - MD )\sp{2} +(\lambda_3 - MD )\sp{2}}{\lambda\sp{2}_1 + \lambda\sp{2}_2  +\lambda\sp{2}_3 },
@@ -238,12 +240,9 @@ In \citet{sykova2008diffusion}, it was shown that the macroscopic diffusion in t
 \label{tortuosity}
 \end{equation}
 with $\lambda$ denoted as the tortuosity.
-In order to estimate the apparent diffusion coefficient involved in the tracer transportation shown in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation. Then we solve a PDE constrained optimization problem where
-the tracer distribution, boundary conditions, and apparent
-diffusion coefficient are solved for by optimizing with
-respect to the observed tracer distribution. As such, enhanced transportation because of effects such as
-dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI.  
-The objective function was defined as 
+In order to estimate the apparent diffusion coefficient involved in the tracer transportation shown in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation. 
+Then we constructed an optimization problem with the aim to minimize the difference between the observed and the modeled tracer distribution by optimizing the boundary conditions and the apparent diffusion coefficient.%Then we solve a PDE constrained optimization problem where the tracer distribution, boundary conditions, and apparent diffusion coefficient are solved for by optimizing with respect to the observed tracer distribution \lars{Ikke helt oversiktlig}. 
+Thus enhanced transportation because of effects such as dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI.The objective function was defined as 
 \begin{equation}
 \min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_1} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2} \right) \mathrm{d}\Omega \mathrm{d}t  
 \label{EQ::objf}
@@ -252,7 +251,7 @@ subject to
 \begin{equation}
 \begin{aligned}
 \frac{\partial u}{\partial t} &= \nabla \cdot  D \nabla u && \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
-u&=g && \text{on} \qquad \partial\Omega_1  \times \left\lbrace 0 , T \right) 
+u&=g && \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right) 
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
@@ -347,7 +346,7 @@ From the results it can be discerned that $\alpha =1.0$ and $\beta=100.0$ repres
 \end{figure}
 
 \subsubsection{The number of timessteps}
-Increasing the number of time-steps in the computations can potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization may therefore play a larger role. Furthermore, the computational cost will rise with additional time-steps. Thus finding the optimal number of time-steps can be essential for larger problems. The computation used a wide range the regularization parameters, and the number of timesteps were selected to be 20 and 40.
+Increasing the number of time-steps in the computations can potentially allow for a more accurate temporal reconstruction, but at the same time the number of observations per control decreases and the regularization may therefore play a larger role. Furthermore, the computational cost will rise with additional time-steps. Thus finding the optimal number of time-steps can be essential for solving larger problems. The computation used a wide range the regularization parameters, and the number of timesteps were selected to be 20 and 40.
 
 The results are given in Table~\ref{TAB::timesteps}. It can be seen for all $\alpha=1.0$ that the relative error becomes bigger with more time-steps. This behavior can also be seen for $\alpha=1.0\mathrm{e}{-2}$ and $\beta < 1.0\mathrm{e}{-2}$, which implies an interaction between the regularization parameters. Therefore $g$ was investigated by plotting boundary points through time for different values of $\alpha$ and $\beta$, see Fig \ref{boundarycontrol}. In Figure \ref{boundarycontrol} we can see that more time-steps causes oscillations for $\alpha=1.0$, and each peak corresponds to a observation time. These oscillations are caused by the value selection of $\alpha$, which tries minimize $g$ between observation times.
 
@@ -374,10 +373,10 @@ The results for 5 observations is shown in Table~\ref{TAB::half} and for 20 obse
 
 \subsubsection{The noise susceptibility}
 The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
-different noise levels with $\alpha=0.0001$ and $\beta=1.0$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
+different noise levels with $\alpha=0.0001$,$\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 
-In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative errors compared zero noise in Table~\ref{Tab::1} and Table~\ref{TAB::timesteps}. Then in Table~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}_{L\sp{2}(\Omega_1)}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$.  
+In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative errors compared zero noise in Table~\ref{Tab::1} and Table~\ref{TAB::timesteps}. Then in Table~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$.  
 
 
 
@@ -408,17 +407,17 @@ In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \subsection{A Real case} 
 
 \subsubsection{Results obtained when using real observations}
-The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24., 48., 698. $\rbrace (hours)$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace $ 0.00, 0.16, 0.39, 0.55, 0.77 $ \rbrace$. This prompted the use of the following observation times  $0.00, 2.09, 6.05, 24., 48.$. 
+The MRI data consisted of the observations at times $t_i \in \lbrace$ 0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24., 48., 698. $\rbrace \mathrm{(hours)}$ with the time $t_i=0.00$ as the observation 1-2 hours after the tracer was injected. There was no significant visible change in the tracer between the observations at $\lbrace $ 0.00, 0.16, 0.39, 0.55, 0.77 $ \rbrace$. This prompted the use of the following observation times  $0.00, 2.09, 6.05, 24., 48.$. 
 
-The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\mathrm{e}{-1}$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 hour$ and $dt = 1 hour$.   
+The estimation of tracer concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Fig.\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\mathrm{e}{-1}$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 \mathrm{h}$ and $dt = 1 \mathrm{h}$.   
 
-The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data},it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\mathrm{e}{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$. 
+The results are shown in Tab.\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data},it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\mathrm{e}{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$.
 
 \subsubsection{Comparison with results obtained from DTI analysis}
  
-The median diffusion coefficient in the DTI was estimated to be $8.7\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ in white matter and $1.0\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\mathrm{e}{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. Then the reference value $3.8\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $1.10\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent on molecular size. 
+The median diffusion coefficient in the DTI was estimated to be $8.7\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ in white matter and $1.0\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\mathrm{e}{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. Then the reference value $3.8\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $1.10\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
 
-The oscillation in Fig.\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0\mathrm{e}{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values $\alpha$. This prompt the exclusion of these values, which gives an average computed values $ 0.65 \mathrm{mm\sp{2}/h}$ and  $ 0.8 \mathrm{mm\sp{2}/h}$ in grey and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $2.22\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$. This gives a difference of 42\% in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
+The oscillation in Fig.\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0\mathrm{e}{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values $\alpha$. Excluding the values with $\alpha=1.0\mathrm{e}{-2}$ gives an average of $ 0.65 \mathrm{mm\sp{2}/h}$ in grey matter and $ 0.8 \mathrm{mm\sp{2}/h}$ in and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $2.22\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$. This gives a difference of 42\% in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
 
 %\subsection*{Compare high DTI values in white matter with computed}
 %\fixme{Can we remove this subsection header?}
@@ -463,7 +462,7 @@ In Fig.\ref{Fig::realdata}, it can be seen that there were regions with negligib
 
 \section{Discussion}
 The methodology presented here for identification of diffusion coefficients and boundary conditions with application to the glymphatic system appears to work quite 
-well for regularization parameters varying by orders of magnitude. The regularization parameters  $\alpha \in \lbrace 1.0e-6, 1.0\mathrm{e}{-2} \rbrace$, $\beta \in \lbrace 1.0\mathrm{e}{-2} , 1.0 \rbrace$ with the requirement $\alpha / \beta < 1.0\mathrm{e}{-2}$ gave a relative error of  
+well for regularization parameters varying by orders of magnitude. The regularization parameters  $\alpha \in \lbrace 1.0\mathrm{e-6}, 1.0\mathrm{e}{-2} \rbrace$, $\beta \in \lbrace 1.0\mathrm{e}{-2} , 1.0 \rbrace$ with the requirement $\alpha / \beta < 1.0\mathrm{e}{-2}$ gave a relative error of  
 4.1\% in grey matter and 3.6 \% in white matter. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
 in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise amplitude of 23\% of maximum value. However, the addition of noise required that $\beta = 1.0 $ to obtain consistent convergence. 
 Crucial in our application is the interplay between the regularization term that regulates the smoothness of the boundary conditions as well as the integrated magnitude of the boundary conditions over time, i.e. $\alpha$ and $\beta$. Further, we observed that the importance of interplay of these parameters increases with the number of time steps. This is, however, not surprising because our observations are sparse
@@ -476,13 +475,14 @@ we find that the diffusion coefficients is 42-100\% larger than what was found b
 plays a significant role.  
 However, we have not yet been able to assess the self-diffusion of water as well as the diffusivity of Gadovist used in this study with phantom models. As such 
 the values used with \eqref{tortuosity} must be taken with caution. Furthermore,    
-the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Fig\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Hence observations of tracer in regions with anisotropy can be considered a requirement for adding anisotropy to the model.
+the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Figure~\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observations of tracer in regions with anisotropy can be considered a requirement before adding anisotropy to the model.
 
-The computational model uses 2 global controls for the diffusion coefficients, while it can be seen in  Fig.\ref{figuredti} that diffusion coefficients can be considered a spacial function. However, the implementation of control parameters for each degree of freedom would significantly increase the computational cost. Since the diffusivity appears to be regional, using region specific control parameters seems to be a better option.
+The computational model uses 2 global controls for the diffusion coefficients, while it can be seen in  Figure~\ref{figuredti} that diffusion coefficients can be considered a spacial function. However, the implementation of control parameters for each degree of freedom would significantly increase the computational cost. Since the diffusivity appears to be regional, using region specific control parameters seems to be a better option.
 It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of increased clearance in rodents during sleep \cite{xie2013sleep}. This would indicate a time-dependent diffusivity, given that the clearance in the brain is driven by diffusion. %The time-dependency would correspond to a change in tortuosity, since properties of the tracer molecule do not change.
 The hypothesis of the glymphatic system \cite{iliff2012paravascular} states that the waste is cleared through the veins in the parenchyma. This gives the tracer additional pathways that is not considered in the computational model. These additional pathways can be modeled as a drainage, which can be included as a control source term. 
 
-In Tab.\ref{Tab::Real-data}, it is shown that the grey matter diffusion coefficient have a consistent increase based on the decrease in the relaxation parameter $\beta$. This can be caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering that the grey matter volume has a depth less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Fig.\ref{12hourswithnoise} and Fig.\ref{24hourswithnoise}, where the noise is present at the boundary.
+
+In Tab.\ref{Tab::Real-data}, it was shown that the grey matter diffusion coefficient had a negative correlation with the relaxation parameter $\beta$. This was caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering that the grey matter volume has an average thickness less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Fig.\ref{12hourswithnoise} and Fig.\ref{24hourswithnoise}, where the noise is present at the boundary.
   
 Previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that diffusion dominates in the interstitium. Furthermore, 
 ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two
@@ -534,8 +534,8 @@ The computational experiments were performed on the Abel Cluster, owned by the U
 \begin{figure}
 \centering
 \includegraphics[width=0.95\textwidth]{different.png} 
-\caption{Row A) shows the observation at times 2 hours, 6 hours, 24 hours and 48 hours after the first observation with tracer. Row B) shows the corresponding states with the relaxation parameters $\alpha=0.01$ and $\beta=0.01$ and $k=48$.   Row C) shows the corresponding states with the relaxation parameters $\alpha=0.0001$ and $\beta=1.0$ and $k=48$
- Row D) shows the corresponding states with the relaxation parameters $\alpha=1.0e-6$ and $\beta=0.1$ and $k=48$. The color-bar was restricted to the range $ \lbrace 0 ,0.5 \rbrace$. }
+\caption{Row A) shows the observation at times 2 hours, 6 hours, 24 hours and 48 hours after the first observation with tracer. Row B) shows the corresponding states with the relaxation parameters $\alpha=0.01$ and $\beta=0.01$ and $k=48$.   Row C) shows the corresponding states with the relaxation parameters $\alpha=1.0\mathrm{e-4}$ and $\beta=1.0$ and $k=48$
+ Row D) shows the corresponding states with the relaxation parameters $\alpha=1.0\mathrm{e-6}$ and $\beta=0.1$ and $k=48$. The color-bar was restricted to the range $ \lbrace 0 ,0.5 \rbrace$. }
 \label{Fig::realdata}
 \end{figure}
 
