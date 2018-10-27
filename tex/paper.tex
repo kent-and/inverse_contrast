@@ -67,7 +67,7 @@ the extracellular diffusion, which has been the prevailing paradigm since the pi
 %associated with accumulation of metabolic waste such as
 %amyloid-beta and CSF-tau.  
 
-In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors (some of which are co-authors of this paper). The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
+In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors. The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
 55 hours using the error function which is valid for planar diffusion. However, 
 the surface of the brain is folded and is around five times larger than 
 a corresponding surface of a ball with the same volume. Hence, 
@@ -131,12 +131,12 @@ its implementation in FEniCS. The exposition is, however, brief and we refer to 
 Figure~\ref{fig1} shows distribution of a CSF tracer, as a percentage change in T1 signal unit ratios, see also~\cite{ringstad2018brain} for further information on the imaging procedure.   
 Our data (not all shown) consist of a total of 10 MRI observations, including a baseline MRI taken before tracer was injected. The observation points are distributed over 5 observations within 1-2 hours after injection, a single observation in the timeframes 2-4 hours, 6-9 hours, 24 hours and 48 hours. 
 Figure~\ref{fig2} shows the region selected for our computations. 
-The software Freesurfer \cite{Dale1999179, FischlLiuDale, spf2007, reuter:robreg10} was used to segment and align each of the observations, which made it possible to estimate voxelwise intensity increase. 
+The software Freesurfer \cite{Dale1999179, FischlLiuDale, spf2007, reuter:robreg10} was used to segment and align each of the observations, which made it possible to estimate voxelwise signal increase. 
 
 %The MRI data was part of a larger study, which involves around 100 patients with the same MRI acquisitions. However, there are clinical differences in each patient, thus a thorough analysis is needed to obtain a robust and accurate method.
 
-\subsection{Contrast concentration - Image Intensity Relation}
-Below, we briefly describe the relationship between the imaging intensity 
+\subsection{Contrast concentration - Image Signal Relation}
+Below, we briefly describe the relationship between the imaging signal 
 seen in Figures \ref{fig1} and \ref{fig2} and the underlying contrast 
 concentration. We remark that we use a notation common in medical literature and here two letter symbols are common. Hence, below we will use two letter symbols such as $TE$ and $TR$ to keep the notation consistent with the presentation in \cite{GOWLAND, MPRAGE}.   
 The tracer concentration $c$ causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
@@ -145,7 +145,7 @@ The tracer concentration $c$ causes the longitudinal(spin-lattice) relaxation ti
 \label{EQ::contrast}
 \end{equation}
 The superscripts indicate relaxation time with contrast $T_{1}\sp{c}$ and without contrast $T_{1}\sp{0}$, and $r_1$ is the relaxivity constant for the MRI tracer in a medium. 
-The tracer observations were collected using a MRI sequence known as  Magnetization Prepared Rapid Acquisition Gradient Echo (MPRAGE) with an inversion prepared magnetization. The relation between intensity and the relaxation time is non-linear, and is expressed with the following equations. The signal intensity $S$ for this sequence is given by
+The tracer observations were collected using a MRI sequence known as  Magnetization Prepared Rapid Acquisition Gradient Echo (MPRAGE) with an inversion prepared magnetization. The relation between signal and the relaxation time is non-linear, and is expressed with the following equations. The signal value $S$ for this sequence is given by
 \begin{equation}
 S = M_{n} \sin \theta e\sp{ - TE/T_2\sp{*} },
 \label{EQ::SI_T2}
@@ -179,7 +179,7 @@ Using the following definitions
 T_w    &= TR - T_a -T_b(m-1)       .\\
 \end{aligned}
 \end{equation}
-Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $T_1$ is the longitudinal(spin-lattice) relaxation time for a given medium. The $M_0$ is a calibration constant of the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI tracer. Given \eqref{EQ::SI} we have that the relative intensity increase can be written as 
+Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $T_1$ is the longitudinal(spin-lattice) relaxation time for a given medium. The $M_0$ is a calibration constant of the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI tracer. Given \eqref{EQ::SI} we have that the relative signal increase can be written as 
 \begin{equation}
 \frac{S\sp{c}}{S\sp{0}} = \frac{ M_{n}\sp{c} \sin (\theta)}{ M_{n}\sp{0} \sin (\theta) }.
 \end{equation}
@@ -193,12 +193,12 @@ This gives the following relation
 \begin{equation}
 \frac{f(T_{1}\sp{c} ) }{f(T_{1}\sp{0})}  = \frac{S\sp{c}}{S\sp{0}} 
 \end{equation}
-The intensity difference between observation times were adjusted in \cite{eidevalnes}. Thus we can express the change in $T_1$ due to tracer as 
+The signal difference between observation times were adjusted in \cite{eidevalnes}. Thus we can express the change in $T_1$ due to tracer as 
 \begin{equation}
 f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
-and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patients specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower intensity in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
-The tracer concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline intensity increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
+and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patients specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
+The tracer concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline signal increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
 
 \begin{figure}
 \centering
@@ -385,7 +385,7 @@ In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{noise-12.png}  
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=27$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
+\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
 \label{12hourswithnoise}
 \end{figure}
 
