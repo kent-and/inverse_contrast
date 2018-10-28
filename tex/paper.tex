@@ -332,10 +332,7 @@ The convergence as well as the result of the minimization is influenced by the v
 
 Ideally, our approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although the convergence may vary substantially. The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and comparing the computed $D$ and $g$ values with the manufactured solution. The observation times were set to $\lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps $k$ in the forward problem was set to $10$. 
 
-The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figure~\ref{convergence}. We can see that the optimization computed similar end-result for most regularization parameters. More specifically, for $\alpha \leq 1\mathrm{e}{-2}$ and $\beta \leq 1e-0$ the relative errors for all optimization parameters are below $5\%$.However, in the case of $ \alpha=1.0$ the relative error is over 100\% higher then for other values of $\alpha$. Furthermore, for all $\beta=100.0$ there is about 70\% relative error for $D_{\Omega_1}$ and approximate 10\% error for $D_{\Omega_2}$ .
-
-
-From the results it can be discerned that $\alpha =1.0$ and $\beta=100.0$ represent an upper threshold where the observations are no longer the dominant term in the objective functional.  
+The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figure~\ref{convergence}. We can see that the optimization computed similar end-result for most regularization parameters. More specifically, for $\alpha \leq 1\mathrm{e}{-2}$ and $\beta \leq 1e-0$ the relative errors for all optimization parameters are below $5\%$.However, in the case of $ \alpha=1.0$ the relative error is over 100\% higher then for other values of $\alpha$. Furthermore, for all $\beta=100.0$ there is about 70\% relative error for $D_{\Omega_1}$ and approximate 10\% error for $D_{\Omega_2}$. From the results it can be discerned that $\alpha =1.0$ and $\beta=100.0$ represent an upper threshold where the observations are no longer the dominant term in the objective functional.  
 
 
 \begin{figure}
@@ -352,18 +349,6 @@ The results are given in Table~\ref{TAB::timesteps}. It can be seen for all $\al
 
 %It can be seen that more time-steps causes an increase number of iterations, but for some values the number of iterations decreases. These values share that $\alpha $ is a magnitude 2 lower than $ \beta$,i.e $\alpha=1.0e-2$ and $\beta =1.0$. This indicates that $\alpha $ should be smaller than $\beta$ to achieve optimal convergence. However, the number of iterations in Table ~\ref{Tab::1} are smaller for all regularization parameters. 
 
-
-\subsubsection{The number of observations}
-The dependency on observations is relevant, since the number of observations of the MRI data is limited. This dependency was investigated by changing the number of observations, and by examining the results. The number of observation were chosen to be 5 and 20, and the observation times were evenly spaced. 
-
-
-The results for 5 observations is shown in Table~\ref{TAB::half} and for 20 observations is shown in Table~\ref{TAB::double}. In Table~\ref{TAB::half}, the values $\alpha =1.0\mathrm{e}{-2}$ and $\beta<1.0$ gives a surge in the relative error with more time-steps. This behavior is neither visible in Tab.\ref{TAB::timesteps} or in  Tab.\ref{TAB::double} for the same regularization parameters. The ratio observations per control indicates that the increase in relative error is due to oscillations, similar to those seen in Figure~\ref{boundarycontrol}. Thus the observations acts as stabilization for the functional, which gives a broader range of adequate regularization parameters.
-
-%In Table ~\ref{TAB::double}, we can see that $\aplha < 1.0e-2$ and $\beta =1.0e-2$ have a drastic change in the number of iteration for $20$ time-steps. 
-
-
-
-
 \begin{figure}
 \centering
 \includegraphics[scale=0.21]{boundary_control.png}  
@@ -371,14 +356,20 @@ The results for 5 observations is shown in Table~\ref{TAB::half} and for 20 obse
 \label{boundarycontrol}
 \end{figure}
 
+\subsubsection{The number of observations}
+The dependency on observations is relevant, since the number of observations of the MRI data is limited. This dependency was investigated by changing the number of observations, and by examining the results. The number of observation were chosen to be 5 and 20, and the observation times were evenly spaced. 
+
+The results for 5 observations is shown in Table~\ref{TAB::half} and for 20 observations is shown in Table~\ref{TAB::double}. In Table~\ref{TAB::half}, the values $\alpha =1.0\mathrm{e}{-2}$ and $\beta<1.0$ gives a surge in the relative error with more time-steps. This behavior is neither visible in Tab.\ref{TAB::timesteps} or in  Tab.\ref{TAB::double} for the same regularization parameters. The ratio observations per control indicates that the increase in relative error is due to oscillations, similar to those seen in Figure~\ref{boundarycontrol}. Thus the observations acts as stabilization for the functional, which gives a broader range of adequate regularization parameters.
+
+%In Table ~\ref{TAB::double}, we can see that $\aplha < 1.0e-2$ and $\beta =1.0e-2$ have a drastic change in the number of iteration for $20$ time-steps. 
+
+
 \subsubsection{The noise susceptibility}
 The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
 different noise levels with $\alpha=0.0001$,$\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 
 In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%$ of maximum initial condition) had negligible effect on the relative errors compared zero noise in Table~\ref{Tab::1} and Table~\ref{TAB::timesteps}. Then in Table~\ref{Tab::Noise0.3} the noise amplitude was increased to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$.  
-
-
 
 
 \begin{figure}
@@ -482,7 +473,7 @@ It can also be taken into consideration to model the diffusion coefficients as a
 The hypothesis of the glymphatic system \cite{iliff2012paravascular} states that the waste is cleared through the veins in the parenchyma. This gives the tracer additional pathways that is not considered in the computational model. These additional pathways can be modeled as a drainage, which can be included as a control source term. 
 
 
-In Tab.\ref{Tab::Real-data}, it was shown that the grey matter diffusion coefficient had a negative correlation with the relaxation parameter $\beta$. This was caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering that the grey matter volume has an average thickness less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Fig.\ref{12hourswithnoise} and Fig.\ref{24hourswithnoise}, where the noise is present at the boundary.
+In Table~\ref{Tab::Real-data}, it was shown that the grey matter diffusion coefficient had a negative correlation with the relaxation parameter $\beta$. This was caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering that the grey matter volume has an average thickness less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Fig.\ref{12hourswithnoise} and Fig.\ref{24hourswithnoise}, where the noise is present at the boundary.
   
 Previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that diffusion dominates in the interstitium. Furthermore, 
 ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two
@@ -582,33 +573,82 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel
 \end{tabular}
 \label{Tab::1}
 \end{table} 
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
  
 
+\begin{table}[t]
+\centering
+\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.3, and $t_i =[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$  }
+\begin{tabular}{*{8}c}
+$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel} $ \\
+\hline
+ 1.0e-02 	 & 1.0e+00 	 & 10 & 144 	 & +0.012 & +0.055 & +0.027 & +0.036 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 10 & 476 	 & -0.009 & +0.049 & +0.035 & +0.051 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 10 & 476 	 & -0.097 & +0.042 & +0.054 & +0.054 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 10 & 558 	 & -0.071 & +0.047 & +0.039 & +0.054 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 10 & 182 	 & -0.040 & +0.033 & +0.051 & +0.037 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 10 & 471 	 & +0.021 & +0.038 & +0.036 & +0.056 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 10 & 792 	 & -0.058 & +0.042 & +0.031 & +0.565 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 10 &  -   & -0.050 & +0.029 & +0.040 & +1.062 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 10 & 178 	 & +0.012 & +0.033 & +0.021 & +0.036 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 10 & 537 	 & -0.018 & +0.040 & +0.025 & +0.057 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 10 &  -	 & -0.038 & +0.040 & +0.030 & +1.452 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 10 &  - 	 & +0.003 & +0.035 & +0.046 & +3.621 \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 20 & 213 	 & +0.009 & +0.015 & +0.009 & +0.016 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 20 & 719 	 & +0.228 & +0.088 & -0.032 & +0.085 \\ 
+ 1.0e-02 	 & 1.0e-04 	 & 20 &  -   & +0.100 & +0.071 & -0.013 & +0.271 \\ 
+ 1.0e-02 	 & 1.0e-06 	 & 20 &   -  & +0.223 & +0.097 & -0.027 & +0.282 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 20 & 245 	 & +0.038 & +0.013 & -0.001 & +0.016 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 20 &  - 	 & +0.050 & +0.054 & -0.024 & +0.116 \\ 
+ 1.0e-04 	 & 1.0e-04 	 & 20 &  - 	 & -0.087 & +0.059 & -0.077 & +5.763 \\ 
+ 1.0e-04 	 & 1.0e-06 	 & 20 &  -	 & +0.001 & +0.083 & -0.038 & +7.485 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 20 & 242 	 & -0.009 & +0.008 & +0.015 & +0.016 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 20 & 947 	 & +0.122 & +0.093 & -0.040 & +0.115 \\ 
+ 1.0e-06 	 & 1.0e-04 	 & 20 &  - 	 & -0.076 & +0.041 & -0.020 & +7.700 \\ 
+ 1.0e-06 	 & 1.0e-06 	 & 20 &  - 	 & +0.147 & +0.113 & -0.023 & +10.936 \\ 
+
+\end{tabular}
+\label{Tab::Noise0.3}
+\end{table} 
+
+
+\begin{table}
+\centering
+\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the estimated diffusion coefficients for grey $D_{\Omega_{GM}}$ and white $D_{\Omega_{WM}}$ matter based on MRI data.}
+\begin{tabular}{*{6}c}
+$\alpha$ & $\beta$ & k & iter &  $ D_{\Omega_{GM}} \left[ \mathrm{mm\sp{2}/h} \right] $ & $ D_{\Omega_{WM}} \left[ \mathrm{mm\sp{2}/h} \right]$ \\
+\hline
+ 1.0e-02 	 & 1.0e+00 	 & 24 & 503 	 & 0.659 & 0.918 \\ 
+ 1.0e-02 	 & 1.0e-01 	 & 24 & 716 	 & 0.771 & 0.969 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 24 & 505 	 & 0.836 & 0.974 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 24 & 206 	 & 0.553 & 0.828 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 24 & 440 	 & 0.651 & 0.789 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 24 & 597 	 & 0.718 & 0.739 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 24 & 439 	 & 0.570 & 0.830 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 24 & 583 	 & 0.656 & 0.793 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 24 & 742 	 & 0.721 & 0.729 \\ 
+ 
+ %1.0e-02    & 1.0e+02   & 48 & 714      & 0.564 & 0.952 ?? \\ 
+ 1.0e-02 	 & 1.0e+00 	 & 48 & 591 	 & 0.648 & 0.893 \\ 
+ 1.0e-02 	 & 1.0e-01 	 & 48 & 461 	 & 0.772 & 0.982 \\ 
+ 1.0e-02 	 & 1.0e-02 	 & 48 & 748 	 & 0.986 & 1.198 \\ 
+ %1.0e-04    & 1.0e+02   & 48 & 815      & 0.470 & 0.928 \\ 
+ 1.0e-04 	 & 1.0e+00 	 & 48 & 607 	 & 0.551 & 0.815 \\ 
+ 1.0e-04 	 & 1.0e-01 	 & 48 & 598 	 & 0.649 & 0.787 \\ 
+ 1.0e-04 	 & 1.0e-02 	 & 48 & 837 	 & 0.740 & 0.817 \\
+ %1.0e-06    & 1.0e+02   & 48 & 729      & 0.428 & 0.948 \\ 
+ 1.0e-06 	 & 1.0e+00 	 & 48 & 681 	 & 0.557 & 0.811 \\ 
+ 1.0e-06 	 & 1.0e-01 	 & 48 & 780 	 & 0.645 & 0.774 \\ 
+ 1.0e-06 	 & 1.0e-02 	 & 48 & 745 	 & 0.736 & 0.819 \\ 
+
+
+
+\end{tabular}
+\label{Tab::Real-data}
+\end{table} 
  
 
 
-
-
-
-
-
-
+\section{Supplementary}
 \begin{table}
 \centering
 \caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observations times were chosen $ t_i=[2.4, 4.8,$ 7.2, 9.6, 12.0, 14.4, $16.8, 19.2, 21.6, 24.0]$ }
@@ -797,77 +837,7 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel} $ & $D_{\Omega_2}\sp{rel
 \end{tabular}
 \label{Tab::Noise0.03}
 \end{table} 
-\begin{table}[t]
-\centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.3, and $t_i =[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$  }
-\begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel} $ \\
-\hline
- 1.0e-02 	 & 1.0e+00 	 & 10 & 144 	 & +0.012 & +0.055 & +0.027 & +0.036 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 10 & 476 	 & -0.009 & +0.049 & +0.035 & +0.051 \\ 
- 1.0e-02 	 & 1.0e-04 	 & 10 & 476 	 & -0.097 & +0.042 & +0.054 & +0.054 \\ 
- 1.0e-02 	 & 1.0e-06 	 & 10 & 558 	 & -0.071 & +0.047 & +0.039 & +0.054 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 10 & 182 	 & -0.040 & +0.033 & +0.051 & +0.037 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 10 & 471 	 & +0.021 & +0.038 & +0.036 & +0.056 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 10 & 792 	 & -0.058 & +0.042 & +0.031 & +0.565 \\ 
- 1.0e-04 	 & 1.0e-06 	 & 10 &  -   & -0.050 & +0.029 & +0.040 & +1.062 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 10 & 178 	 & +0.012 & +0.033 & +0.021 & +0.036 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 10 & 537 	 & -0.018 & +0.040 & +0.025 & +0.057 \\ 
- 1.0e-06 	 & 1.0e-04 	 & 10 &  -	 & -0.038 & +0.040 & +0.030 & +1.452 \\ 
- 1.0e-06 	 & 1.0e-06 	 & 10 &  - 	 & +0.003 & +0.035 & +0.046 & +3.621 \\ 
- 1.0e-02 	 & 1.0e+00 	 & 20 & 213 	 & +0.009 & +0.015 & +0.009 & +0.016 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 20 & 719 	 & +0.228 & +0.088 & -0.032 & +0.085 \\ 
- 1.0e-02 	 & 1.0e-04 	 & 20 &  -   & +0.100 & +0.071 & -0.013 & +0.271 \\ 
- 1.0e-02 	 & 1.0e-06 	 & 20 &   -  & +0.223 & +0.097 & -0.027 & +0.282 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 20 & 245 	 & +0.038 & +0.013 & -0.001 & +0.016 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 20 &  - 	 & +0.050 & +0.054 & -0.024 & +0.116 \\ 
- 1.0e-04 	 & 1.0e-04 	 & 20 &  - 	 & -0.087 & +0.059 & -0.077 & +5.763 \\ 
- 1.0e-04 	 & 1.0e-06 	 & 20 &  -	 & +0.001 & +0.083 & -0.038 & +7.485 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 20 & 242 	 & -0.009 & +0.008 & +0.015 & +0.016 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 20 & 947 	 & +0.122 & +0.093 & -0.040 & +0.115 \\ 
- 1.0e-06 	 & 1.0e-04 	 & 20 &  - 	 & -0.076 & +0.041 & -0.020 & +7.700 \\ 
- 1.0e-06 	 & 1.0e-06 	 & 20 &  - 	 & +0.147 & +0.113 & -0.023 & +10.936 \\ 
 
-\end{tabular}
-\label{Tab::Noise0.3}
-\end{table} 
-
-
-\begin{table}
-\centering
-\caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the estimated diffusion coefficients for grey $D_{\Omega_{GM}}$ and white $D_{\Omega_{WM}}$ matter based on MRI data.}
-\begin{tabular}{*{6}c}
-$\alpha$ & $\beta$ & k & iter &  $ D_{\Omega_{GM}} \left[ \mathrm{mm\sp{2}/h} \right] $ & $ D_{\Omega_{WM}} \left[ \mathrm{mm\sp{2}/h} \right]$ \\
-\hline
- 1.0e-02 	 & 1.0e+00 	 & 24 & 503 	 & 0.659 & 0.918 \\ 
- 1.0e-02 	 & 1.0e-01 	 & 24 & 716 	 & 0.771 & 0.969 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 24 & 505 	 & 0.836 & 0.974 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 24 & 206 	 & 0.553 & 0.828 \\ 
- 1.0e-04 	 & 1.0e-01 	 & 24 & 440 	 & 0.651 & 0.789 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 24 & 597 	 & 0.718 & 0.739 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 24 & 439 	 & 0.570 & 0.830 \\ 
- 1.0e-06 	 & 1.0e-01 	 & 24 & 583 	 & 0.656 & 0.793 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 24 & 742 	 & 0.721 & 0.729 \\ 
- 
- %1.0e-02    & 1.0e+02   & 48 & 714      & 0.564 & 0.952 ?? \\ 
- 1.0e-02 	 & 1.0e+00 	 & 48 & 591 	 & 0.648 & 0.893 \\ 
- 1.0e-02 	 & 1.0e-01 	 & 48 & 461 	 & 0.772 & 0.982 \\ 
- 1.0e-02 	 & 1.0e-02 	 & 48 & 748 	 & 0.986 & 1.198 \\ 
- %1.0e-04    & 1.0e+02   & 48 & 815      & 0.470 & 0.928 \\ 
- 1.0e-04 	 & 1.0e+00 	 & 48 & 607 	 & 0.551 & 0.815 \\ 
- 1.0e-04 	 & 1.0e-01 	 & 48 & 598 	 & 0.649 & 0.787 \\ 
- 1.0e-04 	 & 1.0e-02 	 & 48 & 837 	 & 0.740 & 0.817 \\
- %1.0e-06    & 1.0e+02   & 48 & 729      & 0.428 & 0.948 \\ 
- 1.0e-06 	 & 1.0e+00 	 & 48 & 681 	 & 0.557 & 0.811 \\ 
- 1.0e-06 	 & 1.0e-01 	 & 48 & 780 	 & 0.645 & 0.774 \\ 
- 1.0e-06 	 & 1.0e-02 	 & 48 & 745 	 & 0.736 & 0.819 \\ 
-
-
-
-\end{tabular}
-\label{Tab::Real-data}
-\end{table} 
- 
 
 \end{document}
 
