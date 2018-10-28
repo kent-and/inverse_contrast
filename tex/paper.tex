@@ -8,7 +8,7 @@
 \usepackage{subcaption}
 \usepackage[numbers]{natbib}
 
-\title{Assessing paravascular transport in the parenchyma by partial differential equation (PDE) constrained optimization.}
+\title{Assessing paravascular transport in the parenchyma by partial differential equation (PDE) constrained optimization}
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
 
@@ -360,7 +360,7 @@ The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figu
 \label{convergence}
 \end{figure}
 
-In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillations for $\alpha=1.0$, and each peak corresponds to a observation time. These oscillations are caused by the value selection of $\alpha$, which tries minimize $g$ between observation times.
+In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillations if $\alpha\gg\beta$ and the number of time-steps are much larger than the number of observations. For instance, as seen by the the pink line for $\alpha=1.0$ and $\beta=0.0001$ the peaks corresponds to a observations. These oscillations are caused by the strong weighting of $\alpha$, which leads to minimizing of $g$ between observation times. Further tests are documented in the Supplementary. 
 
 %It can be seen that more time-steps causes an increase number of iterations, but for some values the number of iterations decreases. These values share that $\alpha $ is a magnitude 2 lower than $ \beta$,i.e $\alpha=1.0e-2$ and $\beta =1.0$. This indicates that $\alpha $ should be smaller than $\beta$ to achieve optimal convergence. However, the number of iterations in Table ~\ref{Tab::1} are smaller for all regularization parameters. 
 
@@ -488,11 +488,11 @@ In Table~\ref{Tab::Real-data}, it was shown that the grey matter diffusion coeff
 Previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that diffusion dominates in the interstitium. Furthermore, 
 ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two
 to diffusion for solute transportation. If we take into account then that the vasculature occupy 3-5\% of the volume
-of the brain and the paravascular space presumably occupy less space, then the factor 30\% (?) that we find here 
+of the brain and the paravascular space presumably occupy less space the 42-100\% that we find here 
 seems significant and it is difficult to explain or ignore.      
 
-In summary, using this model, we estimated diffusion coefficients that were 43-100\% larger than estimated by DTI acquisitions. Our results indicate that dissipation of solutes along the paravascular rout has a factor of 30, as compared to diffusion alone. However, the present study did not examine whether transport is by convective mechanisms.
-
+%In summary, using this model, we estimated diffusion coefficients that were 42-100\% larger than estimated by DTI acquisitions. Our results indicate that dissipation of solutes along the paravascular rout has a factor of 30, as compared to diffusion alone. However, the present study did not examine whether transport is by convective mechanisms.
+%
 
  
 %\section{Conclusion}
