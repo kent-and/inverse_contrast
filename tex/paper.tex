@@ -339,7 +339,9 @@ For the boundary parameter $g$, the relative error norm is defined as
 \begin{equation}
 || g ||\sp{rel} = \frac{ \sum\limits_{t_j} || g_{found}(t_j) -g_{true}(t_j)||_{L^2(\Omega_1)} }{  \sum\limits_{t_j}||g_{true}(t_j)||_{L^2(\Omega_1)} }
 \end{equation}
-The case when the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{TAB::timesteps}, Table~\ref{TAB::double} and Table~\ref{Tab::Noise0.3}
+The case when the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{Tab::Noise0.3}
+
+
 
 \subsubsection{The relaxation parameters}
 
@@ -360,7 +362,8 @@ The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figu
 \label{convergence}
 \end{figure}
 
-In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillations if $\alpha\gg\beta$ and the number of time-steps are much larger than the number of observations. For instance, as seen by the the pink line for $\alpha=1.0$ and $\beta=0.0001$ the peaks corresponds to a observations. These oscillations are caused by the strong weighting of $\alpha$, which leads to minimizing of $g$ between observation times. Further tests are documented in the Supplementary. 
+In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillations if $\alpha\gg\beta$ and the number of time-steps are much larger than the number of observations. For instance, as seen by the the pink line for $\alpha=1.0$ and $\beta=0.0001$ the peaks corresponds to a observations. These oscillations are caused by the strong weighting of $\alpha$, which leads to minimizing of $g$ between observation times. 
+Tests with variation in the number of timesteps and observations are documented in the Supplementary. 
 
 %It can be seen that more time-steps causes an increase number of iterations, but for some values the number of iterations decreases. These values share that $\alpha $ is a magnitude 2 lower than $ \beta$,i.e $\alpha=1.0e-2$ and $\beta =1.0$. This indicates that $\alpha $ should be smaller than $\beta$ to achieve optimal convergence. However, the number of iterations in Table ~\ref{Tab::1} are smaller for all regularization parameters. 
 
@@ -379,7 +382,7 @@ In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillati
 The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
 different noise levels with $\alpha=0.0001$,$\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
-In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$.  
+In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$. Results with noise  amplitudes at 0.03 are listed in the Supplementary. 
 
 
 \begin{figure}
