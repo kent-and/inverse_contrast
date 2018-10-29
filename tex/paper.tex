@@ -202,7 +202,7 @@ Using the following definitions
 T_w    &= TR - T_a -T_b(m-1)       .\\
 \end{aligned}
 \end{equation}
-Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $T_1$ is the longitudinal(spin-lattice) relaxation time for a given medium. The $M_0$ is a calibration constant of the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI-contrast. Given \eqref{EQ::SI} we have that the relative signal increase can be written as 
+Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $M_0$ is a calibration constant for the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI-contrast. Given \eqref{EQ::SI} we have that the relative signal increase can be written as 
 \begin{equation}
 \frac{S\sp{c}}{S\sp{0}} = \frac{ M_{n}\sp{c} \sin (\theta)}{ M_{n}\sp{0} \sin (\theta) }.
 \end{equation}
@@ -263,7 +263,7 @@ In \citet{sykova2008diffusion}, it was shown that the macroscopic diffusion in t
 with $\lambda$ denoted as the tortuosity.
 In order to estimate the apparent diffusion coefficient involved in the contrast transportation shown in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation. 
 Then we constructed an optimization problem with the aim to minimize the difference between the observed and the modeled contrast distribution by optimizing the boundary conditions and the apparent diffusion coefficient.%Then we solve a PDE constrained optimization problem where the tracer distribution, boundary conditions, and apparent diffusion coefficient are solved for by optimizing with respect to the observed tracer distribution \lars{Ikke helt oversiktlig}. 
-Thus enhanced transportation because of effects such as dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI.The objective function was defined as 
+Thus enhanced transportation because of effects such as dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI. The objective function was defined as 
 \begin{equation}
 \min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_1} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2} \right) \mathrm{d}\Omega \mathrm{d}t  
 \label{EQ::objf}
@@ -307,7 +307,7 @@ The initial condition was set to 0 everywhere, the timestep was $dt = 0.2$, and 
 \begin{equation}
 D_{\Omega_1} = 1000.0, \quad D_{\Omega_2} = 4.0, \quad D_{\Omega_3} = 8.0 
 \end{equation}  
-The magnitude order for $D_{\Omega_1} $ and $D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. In \citet{Haga}, the drug concentration moved 1 cm per 20 seconds in the cervical region, thus $D_{\Omega_3}$  was set to 1000. The manufactured forward computation produced a total of 120 possible observation times.
+The magnitude order for $D_{\Omega_1} $ and $D_{\Omega_2}$ were chosen to resemble diffusion coefficient for water in grey and white matter, but the relation between the coefficients were not preserved. In \citet{Haga}, the drug concentration moved 1 cm per 20 seconds in the cervical region, thus $D_{\Omega_1}$  was set to 1000. The manufactured forward computation produced a total of 120 possible observation times.
 
 
 \subsection{Implementation}
@@ -336,7 +336,7 @@ For the boundary parameter $g$, the relative error norm is defined as
 \begin{equation}
 || g ||\sp{rel} = \frac{ \sum\limits_{t_j} || g_{found}(t_j) -g_{true}(t_j)||_{L^2(\Omega_1)} }{  \sum\limits_{t_j}||g_{true}(t_j)||_{L^2(\Omega_1)} }
 \end{equation}
-The case when the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{Tab::Noise0.3}
+The case when the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{Tab::Noise0.3}.
 
 
 
@@ -355,7 +355,7 @@ The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figu
 \label{convergence}
 \end{figure}
 
-In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillations if $\alpha\gg\beta$ and the number of time-steps are much larger than the number of observations. For instance, as seen by the the pink line for $\alpha=1.0$ and $\beta=0.0001$ the peaks corresponds to a observations. These oscillations are caused by the strong weighting of $\alpha$, which leads to minimizing of $g$ between observation times. 
+In Figure~\ref{boundarycontrol} we can see that more time-steps causes oscillations if $\alpha\gg\beta$ and the number of time-steps are much larger than the number of observations. For instance, as seen by the the pink line for $\alpha=1.0$ and $\beta=0.0001$ the peaks corresponds to a observation. These oscillations are caused by the strong weighting of $\alpha$, which leads to minimizing of $g$ between observation times. 
 Tests with variation in the number of timesteps and observations are documented in the Supplementary. 
 
 %It can be seen that more time-steps causes an increase number of iterations, but for some values the number of iterations decreases. These values share that $\alpha $ is a magnitude 2 lower than $ \beta$,i.e $\alpha=1.0e-2$ and $\beta =1.0$. This indicates that $\alpha $ should be smaller than $\beta$ to achieve optimal convergence. However, the number of iterations in Table ~\ref{Tab::1} are smaller for all regularization parameters. 
@@ -369,7 +369,7 @@ Tests with variation in the number of timesteps and observations are documented 
 
 \subsubsection{The noise susceptibility}
 The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was performed for various regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
-different noise levels with $\alpha=0.0001$,$\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
+different noise levels with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$. Results with noise  amplitudes at 0.03 are listed in the Supplementary. 
 
