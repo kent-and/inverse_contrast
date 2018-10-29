@@ -15,7 +15,7 @@
 \newcommand{\kam}[1]{\textcolor{blue}{#1}}
 \newcommand{\fixme}[1]{\textcolor{orange}{#1}}
 \newcommand{\lars}[1]{\textcolor{magenta}{#1}}
-\author{Lars Magnus Valnes, Sebastian K. Mitusch, Geir A. Ringstad, \\ 
+\author{Lars Magnus Valnes, Sebastian K. Mitusch, Geir Ringstad, \\ 
 Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 
 
@@ -46,7 +46,7 @@ aim to quantify long-term (hours/days) transfer mechanism in the brain.
 %representing extra-cellular diffusion and possibly dissipation caused by the glymphatic system.
 \end{abstract}
 \section{Introduction}
-In 2012, ~\citet{iliff2012paravascular} provided evidence for a a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during sleep ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 \citet{eide2015mri}, and in 2018 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
+In 2012, ~\citet{iliff2012paravascular} provided evidence for a a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 by \citet{eide2015mri}, and in 2018 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
 Several aspects of the glympahtic system are still debated, for example whether glymphatic transport of solutes is by convective mechanisms or by diffusion.
 
 %Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
@@ -97,7 +97,8 @@ and changes significantly during the 24 hours of the investigations.
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}. As such, the sparseness in time prevents a direct computation of the diffusion coefficients.
 
 The work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
-that diffusion was a governing transport mechanism in the brain and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194}, while subjects with dementia typically have higher value and variation \cite{goujon2018can}. Of course diffusion coefficients, 
+that diffusion was a governing transport mechanism in the brain and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
+while subjects with dementia typically have higher value and variation \cite{goujon2018can} . Of course diffusion coefficients, 
 measured by DTI at a time-scale of 7-30 minutes, may not be representative for the process on a
 longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around 3\% of the brain volume  \cite{nicholson2001diffusion},
 and the paravascular network is substantially smaller potentially renders the paravascular transport  invisible at the short time-scales of a DTI acquisition while it may still be effective on longer time scales. 
@@ -214,12 +215,12 @@ This gives the following relation
 \begin{equation}
 \frac{f(T_{1}\sp{c} ) }{f(T_{1}\sp{0})}  = \frac{S\sp{c}}{S\sp{0}} 
 \end{equation}
-The signal difference between observation times were adjusted in \cite{eidevalnes}. Thus we can express the change in $T_1$ due to tracer as 
+The signal difference between observation times were adjusted in \cite{ringstad2018brain}. Thus we can express the change in $T_1$ due to tracer as 
 \begin{equation}
 f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
 and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping of the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patients specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
-The tracer concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{eidevalnes} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline signal increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
+The tracer concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{ringstad2018brain} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline signal increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
 
 \begin{figure}
 \centering
@@ -247,7 +248,7 @@ In these equations $\lambda_i$ denotes the eigenvalues of the diffusion tensor.
 \begin{figure}
 \centering
 \includegraphics[width=0.80\textwidth]{DTI-zoom.png} 
-\caption{The left panel show the anatomical map. The middle panel show the apparent diffusion coefficients (ADC) obtained from DTI. The right panel shows the computed fractional anisotropy (FA) from the DTI.}
+\caption{The left panel shows the anatomical map. The middle panel shows the apparent diffusion coefficients (ADC) obtained from DTI. The right panel shows the computed fractional anisotropy (FA) from the DTI.}
 \label{figuredti} 
 \end{figure}
 
@@ -283,7 +284,7 @@ The Dirichlet boundary condition is only applied on the outer facing boundary of
 The $\alpha$ and $\beta$ parameters are non-negative regularization parameters 
 and $u_{obs}$ are the observations at time-points $t_i$. 
 
-The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used to segment and create the polyhedral surfaces of the white and grey matter. Then the T2 weighted MRI \cite{eidevalnes} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construct the mesh. The computational requirement for the resulting mesh was significant, therefore two submeshes was also constructed, see Figure~\ref{Fig::Mesh}.
+The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used to segment and create the polyhedral surfaces of the white and grey matter. Then the T2 weighted MRI \cite{ringstad2018brain} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construct the mesh. The computational requirement for the resulting mesh was significant, therefore two submeshes was also constructed, see Figure~\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{mesh.png} 
@@ -380,7 +381,7 @@ Tests with variation in the number of timesteps and observations are documented 
 
 
 \subsubsection{The noise susceptibility}
-The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was solved by varying the regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
+The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was performed for various regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
 different noise levels with $\alpha=0.0001$,$\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$. Results with noise  amplitudes at 0.03 are listed in the Supplementary. 
@@ -419,8 +420,7 @@ The estimation of tracer concentration proved difficult in the CSF compartment. 
 The results are shown in Table~\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data}, it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\mathrm{e}{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$.
 
 \subsubsection{Comparison with results obtained from DTI analysis}
- 
-The median diffusion coefficient in the DTI was estimated to be $8.7\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ in white matter and $1.0\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\mathrm{e}{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. Then the reference value $3.8\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $1.10\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
+The median diffusion coefficient in the DTI was estimated to be $8.7\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ in white matter and $1.0\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\mathrm{e}{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. The reference value $3.8\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA then gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $1.10\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
 
 The oscillation in Figure~\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure~\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0\mathrm{e}{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values $\alpha$. Excluding the values with $\alpha=1.0\mathrm{e}{-2}$ gives an average of $ 0.65 \mathrm{mm\sp{2}/h}$ in grey matter and $ 0.8 \mathrm{mm\sp{2}/h}$ in and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $2.22\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$. This gives a difference of 42\% in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
 
@@ -468,21 +468,21 @@ In Figure~\ref{Fig::realdata}, it can be seen that there were regions with negli
 \section{Discussion}
 The methodology presented here for identification of diffusion coefficients and boundary conditions with application to the glymphatic system appears to work quite 
 well for regularization parameters varying by orders of magnitude. The regularization parameters  $\alpha \in \lbrace 1.0\mathrm{e-6}, 1.0\mathrm{e}{-2} \rbrace$, $\beta \in \lbrace 1.0\mathrm{e}{-2} , 1.0 \rbrace$ with the requirement $\alpha / \beta < 1.0\mathrm{e}{-2}$ gave a relative error of  
-4.1\% in grey matter and 3.6 \% in white matter. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
-in the Figures ~\ref{12hourswithnoise} and ~\ref{24hourswithnoise} with noise amplitude of 23\% of maximum value. However, the addition of noise required that $\beta = 1.0 $ to obtain consistent convergence. 
+4.1\% in grey matter and 3.6 \% in white matter when tested against a manifactured solution. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
+in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise amplitude of 23\% of maximum value. However, the addition of noise required that $\beta = 1.0 $ to obtain consistent convergence. 
 Crucial in our application is the interplay between the regularization term that regulates the smoothness of the boundary conditions as well as the integrated magnitude of the boundary conditions over time, i.e. $\alpha$ and $\beta$. Further, we observed that the importance of interplay of these parameters increases with the number of time steps. This is, however, not surprising because our observations are sparse
 in time and hence an oscillating boundary condition in time will minimize the integrated boundary condition at the cost of reducing the smoothness in time. The selected range of regularization parameters showed a decrease in error with more timesteps, rather than oscillation.     
 
 While a more comprehensive study involving more patients would be required in order to assess clearance in health and disease, a few remarks here are in order. 
 First of all, the process investigated here is the clearance of Gadovist from CSF into the interstitium which may differ from the clearance of metabolic waste 
 from the interstitium via the CSF. That said, 
-we find that the diffusion coefficients is 42-100\% larger than what was found by the DTI modality. As such, we predict that the paravascular system 
+we find that the diffusion coefficients is 42\% larger in grey matter and 100\% larger in white matter than what was found by the DTI modality. As such, we predict that the paravascular system 
 plays a significant role.  
 However, we have not yet been able to assess the self-diffusion of water as well as the diffusivity of Gadovist used in this study with phantom models. As such 
 the values used with \eqref{tortuosity} must be taken with caution. Furthermore,    
 the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Figure~\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of tracer present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observations of tracer in regions with anisotropy can be considered a requirement before adding anisotropy to the model.
 
-The computational model uses 2 global controls for the diffusion coefficients, while it can be seen in  Figure~\ref{figuredti} that diffusion coefficients can be considered a spacial function. However, the implementation of control parameters for each degree of freedom would significantly increase the computational cost. Since the diffusivity appears to be regional, using region specific control parameters seems to be a better option.
+The computational model uses 2 global controls for the diffusion coefficients, while it can be seen in  Figure~\ref{figuredti} that diffusion coefficients can be considered a spatial function. However, the implementation of control parameters for each degree of freedom would significantly increase the computational cost and increase the demand for regularization. Since the diffusivity appears to be regional, using region specific control parameters seems to be a better option.
 It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of increased clearance in rodents during sleep \cite{xie2013sleep}. This would indicate a time-dependent diffusivity, given that the clearance in the brain is driven by diffusion. %The time-dependency would correspond to a change in tortuosity, since properties of the tracer molecule do not change.
 The hypothesis of the glymphatic system \cite{iliff2012paravascular} states that the waste is cleared through the veins in the parenchyma. This gives the tracer additional pathways that is not considered in the computational model. These additional pathways can be modeled as a drainage, which can be included as a control source term. 
 
@@ -493,7 +493,7 @@ Previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that
 ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two
 to diffusion for solute transportation. If we consider that the vasculature system occupy 3\% of the brain volume
 %of the brain 
-and that the paravascular space presumably occupy less space. Then the 42-100\% that we find here seems significant and it is difficult to explain or ignore.     
+and the paravascular space presumably occupy less space. Then the 42\% increase in grey matter and 100\% in white matter that we find here seem significant and the results point towards of the glymphatic clearance.  
 %In summary, using this model, we estimated diffusion coefficients that were 42-100\% larger than estimated by DTI acquisitions. Our results indicate that dissipation of solutes along the paravascular rout has a factor of 30, as compared to diffusion alone. However, the present study did not examine whether transport is by convective mechanisms.
 %
 
