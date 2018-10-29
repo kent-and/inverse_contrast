@@ -368,7 +368,7 @@ Tests with variation in the number of timesteps and observations are documented 
 \end{figure}
 
 \subsubsection{The noise susceptibility}
-The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done by pointwise adding uniform distributed noise in the range $\lbrace -n_{amp} , n_{amp} \rbrace $, with $n_{amp}$ defined as noise amplitude, to the manufactured observations. Then the optimization was performed for various regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
+The MRI data contains noise, hence an investigation to the noise susceptibility is needed. This was done varying the noise amplitude, and then the optimization was performed for various regularization parameters $\alpha$ and $\beta$. Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise} show the reconstruction of the manufactured solution at
 different noise levels with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. Clearly, the reconstruction shown in the lower rows is quite robust with respect to the various levels
 of noise shown in the upper rows.      
 In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maximum initial condition), which gave a visible effect. The noise caused the number of iteration to increase, and with more timesteps caused the optimization not to convergence for $\beta < 1.0$. Furthermore, the relative boundary error $||g||\sp{rel}$ is significantly larger for $\alpha< 1.0\mathrm{e}{-2} $ and $\beta < 1.0\mathrm{e}{-2}$. Results with noise  amplitudes at 0.03 are listed in the Supplementary. 
