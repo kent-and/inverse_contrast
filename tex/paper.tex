@@ -46,7 +46,7 @@ aim to quantify long-term (hours/days) transfer mechanism in the brain.
 %representing extra-cellular diffusion and possibly dissipation caused by the glymphatic system.
 \end{abstract}
 \section{Introduction}
-In 2012, ~\citet{iliff2012paravascular} provided evidence for a a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 by \citet{eide2015mri}, and in 2018 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
+In 2012, ~\citet{iliff2012paravascular} provided evidence for a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The glymphatic system seems to become impaired during aging, and failure of the glymphatic system may play a role in neurodegenerative disease and development of Alzheimer's disease. Evidence for a brain-wide glymphatic system in humans was first obtained in 2015 by \citet{eide2015mri}, and in 2018 \citet{ringstad2018brain} provided evidence that glymphatic function is deteriorated in individuals with dementia, as compared to controls.
 Several aspects of the glympahtic system are still debated, for example whether glymphatic transport of solutes is by convective mechanisms or by diffusion.
 
 %Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
@@ -98,7 +98,7 @@ Furthermore, images were obtained only at a few time-points during the investiga
 
 The work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
 that diffusion was a governing transport mechanism in the brain and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
-while subjects with dementia typically have higher value and variation \cite{goujon2018can} . Of course diffusion coefficients, 
+while subjects with dementia typically have higher value and variation \cite{goujon2018can}. Of course diffusion coefficients, 
 measured by DTI at a time-scale of 7-30 minutes, may not be representative for the process on a
 longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around 3\% of the brain volume  \cite{nicholson2001diffusion},
 and the paravascular network is substantially smaller potentially renders the paravascular transport  invisible at the short time-scales of a DTI acquisition while it may still be effective on longer time scales. 
@@ -202,7 +202,7 @@ Using the following definitions
 T_w    &= TR - T_a -T_b(m-1)       .\\
 \end{aligned}
 \end{equation}
-Here $T_b$ is known as the echo spacing, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $M_0$ is a calibration constant for the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI-contrast. Given \eqref{EQ::SI} we have that the relative signal increase can be written as 
+Here $T_b$ is known as the echo spacing time, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $M_0$ is a calibration constant for the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI-contrast. Given \eqref{EQ::SI} we have that the relative signal increase can be written as 
 \begin{equation}
 \frac{S\sp{c}}{S\sp{0}} = \frac{ M_{n}\sp{c} \sin (\theta)}{ M_{n}\sp{0} \sin (\theta) }.
 \end{equation}
@@ -220,7 +220,7 @@ The signal difference between observation times were adjusted in \cite{ringstad2
 \begin{equation}
 f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
 \end{equation}
-and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping of the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patients specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
+and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping of the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patient specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
 The contrast concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{ringstad2018brain} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline signal increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
 
 \begin{figure}
@@ -262,8 +262,7 @@ In \citet{sykova2008diffusion}, it was shown that the macroscopic diffusion in t
 \end{equation}
 with $\lambda$ denoted as the tortuosity.
 In order to estimate the apparent diffusion coefficient involved in the contrast transportation shown in Figure~\ref{fig1} we assume that the process can be modeled by a diffusion equation. 
-Then we constructed an optimization problem with the aim to minimize the difference between the observed and the modeled contrast distribution by optimizing the boundary conditions and the apparent diffusion coefficient.%Then we solve a PDE constrained optimization problem where the tracer distribution, boundary conditions, and apparent diffusion coefficient are solved for by optimizing with respect to the observed tracer distribution \lars{Ikke helt oversiktlig}. 
-Thus enhanced transportation because of effects such as dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI. The objective function was defined as 
+Then we constructed an optimization problem with the aim to minimize the difference between the observed and the modeled contrast distribution by optimizing the boundary conditions and the apparent diffusion coefficient. Thus enhanced transportation because of effects such as dissipation would result in an apparent diffusion coefficient larger than that predicted by DTI. The objective function was defined as 
 \begin{equation}
 \min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_1} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2} \right) \mathrm{d}\Omega \mathrm{d}t  
 \label{EQ::objf}
@@ -295,10 +294,9 @@ The mesh construction was patient-specific and used the MRI of a patient diagnos
 The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Figure~\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. 
 
 \subsection{Manufactured Solution}
-In order to asses the robustness and accuracy of our strategy and test the dependency of the computed diffusion coefficients $D$ on the
+In order to assess the robustness and accuracy of our strategy and test the dependency of the computed diffusion coefficients $D$ on the
 regularization parameters $\alpha$ and $\beta$, we perform a test case with a
-known solution.  
-The manufactured observations were obtained by forward computation of \eqref{Eq::PDE} with the Dirichlet boundary condition defined as
+known solution. The manufactured observations were obtained by forward computation of \eqref{Eq::PDE} with the Dirichlet boundary condition defined as
 \begin{equation}
 g(t) = 0.3 +0.167t - 0.007t\sp{2} \qquad \text{ for } 0 \leq t \leq 24.
 \label{EQ::DIRI}
@@ -343,9 +341,9 @@ The case when the minimization algorithm fails to converge within 1000 iteration
 \subsubsection{The relaxation parameters}
 The convergence as well as the result of the minimization is influenced by the values of the regularization parameters $\alpha$ and $\beta$. Therefore the convergence was examined by a systematic study of the reconstruction of the manufactured solution with respect to a wide range of regularization parameters. 
 
-Ideally, our approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although the convergence may vary substantially. The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and comparing the computed $D$ and $g$ values with the manufactured solution. The observation times were set to $\lbrace$ 2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps $k$ in the forward problem was set to $10$. 
+Ideally, our approach should have a wide range of parameters in which the reconstruction algorithm yields very similar end-results although the convergence may vary substantially. The evaluation of different regularization parameters was done by solving the optimization with different values of $\alpha$ and $\beta$ and comparing the computed $D$ and $g$ values with the manufactured solution. The observation times were set to $\lbrace$2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0 $\rbrace$, and the number of time-steps $k$ in the forward problem was set to $10$. 
 
-The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figure~\ref{convergence}. We can see that the optimization computed similar end-result for most regularization parameters. More specifically, for $\alpha \leq 1\mathrm{e}{-2}$ and $\beta \leq 1e-0$ the relative errors for all optimization parameters are below $5\%$.However, in the case of $ \alpha=1.0$ the relative error is over 100\% higher then for other values of $\alpha$. Furthermore, for all $\beta=100.0$ there is about 70\% relative error for $D_{\Omega_1}$ and approximate 10\% error for $D_{\Omega_2}$. From the results it can be discerned that $\alpha =1.0$ and $\beta=100.0$ represent an upper threshold where the observations are no longer the dominant term in the objective functional.  
+The results are shown in Table~\ref{Tab::1} and the convergence is shown in Figure~\ref{convergence}. We can see that the optimization computed similar end-result for most regularization parameters. More specifically, for $\alpha \leq 1\mathrm{e}{-2}$ and $\beta \leq 1e-0$ the relative errors for all optimization parameters are below $5\%$.However, in the case of $ \alpha=1.0$ the relative error is over 100\% higher than for other values of $\alpha$. Furthermore, for all $\beta=100.0$ there is about 70\% relative error for $D_{\Omega_1}$ and approximate 10\% error for $D_{\Omega_2}$. From the results it can be discerned that $\alpha =1.0$ and $\beta=100.0$ represent an upper threshold where the observations are no longer the dominant term in the objective functional.  
 
 
 \begin{figure}
@@ -377,7 +375,7 @@ In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maxi
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{noise-12.png}  
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with an noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
+\caption{The upper row shows the manufactured observation, A) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with noise amplitude of 0.15. C) Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
 \label{12hourswithnoise}
 \end{figure}
 
@@ -385,14 +383,14 @@ In Table~\ref{Tab::Noise0.3} the noise amplitude was set to 0.3 (100$\%$ of maxi
 \begin{figure}
 \centering
 \includegraphics[scale=0.4]{noise-24.png}
-\caption{The upper row shows the manufactured observation, A ) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with a noise amplitude of 0.15. C)Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
+\caption{The upper row shows the manufactured observation, A) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation at time-point 24 with noise amplitude of 0.15. C) Shows the manufactures observation at time-point 24 with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C.  }
 \label{24hourswithnoise}
 \end{figure}
 
 \subsection{A Real case} 
 
 \subsubsection{Results obtained when using real observations}
-The MRI data consisted of the observations at times $t_i \in \lbrace$0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24., 48., 698.$\rbrace \mathrm{(hours)}$ with the time $t_i=0.00$ as the observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations at $\lbrace$0.00, 0.16, 0.39, 0.55, 0.77$\rbrace$. This prompted the use of the following observation times  $\lbrace0.00, 2.09, 6.05, 24., 48.\rbrace$. 
+The MRI data consisted of the observations at times $t_i \in \lbrace$0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24, 48, 698$\rbrace \mathrm{(hours)}$ with the time $t_i=0.00$ as the observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations at $\lbrace$0.00, 0.16, 0.39, 0.55, 0.77$\rbrace$. This prompted the use of the following observation times  $\lbrace0.00, 2.09, 6.05, 24, 48\rbrace$. 
 
 The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\mathrm{e}{-1}$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 \mathrm{h}$ and $dt = 1 \mathrm{h}$.   
 
@@ -533,7 +531,7 @@ $\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel
 \centering
 \caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.3, and $t_i =[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$  }
 \begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel} $ \\
+$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel}$ & $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $ & $||g||\sp{rel} $ \\
 \hline
  1.0e-02 	 & 1.0e+00 	 & 10 & 144 	 & +0.012 & +0.055 & +0.027 & +0.036 \\ 
  1.0e-02 	 & 1.0e-02 	 & 10 & 476 	 & -0.009 & +0.049 & +0.035 & +0.051 \\ 
@@ -612,7 +610,7 @@ The results are given in Table~\ref{TAB::timesteps}. It can be seen for all $\al
 
 \begin{table}
 \centering
-\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observations times were chosen $ t_i=[2.4, 4.8,$ 7.2, 9.6, 12.0, 14.4, $16.8, 19.2, 21.6, 24.0]$ }
+\caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observations times were chosen $ t_i=[2.4,  4.8,$ 7.2, 9.6, 12.0, 14.4, $16.8, 19.2, 21.6, 24.0]$ }
 \begin{tabular}{*{8}c}
 $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $&$|| g ||\sp{rel} $ \\
 \hline
@@ -676,7 +674,7 @@ The results for 5 observations is shown in Table~\ref{TAB::half} and for 20 obse
 \centering
 \caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were set $t_i = [ 4.8, 9.6, 14.4, 19.2, 24.0 ] $. }
 \begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $&$|| g ||\sp{rel} $ \\
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $ & $D_{\Omega_3}\sp{rel} $& $||g||\sp{rel} $ \\
 \hline
  1.0e-02 	 & 1.0e+00 	 & 10 & 151 	 & +0.095 & +0.015 & +0.028 & +0.020 \\ 
  1.0e-02 	 & 1.0e+00 	 & 20 & 165 	 & +0.092 & -0.001 & -0.001 & +0.008 \\ 
@@ -723,7 +721,7 @@ $\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$& $D_{\Omega_2}\sp{rel} $
 \centering
 \caption{ Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated diffusion coefficients and the relative error for $g$. The observation times were $t_i = [ $1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4, 9.6, 10.8, 12.0, 13.2, 14.4, 15.6, 16.8, 17.0, 19.2, 20.4,$ 21.6, 22.8, 24.0 ]$.}
 \begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel} $ & $|| g ||\sp{rel} $ \\
+$\alpha$ & $\beta$ & k & iter & $ D_{\Omega_1}\sp{rel}$ & $ D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel} $ & $||g||\sp{rel} $ \\
 \hline
 
  1.0e-02 	 & 1.0e+00 	 & 10 & 250 	 & -0.038 & +0.035 & +0.019 & +0.033 \\ 
@@ -775,7 +773,7 @@ In Table~\ref{Tab::Noise0.03}, we can see that a noise amplitude of 0.03, (10$\%
 \centering
 \caption{Shows the relaxation parameters $\alpha$ and $\beta$, number of timesteps $k$, the resulting number of iterations, the relative error of the estimated optimal parameters for the diffusion coefficients and the relative error for $g$. The noise amplitude was set to 0.03, and $ t_i=[2.4, 4.8, 7.2, 9.6, 12.0, 14.4, 16.8, 19.2, 21.6, 24.0]$ }
 \begin{tabular}{*{8}c}
-$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel} $ & $D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel}$ & $|| g ||\sp{rel} $\\
+$\alpha$ & $\beta$ & k  & iter & $ D_{\Omega_1}\sp{rel} $ & $D_{\Omega_2}\sp{rel}$ & $D_{\Omega_3}\sp{rel}$ & $||g||\sp{rel} $\\
 \hline
  1.0e-02 	 & 1.0e+00 	 & 10 & 151 	 & -0.030 & +0.041 & +0.036 & +0.026 \\ 
  1.0e-02 	 & 1.0e-02 	 & 10 & 120 	 & -0.032 & +0.039 & +0.036 & +0.026 \\ 
