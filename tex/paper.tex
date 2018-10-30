@@ -8,7 +8,7 @@
 \usepackage{subcaption}
 \usepackage[numbers]{natbib}
 
-\title{Assessing paravascular transport in the parenchyma by partial differential equation (PDE) constrained optimization}
+\title{Assessing paravascular transport in the brain by partial differential equation (PDE) constrained optimization}
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
 
@@ -25,7 +25,7 @@ Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 \begin{abstract}
 The proposed glymphatic system suggests a new mechanism for waste clearance from the brain, and has sparked new research on Alzheimer's disease where one of the defining features
 is that metabolic waste accumulate within the brain. The glympahtic hypothesis is still controversial, but experimental investigations in rodents as well as novel MRI investigations in humans indicates the existence of such a system. A proper theoretical foundation 
-that explains the fluid transfer mechanisms from first principles however is currently missing.
+that explains the fluid transfer mechanisms from first principles is however currently missing.
 In particular, a crucial question in the current debate is how much the system accelerate
 waste clearance when compared to extracellular diffusion alone. Therefore
 we will in this paper evaluate to what extent partial differential constrained optimization methods can be used to identify modeling parameters for glymphatic transport. We assume that the transport can be modeled by a diffusion equation, representing extracellular diffusion and possibly dissipation caused by the glymphatic system. The observations are obtained from novel MRI techniques that
@@ -97,9 +97,9 @@ and changes significantly during the 24 hours of the investigations.
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}. As such, the sparseness in time prevents a direct computation of the diffusion coefficients.
 
 The work of Sykov{\'a} and Nicholson~\cite{sykova2008diffusion} demonstrated
-that diffusion was a governing transport mechanism in the brain and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
+that diffusion was a governing transport mechanism in the brain at short time-scales and with an estimated order of magnitude $1.0\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for large molecules. This is confirmed with diffusion tensor imaging (DTI) where young and healthy subjects have typical diffusion values in white matter around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
 while subjects with dementia typically have higher value and variation \cite{goujon2018can}. Of course diffusion coefficients, 
-measured by DTI at a time-scale of 7-30 minutes, may not be representative for the process on a
+measured by DTI at short time-scales may not be representative for the process on a
 longer time-scale, at least if the paravascular pathway plays an important role. The fact that the vascular system occupies around 3\% of the brain volume  \cite{nicholson2001diffusion},
 and the paravascular network is substantially smaller potentially renders the paravascular transport  invisible at the short time-scales of a DTI acquisition while it may still be effective on longer time scales. 
 
@@ -108,7 +108,7 @@ Our purpose in this paper is to attempt a more rigorous methodology
 for assessing the paravascular transport process where
 the complex geometry of the brain as well as time-scales of hours or days are taken into account.
 %That is,
-Thus we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to magnetic resonance imaging (MRI) data. If the fit between observation and model is good and we identify diffusion coefficients that are 
+Thus we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to MRI data taken at multiple time-points in which the contrast is spreading through the brain. If the fit between observation and model is good and we identify diffusion coefficients that are 
 in line with those predicted by DTI then paravascular transport can be ignored on the scale of our study. 
 Our approach is to solve an optimization problem constrained by a partial differential equation (PDE) using the adjoint method where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
 the complete domain. Hence, the challenges faced from a mathematical point of view 
@@ -119,7 +119,8 @@ Therefore we need to assess the sensitivity of the approach with respect to impo
 %As such we need to assess the sensitivity of the approach with respect to important parameters such as the regularization parameters, noise levels and  time resolution to determine whether this approach is a viable method to obtain parameters involved time-scales. 
 We remark that the purpose
 of this paper is a systematic study of the mathematical challenges and that assessing  
-whether clearance is governed by a process that is faster than diffusion is not the topic of the current paper. 
+whether clearance is governed by a process that is faster than diffusion is not the topic of the current paper, 
+for that we would need to study several subjects. 
 
 An outline of the paper is as follows. 
 In Section 2 we present the methodology of the paper. Section 2.1-2.3 contains a detailed description of the medical imaging 
