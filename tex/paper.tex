@@ -7,7 +7,7 @@
 \usepackage{geometry}
 \usepackage{subcaption}
 \usepackage[numbers]{natbib}
-
+\usepackage{authblk}
 \title{Assessing paravascular transport in the brain by partial differential equation (PDE) constrained optimization}
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
@@ -15,9 +15,25 @@
 \newcommand{\kam}[1]{\textcolor{blue}{#1}}
 \newcommand{\fixme}[1]{\textcolor{orange}{#1}}
 \newcommand{\lars}[1]{\textcolor{magenta}{#1}}
-\author{Lars Magnus Valnes, Sebastian K. Mitusch, Geir Ringstad, \\ 
-Per Kristian Eide, Simon W. Funke, Kent-Andre Mardal }
 
+
+
+\author{Lars Magnus Valnes$\sp{1}$, Sebastian K. Mitusch$\sp{3}$, Geir Ringstad$\sp{2}$, \\ 
+Per Kristian Eide$\sp{2}$, Simon W. Funke$\sp{3}$, Kent-Andre Mardal$\sp{1,3}$   }
+\affil{ $\sp{1}$University of Oslo, Department of Mathematics \\ $\sp{2}$Oslo University Hospital, Rikshospitalet \\ $\sp{3}$Simula Research Laboratory}
+
+%Lars M.Valnes 1
+%Geir Ringstad 2 , Per K.Eide 2 , Sebastian Mitusch 3 ,
+%Simon Funke 3 and Kent-Andre Mardal 1,3
+%1
+%University of Oslo
+%Department of Mathematics
+%larsmva@math.uio.no
+%Oslo University Hospital
+%Rikshospitalet
+%2
+%3
+%Simula Research Laboratory
 
 \begin{document}
 \maketitle
@@ -141,13 +157,13 @@ its implementation in FEniCS. The exposition is, however, brief and we refer to 
 
 \subsection{MRI Data}
 \begin{figure}
-\includegraphics[width=0.95\textwidth]{PatID-68-new-100.png} 
+\includegraphics[width=0.95\textwidth]{PatID-new-100.png} 
 \caption{Shows the percentage change in T1 signal unit ratios from baseline at different observation times. The colorbar was restricted to the range $(0,100)$. }
 \label{fig1} 
 \end{figure}
 
 \begin{figure}
-\includegraphics[width=0.95\textwidth]{Zoom-PatID-68.png} 
+\includegraphics[width=0.95\textwidth]{Zoom-PatID.png} 
 \caption{Shows the percentage change in T1 signal unit ratios from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis. The color bar was restricted to the range $(0,100)$. }
 \label{fig2} 
 \end{figure}
