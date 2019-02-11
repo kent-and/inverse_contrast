@@ -287,7 +287,7 @@ subject to
 \begin{equation}
 \begin{aligned}
 \frac{\partial u}{\partial t} &= \nabla \cdot  D \nabla u && \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
-u&=g && \text{on} \qquad \partial\Omega  \times \left\lbrace 0 , T \right) 
+u&=g && \text{on} \qquad \partial\Omega_1  \times \left\lbrace 0 , T \right) 
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
@@ -312,7 +312,7 @@ The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral ce
 \subsection{Manufactured Solution}
 In order to assess the robustness and accuracy of our strategy and test the dependency of the computed diffusion coefficients $D$ on the
 regularization parameters $\alpha$ and $\beta$, we perform a test case with a
-known solution. The manufactured observations were obtained by forward computation of \eqref{Eq::PDE} with the Dirichlet boundary condition defined as \ficme{Dirichlet boundary $\Omega_1 }
+known solution. The manufactured observations were obtained by forward computation of \eqref{Eq::PDE} with the Dirichlet boundary condition defined as 
 \begin{equation}
 g(t) = 0.3 +0.167t - 0.007t\sp{2} \qquad \text{ for } 0 \leq t \leq 24.
 \label{EQ::DIRI}
@@ -431,9 +431,8 @@ in time and hence an oscillating boundary condition in time will minimize the in
 
 While a more comprehensive study involving more patients would be required in order to assess clearance in health and disease, a few remarks here are in order. 
 First of all, the process investigated here is the clearance of Gadovist from CSF into the interstitium which may differ from the clearance of metabolic waste 
-from the interstitium via the CSF. That said, 
-we find that the diffusion coefficients is 42\% larger in grey matter and 100\% larger in white matter than what was found by the DTI modality. As such, we predict that the paravascular system 
-plays a significant role.  
+from the interstitium via the CSF. \fixme{That said, 
+we find that the diffusion coefficients is 42\% larger in grey matter and 100\% larger in white matter than what was found by the DTI modality. As such, we predict that the paravascular system  plays a significant role.  }
 However, we have not yet been able to assess the self-diffusion of water as well as the diffusivity of Gadovist used in this study with phantom models. As such 
 the values used with \eqref{tortuosity} must be taken with caution. Furthermore,    
 the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Figure~\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of contrast present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observations of contrast in regions with anisotropy can be considered a requirement before adding anisotropy to the model.
