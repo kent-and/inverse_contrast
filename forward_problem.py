@@ -259,7 +259,7 @@ def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
             self.dt = (tau[-1]-tau[0])/float(len(g_list))
             self.ic = ic
             self.obs_file.write(ic, "0.0")
-            #self.pvd = File("sol.pvd") 
+            self.pvd = File("init.pvd") 
             #self.Exp = Expression("A+B*t-C*t*t", A=0.3, B=0.167,C=0.007 , t=0.0 , degree=1)
 
 
@@ -277,7 +277,7 @@ def generate_observations(mesh_config, V, D, g_list, ic, tau, output_file):
 
         def handle_solution(self, U):
             self.obs_file.write(U, "%0.2f"%self.t ) # Write observation
-            #self.pvd << (U,self.t)
+            self.pvd << (U,self.t)
         def next_bc(self):
             return DirichletBC(self.V, self.g, self.boundaries, 1)
 
