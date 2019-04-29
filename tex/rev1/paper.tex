@@ -88,49 +88,8 @@ However, the paravascular compartments are small, probably less than the vascula
 due to its small volume, the paravascular compartment may be dominated by the extracellular compartment at short time-scales, while still being a
 significant contributor on longer time scales. 
 
-
-%Several aspects of the glympahtic system are still debated, for example whether glymphatic transport of solutes is by convective mechanisms or by diffusion.
-
-%Recent breakthroughs in medicine have linked neurodegenerative diseases like Alzheimer's to insufficient sleep through a novel fluid mechanism called the glymphatic system 
-%that is responsible for waste clearance. 
-%In 2011,~\citet{iliff2012paravascular} discovered a novel system within our brain's metabolic system, which changed our understanding of the brain. 
-%The system involves a new pathway, called the paravascular pathway as it runs in parallel with the vasculature system in a surrounding compartment.
-%The important novelty in the 2011 findings was that waste from the brain is cleared through the paravascular path, and that a malfunction of this system 
-%is linked to the development of dementia such as Alzheimer's and Parkinson's diseases. In 2013,~\citet{xie2013sleep} found
-%that this system is particularly active during sleep.
-%These mentioned breakthroughs were all performed in mice. In 2018, the action of the glymphatic system was for the first time demonstrated in humans. Further, it was shown that this action differs between healthy controls and patients with dementia~\cite{ringstad2018brain}.
-%However, the biomechanical mechanisms behind the glymphatic system is not well understood from a fluid mechanics perspective,
-%and so far the modeling attempts have mostly failed~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}. 
-%In particular the system seems to facilitate waste transport faster than  
-%the extracellular diffusion, which has been the prevailing paradigm since the pioneering works of \citet{sykova2008diffusion}.
-
-
-The biomechanical mechanisms are not well understood from a fluid mechanics perspective,
-and so far the modeling attempts have mostly failed~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}. 
-In particular the system seems to facilitate waste transport faster than  
-the extracellular diffusion, which has been the prevailing paradigm since the pioneering works of \citet{sykova2008diffusion}
-
-
-%A novel pathway of the brain's metabolism system called the paravascular pathway, because it runs in parallel with 
-%vasculature system in a surrounding compartment,  
-%was discoved in 2011~\cite{iliff2012paravascular}. 
-%%Later it was found that this system is particularly active during sleep~\cite{xie2013sleep}.  
-%It has been proposed that this pathway plays an important role in the clearance of waste
-%from the brain and hereby a malfunction of this system is linked to  the development of dementia such as Alzheimer's and Parkinson's diseases. That is, 
-%the lymphatic system plays a crucial role in waste clearance in the rest of our body, but there are no lymph vessels inside
-%the brain. As such, the metabolic process of the brain is not well understood and this is surprising since the brain is a very 
-%energy demanding organ (about 10 times as demanding as the average organ). The circulatory system of the paravascular pathway 
-%has therefore been named the glymphatic system~\cite{jessen2015glymphatic} as it has a similar role as the well-known lymphatic system and because the glia cells 
-%are crucial in this system.  
-%The glymphatic system remains controversial and modeling attempts
-%has so far mostly failed to explain the biomechanics of the system~\cite{asgari2016glymphatic, holter2017interstitial, smith2017glymphatic}\kam{Lars: vi trenger flere her}. A proper biomechanical 
-%understanding of the pathway has significant potential because
-%dementia such as Alzheimer´s and Parkinson´s diseases are
-%associated with accumulation of metabolic waste such as
-%amyloid-beta and CSF-tau.  
-
 In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors. The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
-55 hours using the error function which is valid for planar diffusion. However, 
+55 hours if planar diffusion can be assumed. However, 
 the surface of the brain is folded and is around five times larger than 
 a corresponding surface of a ball with the same volume. Hence, 
 a more rigorous modeling attempt is warranted. A complicating factor
@@ -139,10 +98,10 @@ and changes significantly during the 24 hours of the investigations.
 Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}. As such, the sparseness in time prevents a direct computation of the diffusion coefficients.
 
 
-Our purpose in this paper is to attempt a more rigorous methodology 
-for assessing the paravascular transport process where
-the complex geometry of the brain as well as time-scales of hours or days are taken into account.
-%That is,
+Our purpose in this paper is to assess the simple question whether the  
+transportation seen in \cite{ringstad2018brain} can be explain by diffusion alone. In order
+to include the complexity of the folding brain surface as well as the non-uniform CSF tracer distribution, we
+will perform finite element simulations of the diffusion process combined with a parameter identification procedure. 
 Thus we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to MRI data taken at multiple time-points in which the contrast is spreading through the brain. If the fit between observation and model is good and we identify diffusion coefficients that are 
 in line with those predicted by DTI then paravascular transport can be ignored on the scale of our study. 
 Our approach is to solve an optimization problem constrained by a partial differential equation (PDE) using the adjoint method where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
