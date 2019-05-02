@@ -64,14 +64,16 @@ aim to quantify long-term (hours/days) transfer mechanism in the brain.
 %representing extra-cellular diffusion and possibly dissipation caused by the glymphatic system.
 \end{abstract}
 \section{Introduction}
-In 2012, ~\citet{iliff2012paravascular} provided evidence for a brain-wide paravascular system, denoted the glymphatic system, which is a pathway for transport of fluids and solutes. It was proposed to have an important metabolic role by providing a pathway for clearance of waste solutes from the brain. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The system proposes that 
+In 2012, ~\citet{iliff2012paravascular} provided evidence for a new brain-wide circulation system proposed to be crucial in the waste clearance of the brain. As most types
+of dementias are associated with accumulation of metabolic waste within the brain, the new theory is potentially of fundamental importance for
+the pressing challenges of the aging population. The circulation system is called the glymphatic system as it resembles the lymphatic system in the 
+rest of our body and the 'g' highlight the importance of the glia cells. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The system proposes that 
 the interplay between the cerebrospinal fluid (CSF) and the CSF-filled channels surrounding the vasculature of the brain, traditionally called Wirchow-Robin spaces, are crucial to  
-facilitate this process.  
-These findings are important because both Alzheimer's and Parkinson's diseases are associated with accumulation of metabolic waste products in within various parts of the brain. 
+facilitate clearance of waste.  
 In \cite{iliff2013brain} a procedure for  investigate paravascular transport was proposed  and tested in a rat's brain. The procedure involved injecting a 
-MRI-contrast into the CSF and image the transportation of the MRI-constrast over a few hours after the injection.  
+MRI-contrast into the CSF and subsequently image the transportation of the MRI-constrast at multiple time-points during a few hours after the injection.  
 The procedure was extended to humans for the first time 
-in 2015 by \citet{eide2015mri} where MRI images where acquired during 48 hours after the injection and quantified in a region-specific manner in 2018 \citet{ringstad2018brain} in individuals with dementia and controls. Overall, the MRI-contrast transportation  showed a centripetal and delayed pattern in individuals with dementia as compared with controls~\citet{ringstad2018brain}. 
+in 2015 by \citet{eide2015mri} where MRI images where acquired during 48 hours after the injection and quantified in a region-specific manner in 2018 \citet{ringstad2018brain} in individuals with dementia and controls. Overall, the MRI-contrast transportation  showed a centripetal and delayed pattern in individuals with dementia as compared with controls~\citet{ringstad2018brain} which showed a more centrifugal pattern. 
 
 
 The glympahtic system is controversial as the theory proposes that a significant part of the waste disposal system is driven by convection rather than diffusion. As such
@@ -91,30 +93,32 @@ significant contributor on longer time scales.
 In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors. The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
 55 hours if planar diffusion can be assumed. However, 
 the surface of the brain is folded and is around five times larger than 
-a corresponding surface of a ball with the same volume. Hence, 
-a more rigorous modeling attempt is warranted. A complicating factor
-is however that the contrast in the surrounding cerebral spinal fluid (CSF) is heterogeneous
+a corresponding surface of a ball with the same volume. The increased
+surface-volume ratio of the brain increases the transportation efficiency.  
+On the other hand the contrast in the surrounding cerebral spinal fluid (CSF) is heterogeneous
 and changes significantly during the 24 hours of the investigations. 
-Furthermore, images were obtained only at a few time-points during the investigations in \cite{ringstad2018brain}. As such, the sparseness in time prevents a direct computation of the diffusion coefficients.
+The heterogeneous distribution decreases the transportation efficiency as the amount of CSF tracer
+at times is very low. A third difficulty is that  
+MRI images were obtained only at a few time-points (around 10)  during the investigations in \cite{ringstad2018brain} which lasted 48 hours. 
 
-
-Our purpose in this paper is to assess the simple question whether the  
+On this background, our purpose in this paper is to assess the simple question whether the  
 transportation seen in \cite{ringstad2018brain} can be explain by diffusion alone. In order
 to include the complexity of the folding brain surface as well as the non-uniform CSF tracer distribution, we
 will perform finite element simulations of the diffusion process combined with a parameter identification procedure. 
 Thus we aim to investigate whether we can assess an effective diffusion coefficient on long time-scales (hours or days), by fitting a diffusion model to MRI data taken at multiple time-points in which the contrast is spreading through the brain. If the fit between observation and model is good and we identify diffusion coefficients that are 
 in line with those predicted by DTI then paravascular transport can be ignored on the scale of our study. 
 Our approach is to solve an optimization problem constrained by a partial differential equation (PDE) using the adjoint method where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
-the complete domain. Hence, the challenges faced from a mathematical point of view 
-are that 1) the images are subject to noise, 2) resolution in space is limited to slightly less than 1 $\mathrm{mm}^3$ and 3)
-the sparse observations through the time domain. 
-Therefore we need to assess the sensitivity of the approach with respect to important factors, such noise levels and time resolution to determine whether this approach is a viable method to obtain parameters involved time-scales. 
-
+the complete domain. 
+%Hence, the challenges faced from a mathematical point of view 
+%are that 1) the images are subject to noise, 2) resolution in space is limited to slightly less than 1 $\mathrm{mm}^3$ and 3)
+%the sparse observations through the time domain. 
+%Therefore we need to assess the sensitivity of the approach with respect to important factors, such noise levels and time resolution to determine whether this approach is a viable method to obtain parameters involved time-scales. 
+%
 %As such we need to assess the sensitivity of the approach with respect to important parameters such as the regularization parameters, noise levels and  time resolution to determine whether this approach is a viable method to obtain parameters involved time-scales. 
-We remark that the purpose
-of this paper is a systematic study of the mathematical challenges and that assessing  
-whether clearance is governed by a process that is faster than diffusion is not the topic of the current paper, 
-for that we would need to study several subjects. 
+%We remark that the purpose
+%of this paper is a systematic study of the mathematical challenges and that assessing  
+%whether clearance is governed by a process that is faster than diffusion is not the topic of the current paper, 
+%for that we would need to study several subjects. 
 
 An outline of the paper is as follows. 
 In Section 2 we present the methodology of the paper. Section 2.1-2.3 contains a detailed description of the medical imaging 
