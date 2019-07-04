@@ -1,0 +1,118 @@
+\clearpage
+\section{Supplementary}
+
+\subsection{Testing with a manufactured solution to assess accuracy.}
+
+Below we will discuss the parameter identification and its sensitivity with respect to the regularization parameters, noise, number of observations and time-resolution of the forward model. When presenting the results, we denote the relative error of the diffusion parameters as 
+\begin{equation}
+ D_{\Omega_i}\sp{rel} = \frac{D_{\Omega_i}\sp{found} -D_{\Omega_i}\sp{true} }{D_{\Omega_i}\sp{true} }, \text{ for } i=1,2,3
+\end{equation}
+For the boundary parameter $g$, the relative error norm is defined as 
+\begin{equation}
+|| g ||\sp{rel} = \frac{ \sum\limits_{t_j} || g_{found}(t_j) -g_{true}(t_j)||_{L^2(\Omega_1)} }{  \sum\limits_{t_j}||g_{true}(t_j)||_{L^2(\Omega_1)} }
+\end{equation}
+The case when the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{Tab::Noise0.3}.
+
+
+
+
+\subsection{Contrast concentration - Image Signal Relation}
+Below, we briefly describe the relationship between the imaging signal 
+seen in Figures~\ref{fig1} and \ref{fig2} and the underlying contrast 
+concentration. We remark that we use a notation common in medical literature and here two letter symbols are common. Hence, below we will use two letter symbols such as $TE$ and $TR$ to keep the notation consistent with the presentation in \cite{GOWLAND, MPRAGE}.   
+The contrast concentration $c$ causes the longitudinal(spin-lattice) relaxation time $T_{1}$ to shorten with the following relation
+\begin{equation}
+\frac{1}{T_{1}\sp{c}} = \frac{1}{T_{1}\sp{0}} + r_{1}c .
+\label{EQ::contrast}
+\end{equation}
+The superscripts indicate relaxation time with contrast $T_{1}\sp{c}$ and without contrast $T_{1}\sp{0}$, and $r_1$ is the relaxivity constant for the MRI-contrast in a medium. 
+The contrast observations were collected using a MRI sequence known as  Magnetization Prepared Rapid Acquisition Gradient Echo (MPRAGE) with an inversion prepared magnetization. The relation between signal and the relaxation time is non-linear, and is expressed with the following equations. The signal value $S$ for this sequence is given by
+\begin{equation}
+S = M_{n} \sin \theta e\sp{ - TE/T_2\sp{*} },
+\label{EQ::SI_T2}
+\end{equation}
+with $TE$ and $\theta$ respectively denoting the echo time and the flip angle, and $M_{n}$ the magnetization for the n-echo described below. 
+Also $T_2\sp{*}$ is transverse magnetization caused by a combination of spin-spin relaxation and magnetic field inhomogeneity. It is defined as 
+\begin{equation}
+\frac{1}{T_2\sp{*}} = \frac{1}{T_2} + \gamma \Delta B_{in} ,
+\end{equation}
+with $T_2$ transverse (spin-spin) relaxation time, $\gamma$ is the gyromagnetic ratio and $\Delta B_{in}$ is the magnetic field inhomogeneity across a voxel. The expression can be simplified by neglecting the $T_2$ term in the signal, since $TE <<T_2\sp{*}$ for this MRI sequence. Thus \eqref{EQ::SI_T2} becomes 
+\begin{equation}
+S = M_{n} \sin \theta.
+\label{EQ::SI}
+\end{equation}
+In article \cite{GOWLAND}, the term $M_n$ is defined as the magnetization for the n-echo 
+\begin{equation}
+M_{n} = M_{0}  \left[ (1-\beta)\frac{(1-(\alpha \beta)\sp{n-1} }{1-\alpha\beta} + (\alpha \beta)\sp{n-1}(1-\gamma) + \gamma ( \alpha \beta)\sp{n-1} \frac{M_{e}}{M_{0}}  \right]   
+\end{equation}
+with 
+\begin{equation}
+\frac{M_{e}}{M_{0}} = - \left[ \frac{ 1 -\delta + \alpha \delta (1-\beta ) \frac{1-\alpha\beta\sp{m}}{1-\alpha \beta} + \alpha\delta(\alpha\beta)\sp{m-1} - \alpha\sp{m}\rho}{1 +\rho \alpha\sp{m} } \right].
+\end{equation}
+Using the following definitions
+\begin{equation}
+\begin{aligned}
+\alpha &= \cos ( \theta ) \\
+\beta  &= e\sp{- \sp{T_b}/_{T_1\sp{c}} } \\
+\delta &= e\sp{- \sp{T_a}/_{T_1\sp{c}} } \\
+\gamma &= e\sp{- \sp{T_w}/_{T_1\sp{c}} } \\
+\rho   &= e\sp{- \sp{TR}/_{T_1\sp{c}}}  \\
+T_w    &= TR - T_a -T_b(m-1)       .\\
+\end{aligned}
+\end{equation}
+Here $T_b$ is known as the echo spacing time, $T_a$ is the inversion time, $T_w$ the time delay, $TR$ as the repetition time, $m$ is the number of echo spacings and $M_0$ is a calibration constant for the magnetization. The center echo denoted as $n=m/2$ will be the signal that we will consider when estimating MRI-contrast. Given \eqref{EQ::SI} we have that the relative signal increase can be written as 
+\begin{equation}
+\frac{S\sp{c}}{S\sp{0}} = \frac{ M_{n}\sp{c} \sin (\theta)}{ M_{n}\sp{0} \sin (\theta) }.
+\end{equation}
+We define that  
+\begin{equation}
+f(T_1) = M_{n}/M_{0} ,
+\label{scaledmagnetization}
+\end{equation}
+which can be seen in Figure~\ref{figuredti}. 
+This gives the following relation 
+\begin{equation}
+\frac{f(T_{1}\sp{c} ) }{f(T_{1}\sp{0})}  = \frac{S\sp{c}}{S\sp{0}} 
+\end{equation}
+The signal difference between observation times were adjusted in \cite{ringstad2018brain}. Thus we can express the change in $T_1$ due to contrast as 
+\begin{equation}
+f ( T_{1}\sp{c} ) = \frac{S\sp{c}}{S\sp{0}} f(T_{1}\sp{0}) 
+\end{equation}
+and then estimate the concentration using \eqref{EQ::contrast}. The $T_{1}\sp{0}$ values were obtained by T1-mapping of the brain using a MRI sequence known as MOLLI5(3)3 \cite{TAYLOR201667}. This takes into account patient specific characteristic, such as tissue damage. Tissue damage can be observed in the MRI due to a lower signal in the white matter compared to healthy white matter tissue, thus damaged tissue have different $T_1$ relaxation time. 
+The contrast concentration was estimated in a preprocessing step, using the parameters obtained from the T1-map, MPRAGE MRI protocol \cite{ringstad2018brain} and the value for $r_1$ found in \cite{pmid16230904}. In the computation, the function \eqref{scaledmagnetization} was computed for $ T_1\in \lbrace 200, 4000 \rbrace$ creating a lookup table. The lookup table was utilized with the baseline signal increase to estimate $T_1\sp{c}$, and then the concentration was computed using \eqref{EQ::contrast}.  
+
+\begin{figure}
+\centering
+\includegraphics[width=0.70\textwidth]{../T1function.png} 
+\caption{Shows the  function defined in \eqref{scaledmagnetization} where the white region indicates $T_1$ values for white matter, the grey region indicates $T_1$ values for grey matter, the blue region indicates $T_1$ values for CSF.  }
+\label{figureF} 
+\end{figure}
+
+
+\subsection{Diffusion tensor imaging}
+In addition to the T1 and T2 weighted sequences described above we have also obtained diffusion tensor imaging to assess the apparent diffusion 
+coefficients on short time-scales. Images are shown in Figure~\ref{figuredti} where the largest diffusion coefficient (shown in 
+red in the middle figure) is shown to be around $1.0\mathrm{e}{-3}  \mathrm{mm^2/s}$. We remark that we have not included possible anisotropy, shown in 
+the right-most image in Figure~\ref{figuredti} and that these images show the apparent diffusion coefficient for free water molecules (18 Da).      
+The diffusivity of the Gadovist (600 Da) \cite{MGadobutrol} was estimated to be similar to the diffusion coefficient of Gd-DPTA (550 Da) \cite{MGgDPTA}. This is due to the fact that both molecules have similar mass, and based on Stoke-Einstein equation should also have similar diffusion coefficients. The free diffusion coefficient for Gd-DPTA was estimated in \citet{GdDPTA-DIFFUSION} to be $3.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$.
+The fractional anisotropy is defined as 
+\begin{equation}
+FA\sp{2} =  \frac{3}{2} \frac{ (\lambda_1 - MD )\sp{2} +(\lambda_2 - MD )\sp{2} +(\lambda_3 - MD )\sp{2}}{\lambda\sp{2}_1 + \lambda\sp{2}_2  +\lambda\sp{2}_3 },
+\end{equation}
+with the mean diffusivity $MD$ defined as 
+\begin{equation}
+MD = \frac{\lambda_1 +\lambda_2 +\lambda_3 }{3}.
+\end{equation}
+In these equations $\lambda_i$ denotes the eigenvalues of the diffusion tensor.
+\begin{figure}
+\centering
+\includegraphics[width=0.75\textwidth]{../DTI-zoom.png} 
+\caption{The left panel shows the anatomical map. The middle panel shows the apparent diffusion coefficients (ADC) obtained from DTI. The right panel shows the computed fractional anisotropy (FA) from the DTI.}
+\label{figuredti} 
+\end{figure}
+
+
+
+\section{
+
+
