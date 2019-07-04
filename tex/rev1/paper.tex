@@ -9,6 +9,7 @@
 \usepackage[numbers]{natbib}
 \usepackage{authblk}
 \usepackage{ragged2e}
+
 \title{
 	Is CSF tracer transporation during 24 hours after infusion explained by diffusion?
 }
@@ -81,7 +82,7 @@ the system may be much more efficient than if driven by diffusion alone. The the
 removing metabolic waste is not present in the brain even though the brain has a high metabolism; namely that the brain has its own specialized system. 
 The properties of the extracellular diffusion are well-known due to seminal work of Nicholson and colleagues, see  
 ~\cite{sykova2008diffusion} for an overview, and is fundamental to for  diffusion tensor imaging (DTI). 
-It has been shown that diffusion coefficients in young and healthy subjects in white matter is around $0.7-0.9\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
+It has been shown that diffusion coefficients in young and healthy subjects in white matter is around $0.7-0.9\times 10^{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
 while subjects with dementia typically have higher value and variation \cite{goujon2018can}. 
 For larger molecules such as albumin (65-70 kDa) \citet{cserr1971physiology} estimated that transport by diffusion of a distance of 1 cm would require more than a hundred hours
 and is therefore deemed to slow for the high demands of the brain.  
@@ -201,33 +202,82 @@ The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral ce
 \subsection{A Real case} 
 
 \subsubsection{Results obtained when using real observations}
-The MRI data consisted of the observations at times $t_i \in \lbrace$0.00, 0.16, 0.39, 0.55, 0.77, 2.09, 6.05, 24, 48, 698$\rbrace \mathrm{(hours)}$ with the time $t_i=0.00$ as the observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations at $\lbrace$0.00, 0.16, 0.39, 0.55, 0.77$\rbrace$. This prompted the use of the following observation times  $\lbrace0.00, 2.09, 6.05, 24, 48\rbrace$. 
+The MRI data consisted of the observations at times $t_i$ distributed in the 48 hours time frame with the time $t_i=0.00$ as the first observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations the first 2 hours, which prompted the use of the following observation times listed in Table ??.
 
-The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\mathrm{e}{-1}$. The number of timesteps were selected to be $k=24$ and $k=48$, which gives $dt = 2 \mathrm{h}$ and $dt = 1 \mathrm{h}$.   
-
-The results are shown in Table~\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data}, it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\mathrm{e}{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$.
+The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\times 10^{-1}$. The other specific  computational parameters are listed in Table ??.
+The results are shown in Table~\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data}, it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\times 10^{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$.
 
 \subsubsection{Comparison with results obtained from DTI analysis}
-The median diffusion coefficient in the DTI was estimated to be $8.7\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ in white matter and $1.0\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$ in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\mathrm{e}{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. The reference value $3.8\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA then gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $1.10\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
+The median diffusion coefficient in the DTI was estimated to be 
+$8.7\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ 
+in white matter and 
+$1.0\times 10\sp{-3} \mathrm{mm\sp{2}/s}$ 
+in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\times 10\sp{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. The reference value $3.8\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA then gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\times 10\sp{-4}\mathrm{mm\sp{2}/s}$ and $1.10\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
 
-The oscillation in Figure~\ref{boundarycontrol} showed a large discrepancy in the states between observations. Therefore the states with $k=48$ were examined after 36 hours, see Figure~\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0\mathrm{e}{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values $\alpha$. Excluding the values with $\alpha=1.0\mathrm{e}{-2}$ gives an average of $ 0.65 \mathrm{mm\sp{2}/h}$ in grey matter and $ 0.8 \mathrm{mm\sp{2}/h}$ in and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\mathrm{e}{-4}\mathrm{mm\sp{2}/s}$ and $2.22\mathrm{e}{-4} \mathrm{mm\sp{2}/s}$. This gives a difference of 42\% in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
+%The oscillation in Figure~\ref{boundarycontrol} showed a large discrepancy in the states between observations.
+The sparsity of the observations compared to the number of time steps can cause the boundary function $g$ to fluctuate between observations, see Appendix. Therefore, the states with $k=48$ were examined after 36 hours, see Figure~\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0\times 10\sp{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values of $\alpha$. Excluding the values with $\alpha=1.0\times 10\sp{-2}$ gives an average of $ 0.65 \mathrm{mm\sp{2}/h}$ in grey matter and $ 0.8 \mathrm{mm\sp{2}/h}$ in and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\times 10\sp{-4}\mathrm{mm\sp{2}/s}$ and $2.22\times 10\sp{-4} \mathrm{mm\sp{2}/s}$. The values are summarized in Table ~\ref{Tablesummerized}, and we obtain a difference of $42\%$ in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
 
-In Figure~\ref{Fig::realdata}, it can be seen that there were regions with negligible amount of contrast and vice versa. The regions with above average amount of contrast corresponds with high diffusivity regions in Figure~\ref{figuredti}. This suggests that the computed diffusion coefficients corresponds to these values. The ADC value in the high diffusivity regions are approximately  $1.4\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$, which corresponds to estimated diffusion coefficient of value $1.5\mathrm{e}{-3} \mathrm{mm\sp{2}/s}$. This gives a difference of $ 46 \%$ compared to the computed values.
+In Figure~\ref{Fig::realdata}, it can be seen that there were regions with negligible amount of contrast and vice versa. The regions with above average amount of contrast corresponds with high diffusivity regions in Figure~\ref{figuredti}. This suggests that the computed diffusion coefficients corresponds to these values. The ADC value in the high diffusivity regions are approximately  $1.4\times 10\sp{-3} \mathrm{mm\sp{2}/s}$, which corresponds to estimated diffusion coefficient of value $1.5\time 10\sp{-3} \mathrm{mm\sp{2}/s}$. This gives a difference of $ 46 \%$ compared to the computed values.
 
 
+
+\begin{table}\centering
+\begin{tabular}{|ccc|}
+\hline
+Description & Model variable  & Value used in the simulation\\
+\hline
+& & \\
+Number of timesteps &  k	 & 24, 48	\\
+& & \\
+\hline
+& & \\
+Observational time points  & $\tau$ &  $\lbrace 0.00,2.0, 6 , 24, 48 \rbrace$	 \\
+& & \\
+\hline
+& & \\
+Timestep & $dt$	 	   &	  1, 2 $\mathrm{hours}$	\\ 
+& & \\
+\hline
+& & \\
+Spacial Regularization & $\alpha$	   &	  $\lbrace 1.0\times10\sp{-6}, 1.0\rbrace$\\ 
+& & \\
+\hline
+& & \\
+Time Regularization   & $\beta$	   &	 $\lbrace 1.0\times10\sp{-6}, 100.0\rbrace$	\\ 
+& & \\
+\hline
+\end{tabular}
+\caption{Forslag}
+\label{model-params-overview}
+\end{table}
+
+
+\begin{table}\centering
+\begin{tabular}{|ccc|}
+\hline
+   & Estimated & Computed average\\
+\hline
+Grey matter  & $ 1.26\times 10\sp{-4}$   &  $1.8\times 10\sp{-4}$  \\
+White matter & $ 1.10\times 10\sp{-4}$   &  $2.22\times 10\sp{-4}$  \\
+\hline
+\end{tabular}
+\caption{Forslag}
+\label{Tablesummerized}
+\end{table}
 
 \section{Discussion}
 The methodology presented here for identification of diffusion coefficients and boundary conditions with application to the glymphatic system appears to work quite 
-well for regularization parameters varying by orders of magnitude. The regularization parameters  $\alpha \in \lbrace 1.0\mathrm{e-6}, 1.0\mathrm{e}{-2} \rbrace$, $\beta \in \lbrace 1.0\mathrm{e}{-2} , 1.0 \rbrace$ with the requirement $\alpha / \beta < 1.0\mathrm{e}{-2}$ gave a relative error of  
-4.1\% in grey matter and 3.6 \% in white matter when tested against a manufactured solution. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
-in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise amplitude of 23\% of maximum value. However, the addition of noise required that $\beta = 1.0 $ to obtain consistent convergence. 
-Crucial in our application is the interplay between the regularization term that regulates the smoothness of the boundary conditions as well as the integrated magnitude of the boundary conditions over time, i.e. $\alpha$ and $\beta$. Further, we observed that the importance of interplay of these parameters increases with the number of time steps. This is, however, not surprising because our observations are sparse
-in time and hence an oscillating boundary condition in time will minimize the integrated boundary condition at the cost of reducing the smoothness in time. The selected range of regularization parameters showed a decrease in error with more timesteps, rather than oscillation.     
+well for regularization parameters varying by orders of magnitude. 
+%\fixme{The regularization parameters  $\alpha \in \lbrace 1.0\mathrm{e-6}, 1.0\time10\sp{-2} \rbrace$, $\beta \in \lbrace 1.0\times\sp{-2} , 1.0 \rbrace$ with the requirement $\alpha / \beta < 1.0\times 10\sp{-2}$ gave a relative error of  
+%4.1\% in grey matter and 3.6 \% in white matter when tested against a manufactured solution. It is particularly interesting to see that the procedure efficiently removes noise as demonstrated
+%in the Figures \ref{12hourswithnoise} and \ref{24hourswithnoise} with noise amplitude of 23\% of maximum value. However, the addition of noise required that $\beta = 1.0 $ to obtain consistent convergence. 
+%Crucial in our application is the interplay between the regularization term that regulates the smoothness of the boundary conditions as well as the integrated magnitude of the boundary conditions over time, i.e. $\alpha$ and $\beta$. Further, we observed that the importance of interplay of these parameters increases with the number of time steps. This is, however, not surprising because our observations are sparse
+%in time and hence an oscillating boundary condition in time will minimize the integrated boundary condition at the cost of reducing the smoothness in time. The selected range of regularization parameters showed a decrease in error with more timesteps, rather than oscillation.   }  
 
 While a more comprehensive study involving more patients would be required in order to assess clearance in health and disease, a few remarks here are in order. 
 First of all, the process investigated here is the clearance of Gadovist from CSF into the interstitium which may differ from the clearance of metabolic waste 
-from the interstitium via the CSF. \fixme{That said, 
-we find that the diffusion coefficients is 42\% larger in grey matter and 100\% larger in white matter than what was found by the DTI modality. As such, we predict that the paravascular system  plays a significant role.  }
+from the interstitium via the CSF. That said, 
+we find that the diffusion coefficients is 42\% larger in grey matter and 100\% larger in white matter than what was found by the DTI modality. %As such, we predict that the paravascular system  plays a significant role. 
 However, we have not yet been able to assess the self-diffusion of water as well as the diffusivity of Gadovist used in this study with phantom models. As such 
 the values used with \eqref{tortuosity} must be taken with caution. Furthermore,    
 the computational model assumes isotropic diffusivity, but the anisotropy in the white matter is well documented, as shown by the FA in Figure~\ref{figuredti}. It can be seen in Figure~\ref{Fig::realdata} that the region with high FA have negligible amounts of contrast present. Therefore it would seem that the anisotropy do not have direct impact on the computations, since the computation can not evaluate a static environment. Thus observations of contrast in regions with anisotropy can be considered a requirement before adding anisotropy to the model.
@@ -236,13 +286,56 @@ The computational model uses 2 global controls for the diffusion coefficients, w
 It can also be taken into consideration to model the diffusion coefficients as a function in time, given the report of increased clearance in rodents during sleep \cite{xie2013sleep}. This would indicate a time-dependent diffusivity, given that the clearance in the brain is driven by diffusion. %The time-dependency would correspond to a change in tortuosity, since properties of the tracer molecule do not change.
 The hypothesis of the glymphatic system \cite{iliff2012paravascular} states that the waste is cleared through the veins in the parenchyma. This gives the contrast additional pathways that is not considered in the computational model. These additional pathways can be modeled as a drainage, which can be included as a control source term. 
 
-
 In Table~\ref{Tab::Real-data}, it was shown that the grey matter diffusion coefficient had a negative correlation with the relaxation parameter $\beta$. This was caused by the boundary control $g$, which exists along the entire boundary of the grey matter. Considering that the grey matter volume has an average thickness less than 3 mm makes it susceptible to changes in $g$. This can be observed in the reconstruction in Figure~\ref{12hourswithnoise} and Figure~\ref{24hourswithnoise}, where the noise is present at the boundary.
   
 Previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that diffusion dominates in the interstitium. Furthermore, ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two
 to diffusion for solute transportation. If we consider that the vascular system occupy 3\% of the brain volume
 %of the brain 
 and that the paravascular space presumably occupy less space. Then the 42\% increase in grey matter and 100\% in white matter that we find here seem significant and the results point towards of the glymphatic clearance.  
+
+  
+  
+\section{Insert correctly}
+(The sampling of) The observations on the boundary between CSF and the brain parenchyma suffered from the poor resolution of the T1-map, which lead to high frequency noise on the boundary. Therefore we investigates the effect of a gradient regularization parameter, Gaussian smoothing and the projecting the average concentration onto the boundary has ways to reduce the noise. 
+
+The implementation of the gradient regularization required that the boundary was decomposed to avoid the boundary values being continuous in different subdomains. We decomposed the boundary as seen in Figure ~\ref{markedboundaryvalues}, with the red and blue boundary next to the CSF. We defined the red boundary $\partial \Omega_r$ and the blue boundary $\partial \Omega_b$ as Dirichlet boundaries, while the green and yellow were Neumann boundaries. The regularization parameter $\gamma$ was added to the functional 
+\begin{equation}
+\min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_{rb}} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2}  \frac{\gamma}{2}| \nabla g  \right) \mathrm{d}\Omega \mathrm{d}t  
+\end{equation}
+The boundaries $\Omega_r$ and $\Omega_b$ have very different shapes, and using the same regularization parameter can have different effects on the two boundaries. Based on the  observations we saw that that the concentration in the lateral ventricles were more uniform than that in the SAS. Therefore, we defined $\gamma$ as
+\begin{equation}
+\gamma = \begin{cases}
+0.01\tilde{\gamma}  \in &\partial \Omega_{b} \\ 
+\tilde{\gamma} \qquad \in  &\partial \Omega_{r}
+\end{cases}  
+\end{equation} 
+with $\tilde{\gamma}$ as the referenced(mentioned in the text) regularization parameter.
+
+
+
+The results for the ventricular boundary in Figure ~\ref{VENT} and the SAS boundary in Figure ~\ref{SAS}. The corresponding estimated diffusion coefficient are shown in Figure ??. 
+We see that the gradient regularization has a great effect reducing the noise on the boundaries, but it also changed the computed diffusion coefficients.
+
+
+The Gaussian smoothing was done with the python module scipy, and the standard deviation examined in the range of 0.3-1.5. We observed that the Gaussian smoothing with a standard deviation of 1.5 increased the computed diffusion coefficient by approximately 200\% compared to raw data.   
+
+
+
+
+%\begin{table}\centering
+%\begin{tabular}{|ccc|}
+%\hline
+%   & Estimated & Computed (lower,upper)\\
+%\hline
+%Grey matter  & $ 1.26\times 10\sp{-4}$   &     \\
+%White matter & $ 1.10\times 10\sp{-4}$   &     \\
+%\hline
+%\end{tabular}
+%\caption{Forslag}
+%\label{model-params-overview}
+%\end{table}
+
+
 %In summary, using this model, we estimated diffusion coefficients that were 42-100\% larger than estimated by DTI acquisitions. Our results indicate that dissipation of solutes along the paravascular rout has a factor of 30, as compared to diffusion alone. However, the present study did not examine whether transport is by convective mechanisms.
 %
 
@@ -300,6 +393,33 @@ The computational experiments were performed on the Abel Cluster, owned by the U
 \end{figure}
 
  
+ \begin{figure}
+\centering
+\includegraphics[scale=0.3]{../facetfucntion.png} 
+\caption{The images shows the marked boundary values on the mesh. }
+\label{markedboundaryvalues}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.35]{../Vent-2.png} 
+\caption{ The images shows the ventricular wall at the same time points. The upper row shows the observations with following preprocessing left to right: Raw observations, projection of CSF value onto the boundary, Gaussian smoothing. The middle row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},1.0 ,1.0$). The bottom row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},100.0 ,100.$). }
+\label{VENT}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.35]{../SAS-2.png} 
+\caption{ The images shows the SAS boundary at the same time points. The upper row shows the observations with following preprocessing left to right: Raw observations, projection of CSF value onto the boundary, Gaussian smoothing. The middle row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},1.0 ,1.0$). The bottom row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},100.0 ,100.$). }
+\label{SAS}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.3]{../diffcoeff.png} 
+\caption{The images shows the computed diffusion coefficients in gray and white matter given different preprocessing steps.  }
+\label{diffcoeff}
+\end{figure}
 
 
 %\input{supplementary}
