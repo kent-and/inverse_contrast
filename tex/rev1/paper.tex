@@ -11,7 +11,7 @@
 \usepackage{ragged2e}
 
 \title{
-	Is CSF tracer transporation during 24 hours after infusion explained by diffusion?
+Can diffusion alone explain brain-wide distribution of CSF tracers within 24 hours?
 }
 
 \renewcommand{\comment}[1]{\textcolor{red}{#1}}
@@ -42,13 +42,18 @@ $\sp{e}$Department of Neurosurgery, Oslo University Hospital – Rikshospitalet,
 
 \begin{abstract}
 The proposed glymphatic system suggests a new mechanism for waste clearance from the brain, and has sparked new research on Alzheimer's disease where one of the defining features
-is that metabolic waste accumulate within the brain. The glympahtic hypothesis is still controversial, but experimental investigations in rodents as well as novel MRI investigations in humans indicates the existence of such a system. A proper theoretical foundation 
-that explains the fluid transfer mechanisms from first principles is however currently missing.
-In particular, a crucial question in the current debate is how much the system accelerate
-waste clearance when compared to extracellular diffusion alone. Therefore
-we will in this paper evaluate to what extent partial differential constrained optimization methods can be used to identify modeling parameters for glymphatic transport. We assume that the transport can be modeled by a diffusion equation, representing extracellular diffusion and possibly dissipation caused by the glymphatic system. The observations are obtained from novel MRI techniques that
-aim to quantify long-term (hours/days) transfer mechanism in the brain. 
-\kam{have not looked at the abstract yet}
+is that metabolic waste accumulate within the brain. The glympahtic hypothesis is still controversial
+and several biomechanical modeling attempts attempts on microlevel have dismissed the system or its assumptions. 	
+On the macroscopic level, however, there are several findings that supports that transportation solute transportation cannot be explained
+by diffusion alone, which is the current prevailing theoretical foundation of brain waste management. In particular, 
+previous calculation by ourselves in simplified geometries suggested that diffusion alone cannot explain the tracer distributions
+seen in these novel MRI investigations over hours and days. 
+In order to include the complex geometry of the brain as well as the heterogenous CSF flow around the brain, we 
+employed the methods of partial differential constrained optimization in order to  the identify apparent diffusion parameters 
+that best would correspond to the MRI images. Apparent diffusion coefficients that do not match the values those seen in corresponding 
+DTI images would then indicate that diffusion is not sufficient to explain the CSF tracer distribution and would as such be supportive of the glymphatic system. 
+The apparent diffusion coefficients are somewhat larger than what is found in DTI (42\% in grey matter and XX\% in white matter).  
+
 
 %The recently proposed glymphatic system propose a new mechanism for waste
 %clearance from the brain and has opened for a new paradigm in        
@@ -67,19 +72,22 @@ aim to quantify long-term (hours/days) transfer mechanism in the brain.
 \section{Introduction}
 In 2012, ~\citet{iliff2012paravascular} provided evidence for a new brain-wide circulation system proposed to be crucial in the waste clearance of the brain. As most types
 of dementias are associated with accumulation of metabolic waste within the brain, the new theory is potentially of fundamental importance for
-the pressing challenges of the aging population. The circulation system is called the glymphatic system as it resembles the lymphatic system in the 
-rest of our body and the 'g' highlight the importance of the glia cells. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. The system proposes that 
+the pressing challenges of dementia in the aging population. The circulation system is called the glymphatic system as it resembles the lymphatic system in the 
+rest of our body and the 'g' highlight the importance of the glia cells. Evidence was given that the activity of the glymphatic system increases during  sleep by ~\citet{xie2013sleep}, thus linking sleep to clearance of toxic substances from the brain. 
+
+The system proposes that 
 the interplay between the cerebrospinal fluid (CSF) and the CSF-filled channels surrounding the vasculature of the brain, traditionally called Wirchow-Robin spaces, are crucial to  
 facilitate clearance of waste.  
+The glympahtic system is still controversial and several computational modeling studies have dismissed the system.  
+For example, the previous studies~\cite{holter2017interstitial, smith2017glymphatic} suggest that diffusion dominates in the interstitium. Furthermore, ~\cite{asgari2016glymphatic, brynjfm, Diem} have found that dissipation in the paravascular spaces adds less than a factor two to diffusion for solute transportation. All these studies, however, concern the fluid transportation on the microlevel. 
+
+On the macroscopic level, using imaging, it is however less clear that diffusion alone provides an adequate explanation. 
 In \cite{iliff2013brain} a procedure for  investigate paravascular transport was proposed  and tested in a rat's brain. The procedure involved injecting a 
 MRI-contrast into the CSF and subsequently image the transportation of the MRI-constrast at multiple time-points during a few hours after the injection.  
 The procedure was extended to humans for the first time 
-in 2015 by \citet{eide2015mri} where MRI images where acquired during 48 hours after the injection and quantified in a region-specific manner in 2018 \citet{ringstad2018brain} in individuals with dementia and controls. Overall, the MRI-contrast transportation  showed a centripetal and delayed pattern in individuals with dementia as compared with controls~\citet{ringstad2018brain} which showed a more centrifugal pattern. 
+in 2015 by \citet{eide2015mri} where MRI images where acquired during 48 hours after the injection and quantified in a region-specific manner in 2018 \citet{ringstad2018brain} in individuals with dementia and controls. Overall, the MRI-contrast transportation  showed a centripetal and delayed pattern in individuals with dementia as compared with controls~\citet{ringstad2018brain} which showed a more centrifugal pattern. It was noted that the CSF-tracer transportation appeard faster than what can be expected from diffusion in simplified geometries. However, it was noted that the geometry of
+the brain is quite complex and for instance the surface-to-volume ratio is fivefold that of a ball. 
 
-
-The glympahtic system is controversial as the theory proposes that a significant part of the waste disposal system is driven by convection rather than diffusion. As such
-the system may be much more efficient than if driven by diffusion alone. The theory would also explain why the lymphatic system which elsewhere in our body is crucial for
-removing metabolic waste is not present in the brain even though the brain has a high metabolism; namely that the brain has its own specialized system. 
 The properties of the extracellular diffusion are well-known due to seminal work of Nicholson and colleagues, see  
 ~\cite{sykova2008diffusion} for an overview, and is fundamental to for  diffusion tensor imaging (DTI). 
 It has been shown that diffusion coefficients in young and healthy subjects in white matter is around $0.7-0.9\times 10^{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
@@ -89,18 +97,19 @@ and is therefore deemed to slow for the high demands of the brain.
 The crux of the glymphatic system is as such the fact that conventional DTI imaging is well explained by the traditional view of transportation by extracellular diffusion. 
 However, the paravascular compartments are small, probably less than the vascular compartment that occupy around 3\% of the brain volume. As such, 
 due to its small volume, the paravascular compartment may be dominated by the extracellular compartment at short time-scales, while still being a
-significant contributor on longer time scales. 
+significant contributor on longer time scales such as those in \cite{ringstad2018brain}. 
 
-In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors. The argument was based on analytical considerations where it was calculated that 50\% contrast enrichment would occur after 
-55 hours if planar diffusion can be assumed. However, 
-the surface of the brain is folded and is around five times larger than 
-a corresponding surface of a ball with the same volume. The increased
-surface-volume ratio of the brain increases the transportation efficiency.  
-On the other hand the contrast in the surrounding cerebral spinal fluid (CSF) is heterogeneous
-and changes significantly during the 24 hours of the investigations. 
-The heterogeneous distribution decreases the transportation efficiency as the amount of CSF tracer
-at times is very low. A third difficulty is that  
-MRI images were obtained only at a few time-points (around 10)  during the investigations in \cite{ringstad2018brain} which lasted 48 hours. 
+%In \cite{ringstad2018brain} brain-wide distribution of MRI-contrast was demonstrated during 24 hours after lumbar contrast injection. Brain-wide distribution by diffusion alone was deemed unlikely by the authors. The argument was based on analytical considerations where it was calculated that 50\g contrast enrichment would occur after 
+%55 hours if planar diffusion can be assumed. However, 
+%the surface of the brain is folded and is around five times larger than 
+%a corresponding surface of a ball with the same volume. The increased
+%surface-volume ratio of the brain increases the transportation efficiency.  
+%On the other hand the contrast in the surrounding cerebral spinal fluid (CSF) is heterogeneous
+%and changes significantly during the 24 hours of the investigations. 
+%The heterogeneous distribution decreases the transportation efficiency as the amount of CSF tracer
+%at times is very low. A third difficulty is that  
+%MRI images were obtained only at a few time-points (around 10)  during the investigations in \cite{ringstad2018brain} which lasted 48 hours. 
+%
 
 On this background, our purpose in this paper is to assess the simple question whether the  
 transportation seen in \cite{ringstad2018brain} can be explain by diffusion alone. In order
@@ -197,6 +206,21 @@ The mesh construction was patient-specific and used the MRI of a patient diagnos
 \label{Fig::Mesh}
 \end{figure}
 The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Figure~\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. 
+
+\section{Numerical Experiments}
+
+The process of estimating the diffusion coefficients in terms of  the PDE constrained optimization problem \eqref{Eq::PDE} is complicated as appropriate parameters, i.e. $\alpha$, $\beta$ and $\gamma$,  have 
+to be determined and robustness with respect to resolution and noise have to be assessed. Our approach was as follows. 
+
+\textbf{Verification of code and the identification of suitable parameters in the case of a manufactored solution.}
+
+In order to verify our code and assess the range of parameters suitable for simulation we performed a series of 
+simulations with regularization parameters, discretization parameters and noise levels.  
+
+\textbf{}
+
+
+
 
 \section{Results}
 \subsection{A Real case} 
@@ -422,7 +446,7 @@ The computational experiments were performed on the Abel Cluster, owned by the U
 \end{figure}
 
 
-%\input{supplementary}
+\input{supplementary\_new}
 
 
 \end{document}
