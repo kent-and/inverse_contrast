@@ -220,7 +220,13 @@ simulations with regularization parameters, discretization parameters and noise 
 known manufactured solution. A total of 141 numerical experiments
 where conducted. The details of the numerical tests can be found in the Supplementary \ref{sup:manu}. 
 
-\textbf{}
+\textbf{MRI data.}
+
+It can be seen from Fig XX that the boundary conditions is noise. This may be attributed to noise or small errors
+in the segmentation/registration process where voxels close to the boundaries between the brain and CSF are miss-aligned
+by the sub-voxel segementation procedure. In particular, the surfaces can cut a voxel at any plane, not only the planes
+through the voxel vertices. We chose three approaches to handle this problem. \kam{Lars: kan du utbrodere litt her? 
+Jeg synes vi skal beholde også Fig 10 fra tidligere.  }   
 
 
 
@@ -233,7 +239,8 @@ over the course of 24 hours. It was found that for $\alpha \in (10^{-6}, 10^{-2}
 the diffusion coefficients of both CSF, grey and white matter was less than 7\%. Furthermore,  
 $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ gave errors of less than 1\%. Second, the robustness with respect noise
 was investigated. The noiseamplitude was set to 0.3 which equals the initial condition of the manufactured solution
-and 23\% of the manufactured solution at its max. The method was found robust with respect to the noise, as illustrated in the Supplementary Fig~\ref{12hourswithnoise}.  In fact, for  $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ the error in the diffusion coefficients in CSF was less than 23\% and less than 9.7\% in grey and white matter. \kam{Lars: skriv om resten av eksperimentene}   
+and 23\% of the manufactured solution at its max. The method was found robust with respect to the noise, as illustrated in the Supplementary Fig~\ref{12hourswithnoise}.  In fact, for  $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ the error in the diffusion coefficients in CSF was less than 23\% and less than 9.7\% in grey and white matter. Because of the much larger 
+error in the CSF compartment, we decided to re-mesh with a focus on the grey and white. \kam{Lars: skriv om resten av eksperimentene. Fig 6 og 7 bor med i Suppl}   
 
 
 
@@ -442,14 +449,14 @@ The computational experiments were performed on the Abel Cluster, owned by the U
 \begin{figure}
 \centering
 \includegraphics[scale=0.35]{../Vent-2.png} 
-\caption{ The images shows the ventricular wall at the same time points. The upper row shows the observations with following preprocessing left to right: Raw observations, projection of CSF value onto the boundary, Gaussian smoothing. The middle row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},1.0 ,1.0$). The bottom row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},100.0 ,100.$). }
+\caption{ The images shows the ventricular wall at the same time points. The upper row shows the observations with following preprocessing left to right: Raw observations, projection of CSF value onto the boundary, Gaussian smoothing. The middle row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},1.0 ,1.0)$. The bottom row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},100.0 ,100.)$. }
 \label{VENT}
 \end{figure}
 
 \begin{figure}
 \centering
 \includegraphics[scale=0.35]{../SAS-2.png} 
-\caption{ The images shows the SAS boundary at the same time points. The upper row shows the observations with following preprocessing left to right: Raw observations, projection of CSF value onto the boundary, Gaussian smoothing. The middle row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},1.0 ,1.0$). The bottom row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},100.0 ,100.$). }
+\caption{ The images shows the SAS boundary at the same time points. The upper row shows the observations with following preprocessing left to right: Raw observations, projection of CSF value onto the boundary, Gaussian smoothing. The middle row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},1.0 ,1.0)$. The bottom row shows the corresponding states with the regularization parameters $\alpha , \beta \gamma = (10\sp{-6},100.0 ,100.)$. }
 \label{SAS}
 \end{figure}
 
