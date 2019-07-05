@@ -189,6 +189,7 @@ u&=g && \text{on} \qquad \partial\Omega_1  \times \left\lbrace 0 , T \right)
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
+\kam{Fiks likningene}
 Here, $u$ is the contrast distribution, $D$ is the apparent diffusion 
 coefficient, $g$ is the boundary condition, $\Omega$ is the domain, and $T$ is the final simulation time. We assume that the domain $\Omega$ consists of three sub domains, each with a different diffusion coefficient. We denote the CSF (subarachnoid and lateral ventricle) domain as $\Omega_1=\Omega_{CSF}$, the grey matter as $\Omega_{GM}$ and the white matter as $\Omega_{WM}$. 
 The apparent
@@ -212,10 +213,12 @@ The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral ce
 The process of estimating the diffusion coefficients in terms of  the PDE constrained optimization problem \eqref{Eq::PDE} is complicated as appropriate parameters, i.e. $\alpha$, $\beta$ and $\gamma$,  have 
 to be determined and robustness with respect to resolution and noise have to be assessed. Our approach was as follows. 
 
-\textbf{Verification of code and the identification of suitable parameters in the case of a manufactored solution.}
+\textbf{Manufactored solution.}
 
 In order to verify our code and assess the range of parameters suitable for simulation we performed a series of 
-simulations with regularization parameters, discretization parameters and noise levels.  
+simulations with regularization parameters, discretization parameters and noise levels against a 
+known manufactured solution. A total of 141 numerical experiments
+where conducted. The details of the numerical tests can be found in the Supplementary \ref{sup:manu}. 
 
 \textbf{}
 
@@ -223,7 +226,19 @@ simulations with regularization parameters, discretization parameters and noise 
 
 
 \section{Results}
-\subsection{A Real case} 
+
+\subsection{Estimation of diffusion coefficients with a manufactored Solution.} 
+We first ran a series of tests of different $\alpha$ and $\beta$ for the manufactured solutions where we assumed observations every 2.4 hours
+over the course of 24 hours. It was found that for $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^2)$, the error in 
+the diffusion coefficients of both CSF, grey and white matter was less than 7\%. Furthermore,  
+$\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ gave errors of less than 1\%. Second, the robustness with respect noise
+was investigated. The noiseamplitude was set to 0.3 which equals the initial condition of the manufactured solution
+and 23\% of the manufactured solution at its max. The method was found robust with respect to the noise, as illustrated in the Supplementary Fig~\ref{12hourswithnoise}.  In fact, for  $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ the error in the diffusion coefficients in CSF was less than 23\% and less than 9.7\% in grey and white matter. \kam{Lars: skriv om resten av eksperimentene}   
+
+
+
+
+\subsection{Estimation of the diffusion coefficients from the MRI data} 
 
 \subsubsection{Results obtained when using real observations}
 The MRI data consisted of the observations at times $t_i$ distributed in the 48 hours time frame with the time $t_i=0.00$ as the first observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations the first 2 hours, which prompted the use of the following observation times listed in Table ??.
@@ -446,7 +461,7 @@ The computational experiments were performed on the Abel Cluster, owned by the U
 \end{figure}
 
 
-\input{supplementary\_new}
+\input{supplementarynew}
 
 
 \end{document}

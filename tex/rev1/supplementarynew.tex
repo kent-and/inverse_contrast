@@ -2,16 +2,26 @@
 \section{Supplementary}
 
 \subsection{Testing with a manufactured solution to assess accuracy.}
+\label{sup:manu}
 
-Below we will discuss the parameter identification and its sensitivity with respect to the regularization parameters, noise, number of observations and time-resolution of the forward model. When presenting the results, we denote the relative error of the diffusion parameters as 
+Below we will discuss the parameter identification and its sensitivity with respect to the regularization parameters, noise, number of observations and time-resolution of the forward model. 
+The manufactured observations were obtained by forward computation of \eqref{Eq::PDE} with the Dirichlet boundary condition defined as 
 \begin{equation}
- D_{\Omega_i}\sp{rel} = \frac{D_{\Omega_i}\sp{found} -D_{\Omega_i}\sp{true} }{D_{\Omega_i}\sp{true} }, \text{ for } i=1,2,3
+g(t) = 0.3 +0.167t - 0.007t\sp{2} \qquad \text{ for } 0 \leq t \leq 24.
+\label{EQ::DIRI}
 \end{equation}
-For the boundary parameter $g$, the relative error norm is defined as 
+The initial condition was set to 0 everywhere, the timestep was $dt = 0.2$, and the diffusion coefficients were selected to be 
 \begin{equation}
-|| g ||\sp{rel} = \frac{ \sum\limits_{t_j} || g_{found}(t_j) -g_{true}(t_j)||_{L^2(\Omega_1)} }{  \sum\limits_{t_j}||g_{true}(t_j)||_{L^2(\Omega_1)} }
-\end{equation}
-The case when the minimization algorithm fails to converge within 1000 iteration will be indicated by a hyphen in Table~\ref{Tab::Noise0.3}.
+D_{\Omega_1} = 1000.0, \quad D_{\Omega_2} = 4.0, \quad D_{\Omega_3} = 8.0 
+\end{equation}  
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.4]{noise-12.png}  
+\caption{The upper row shows the manufactured observation, A) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation after 12 hours with noise amplitude of 0.15. C) Shows the manufactures observation after 12 hours with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
+\label{12hourswithnoise}
+\end{figure}
+
 
 
 
