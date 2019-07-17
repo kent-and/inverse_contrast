@@ -19,7 +19,7 @@ Can diffusion alone explain brain-wide distribution of CSF tracers within 24 hou
 \newcommand{\kam}[1]{\textcolor{blue}{#1}}
 \newcommand{\fixme}[1]{\textcolor{orange}{#1}}
 \newcommand{\lars}[1]{\textcolor{magenta}{#1}}
-
+\def\mm2s{mm$\sp{2}$/s}
 
 \renewcommand\Affilfont{\raggedright\small}
 %\renewcommand*{\Affilfont}{\normalsize\normalfont}
@@ -88,8 +88,7 @@ The procedure was extended to humans for the first time
 in 2015 by \citet{eide2015mri} where MRI images where acquired during 48 hours after the injection and quantified in a region-specific manner in 2018 \citet{ringstad2018brain} in individuals with dementia and controls. Overall, the MRI-contrast transportation  showed a centripetal and delayed pattern in individuals with dementia as compared with controls~\citet{ringstad2018brain} which showed a more centrifugal pattern. It was noted that the CSF-tracer transportation appeard faster than what can be expected from diffusion in simplified geometries. However, it was noted that the geometry of
 the brain is quite complex and for instance the surface-to-volume ratio is fivefold that of a ball. 
 
-The properties of the extracellular diffusion are well-known due to seminal work of Nicholson and colleagues, see  
-~\cite{sykova2008diffusion} for an overview, and is fundamental to for  diffusion tensor imaging (DTI). 
+The properties of the extracellular diffusion are well-known due to seminal work of Nicholson and colleagues, see~\cite{sykova2008diffusion} for an overview, and is fundamental to for  diffusion tensor imaging (DTI). 
 It has been shown that diffusion coefficients in young and healthy subjects in white matter is around $0.7-0.9\times 10^{-3} \mathrm{mm\sp{2}/s}$ \citet{Helenius194},
 while subjects with dementia typically have higher value and variation \cite{goujon2018can}. 
 For larger molecules such as albumin (65-70 kDa) \citet{cserr1971physiology} estimated that transport by diffusion of a distance of 1 cm would require more than a hundred hours
@@ -120,15 +119,13 @@ in line with those predicted by DTI then paravascular transport can be ignored o
 Our approach is to solve an optimization problem constrained by a partial differential equation (PDE) using the adjoint method where we have sparse observations on selected time-points, around 10 acquisitions during 24 hours, but through
 the complete domain. 
 
-\textbf{
+
 There are really three questions that we want to answer.  
 \begin{itemize}
 \item Is the brain-wide distribution indicative of faster than diffusion transport? 
 \item Is PDE constrained opt. a feasible approach (in terms of accuracy etc.)
 \item Are the data of sufficient quality? 
 \end{itemize}
-
-}
 
 %Hence, the challenges faced from a mathematical point of view 
 %are that 1) the images are subject to noise, 2) resolution in space is limited to slightly less than 1 $\mathrm{mm}^3$ and 3)
@@ -195,12 +192,11 @@ Then we constructed an optimization problem with the aim to minimize the differe
 subject to   
 \begin{equation}
 \begin{aligned}
-\frac{\partial u}{\partial t} &= \nabla \cdot  D \nabla u && \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
+\frac{\partial u}{\partial t} &=  \nabla\sp{2} u && \text{in} \qquad \Omega \times \left\lbrace 0 , T \right)  \\
 u&=g && \text{on} \qquad \partial\Omega_1  \times \left\lbrace 0 , T \right) 
 \end{aligned}
 \label{Eq::PDE}
 \end{equation}
-\kam{Fiks likningene}
 Here, $u$ is the contrast distribution, $D$ is the apparent diffusion 
 coefficient, $g$ is the boundary condition, $\Omega$ is the domain, and $T$ is the final simulation time. We assume that the domain $\Omega$ consists of three sub domains, each with a different diffusion coefficient. We denote the CSF (subarachnoid and lateral ventricle) domain as $\Omega_1=\Omega_{CSF}$, the grey matter as $\Omega_{GM}$ and the white matter as $\Omega_{WM}$. 
 The apparent
@@ -210,7 +206,7 @@ The Dirichlet boundary condition is only applied on the outer facing boundary of
 The $\alpha$ and $\beta$ parameters are non-negative regularization parameters 
 and $u_{obs}$ are the observations at time-points $t_i$. 
 
-The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used to segment and create the polyhedral surfaces of the white and grey matter. Then the T2 weighted MRI \cite{ringstad2018brain} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construct the mesh. The computational requirement for the resulting mesh was significant, therefore two submeshes was also constructed, see Figure~\ref{Fig::Mesh}.
+The mesh construction was patient-specific and used the MRI of a patient diagnosed with idiopathic normal pressure hydrocephalus (iNPH). The software Freesurfer was used to segment and create the polyhedral surfaces of the white and cortical grey matter. Then the T2 weighted MRI \cite{ringstad2018brain} was used to segment the CSF compartment surrounding the cerebral and the lateral ventricles. CGAL \cite{cgal:rty-m3-18b} was used to combine the polyhedral surfaces and to construct the mesh. The computational requirement for the resulting mesh was significant, therefore two submeshes was also constructed, see Figure~\ref{Fig::Mesh}.
 \begin{figure}
 \centering
 \includegraphics[scale=0.2]{../mesh.png} 
@@ -220,61 +216,102 @@ The mesh construction was patient-specific and used the MRI of a patient diagnos
 The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral cells and 22057 vertices, while the 2 domain mesh (without the CSF compartment) Figure~\ref{Fig::Mesh} B consists of 335589 tetrahedral cells and 73002 vertices. 
 
 \section{Numerical Experiments}
-
-The process of estimating the diffusion coefficients in terms of  the PDE constrained optimization problem \eqref{Eq::PDE} is complicated as appropriate parameters, i.e. $\alpha$, $\beta$ and $\gamma$,  have 
+The process of estimating the diffusion coefficients in terms of the PDE constrained optimization problem \eqref{Eq::PDE} is complicated as appropriate parameters, i.e. $\alpha$, $\beta$ and $\gamma$,  have 
 to be determined and robustness with respect to resolution and noise have to be assessed. Our approach was as follows. 
 
 \textbf{Manufactored solution.}
-
 In order to verify our code and assess the range of parameters suitable for simulation we performed a series of 
-simulations with regularization parameters, discretization parameters and noise levels against a 
-known manufactured solution. A total of 141 numerical experiments
+simulations with regularization parameters, discretization parameters and noise levels against a known manufactured solution. A total of 141 numerical experiments
 where conducted. The details of the numerical tests can be found in the Supplementary \ref{sup:manu}. 
 
 \textbf{MRI data.}
-
-It can be seen from Fig XX that the boundary conditions is noise. This may be attributed to noise or small errors
-in the segmentation/registration process where voxels close to the boundaries between the brain and CSF are miss-aligned
-by the sub-voxel segementation procedure. In particular, the surfaces can cut a voxel at any plane, not only the planes
-through the voxel vertices. We chose three approaches to handle this problem. \kam{Lars: kan du utbrodere litt her? 
-Jeg synes vi skal beholde også Fig 10 fra tidligere.  }   
+It can be seen from Figure ~\ref{SAS} that the boundary condition contains high frequent noise. This may be attributed to noise and small errors in sampling the MRI-data onto the mesh. The sampling error can be caused by miss-alignment between different observations, and by inaccuracy of sampling discontinuous voxel data. In more detail, the boundary surface is constructed by smoothing voxels to avoid sharp edges, this can cause the boundary vertices to correspond to voxels outside the select range of data. Therefore, we investigated three approaches to minimize the sampling error : 
+\begin{itemize}
+\item gradient regularization 
+\item projection onto the boundary surface
+\item Gaussian smoothing 
+\end{itemize} 
+ 
+The implementation of the gradient regularization required that the boundary was decomposed to avoid the boundary values being continuous over different subdomains. We decomposed the boundary as seen in Figure~\ref{markedboundaryvalues}, with the red and blue boundary adjacent to the CSF. We defined the red boundary $\partial \Omega_r$ and the blue boundary $\partial \Omega_b$ as Dirichlet boundaries, while the green and yellow were Neumann boundaries. The regularization parameter $\gamma$ was added to the functional 
+\begin{equation}
+\min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_{rb}} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2}  + \frac{\gamma}{2}| \nabla g |\sp{2}  \right) \mathrm{d}\Omega \mathrm{d}t  
+\end{equation}
+We initially tested gradient regularization with the same parameter $\gamma$ on both boundaries, but the different distribution of tracers on the boundaries made it difficult to find an adequate value. It was observed that the concentration in the lateral ventricles were more uniform than that in the SAS, so we defined $\gamma$ as
+\begin{equation}
+\gamma = \begin{cases}
+0.01\tilde{\gamma}  \in &\partial \Omega_{b} \\ 
+\tilde{\gamma} \qquad \in  &\partial \Omega_{r}
+\end{cases}  
+\end{equation} 
+with $\tilde{\gamma}$ as the referenced, i.e. mentioned in the text, regularization parameter.
+The projection of values was implemented by taking the average of the adjacent CSF voxels to the boundary vertices on $\Omega_b$ and $\Omega_r$. We used the Gaussian smoothing found in the python-module scipy~\cite{jones2001scipy}, and applied the smoothing to the MRI-data. %The projection and smoothing approach changes the observations, while the gradient regularization adds additional term to the functional. Therefore a dual method can also be considered, 
+%It can be seen from Fig XX that the boundary conditions is noise. This may be attributed to noise or small errors
+%in the segmentation/registration process where voxels close to the boundaries between the brain and CSF are miss-aligned
+%by the sub-voxel segementation procedure. In particular, the surfaces can cut a voxel at any plane, not only the planes
+%through the voxel vertices. We chose three approaches to handle this problem. \kam{Lars: kan du utbrodere litt her? 
+%Jeg synes vi skal beholde også Fig 10 fra tidligere.  }   
 
 
 
 
 \section{Results}
 
-\subsection{Estimation of diffusion coefficients with a manufactored Solution.} 
+\subsection{Estimation of diffusion coefficients with a manufactured solution.} 
 We first ran a series of tests of different $\alpha$ and $\beta$ for the manufactured solutions where we assumed observations every 2.4 hours
-over the course of 24 hours. It was found that for $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^2)$, the error in 
+over the course of 24 hours. It was found that for $\alpha \in (10^{-6}, 10^{-2})$ and $\beta\in(10^{-6}, 10^2)$, the error in 
 the diffusion coefficients of both CSF, grey and white matter was less than 7\%. Furthermore,  
-$\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ gave errors of less than 1\%. Second, the robustness with respect noise
-was investigated. The noiseamplitude was set to 0.3 which equals the initial condition of the manufactured solution
+$\alpha \in (10^{-6}, 10^{-2})$ and $\beta\in(10^{-6}, 10^{-2})$ gave errors of less than 1\%. Second, the robustness with respect noise
+was investigated. The noise-amplitude was set to 0.3 which equals the initial condition of the manufactured solution
 and 23\% of the manufactured solution at its max. The method was found robust with respect to the noise, as illustrated in the Supplementary Fig~\ref{12hourswithnoise}.  In fact, for  $\alpha \in (10^{-6}, 10^{-2}$ and $\beta\in(10^{-6}, 10^{-2})$ the error in the diffusion coefficients in CSF was less than 23\% and less than 9.7\% in grey and white matter. Because of the much larger 
-error in the CSF compartment, we decided to re-mesh with a focus on the grey and white. \kam{Lars: skriv om resten av eksperimentene. Fig 6 og 7 bor med i Suppl}   
+error in the CSF compartment, we decided to re-mesh with a focus on the grey and white.
+ 
+The convergence was monitored and shown in Figure~\ref{convergence}, and we can see the different regularization parameters have similar convergence for the diffusion coefficients. 
+We had limited number of MRI observations available, so we also performed tests with variation in the number of time-steps and observations, which are documented in the Supplementary. These test used the same setup and parameters as the initial tests, and we analyzed the variation of number of time-steps and observations separately.
+We selected the number of time-steps to 10 and 40, and the number of observations to be 5 and 20. We can see that in  Figure~\ref{boundarycontrol} an increase in the number of time-steps causes oscillations for $\alpha\gg\beta$. The test of 5 observations gave similar oscillation, which suggests that high ratios between time-steps and observations contributes to oscillations. This can be counteracted by selecting high values temporal regularization $\beta$ to enforce a smooth curve.  
 
 
 
+
+
+
+
+% For instance, as seen by the the pink line for $\alpha=1.0$ and $\beta=0.0001$ the peaks corresponds to a observation.
+%These oscillations occurs due to the spacial regularization $\alpha$, which minimize the value of $g$ between observation times. 
+
+
+
+
+%\subsection{Estimation of diffusion coefficients with a manufactured solution.} 
+
+
+
+\kam{Lars: skriv om resten av eksperimentene. Fig 6 og 7 bor med i Suppl}   
 
 \subsection{Estimation of the diffusion coefficients from the MRI data} 
 
 \subsubsection{Results obtained when using real observations}
-The MRI data consisted of the observations at times $t_i$ distributed in the 48 hours time frame with the time $t_i=0.00$ as the first observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations the first 2 hours, which prompted the use of the following observation times listed in Table ??.
+The MRI data consisted of the observations at times $t_i$ distributed in the 48 hours time frame with the time $t_i=0.00$ \lars{zero?} as the first observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations the first 2 hours, therefore we used observation times listed in Table ??.
 
-The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation. The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\times 10^{-1}$. The other specific  computational parameters are listed in Table ??.
+The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation.
+
+The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\times 10^{-1}$. The other specific  computational parameters are listed in Table ??.
 The results are shown in Table~\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data}, it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\times 10^{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$.
 
-\subsubsection{Comparison with results obtained from DTI analysis}
+\subsubsection{Comparison with data obtained from DTI analysis}
 The median diffusion coefficient in the DTI was estimated to be 
 $8.7\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ 
 in white matter and 
 $1.0\times 10\sp{-3} \mathrm{mm\sp{2}/s}$ 
-in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$, given that the self-diffusivity of water has been estimated to be around $3.0\times 10\sp{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. The reference value $3.8\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA then gives an estimate for the apparent diffusion coefficient in the grey and white matter to  be $ 1.26\times 10\sp{-4}\mathrm{mm\sp{2}/s}$ and $1.10\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
+in grey matter. This corresponds to a tortuosity of $1.85$ and $1.73$ given that the self-diffusivity of water has been reported/estimated to be around $3.0\times 10\sp{-3}\mathrm{mm\sp{2}/s}$ at $37\sp{o}C$. We estimated the diffusion coefficient of $3.8\times 10\sp{-4} \mathrm{mm\sp{2}/s}$ for Gd-DPTA, which gives an estimate for the apparent diffusion coefficient in the grey and white matter to be $ 1.3\times 10\sp{-4}\mathrm{mm\sp{2}/s}$ and $1.1\times 10\sp{-4}$ \mm2s respectively. This estimation assumes that the tortuosity is independent for molecules with mass lower than 1kDa. 
 
-%The oscillation in Figure~\ref{boundarycontrol} showed a large discrepancy in the states between observations.
-The sparsity of the observations compared to the number of time steps can cause the boundary function $g$ to fluctuate between observations, see Appendix. Therefore, the states with $k=48$ were examined after 36 hours, see Figure~\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. Furthermore, we can see that for $\alpha=1.0\times 10\sp{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values of $\alpha$. Excluding the values with $\alpha=1.0\times 10\sp{-2}$ gives an average of $ 0.65 \mathrm{mm\sp{2}/h}$ in grey matter and $ 0.8 \mathrm{mm\sp{2}/h}$ in and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\times 10\sp{-4}\mathrm{mm\sp{2}/s}$ and $2.22\times 10\sp{-4} \mathrm{mm\sp{2}/s}$. The values are summarized in Table ~\ref{Tablesummerized}, and we obtain a difference of $42\%$ in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
+The sparsity of the observations compared to the number of time steps can cause the boundary function $g$ to fluctuate between observations, see Appendix. Therefore, the states with $k=48$ were examined after 36 hours, see Figure~\ref{statecomparison}. It can be observed that the upper right row displays a discrepancy, which likely due to inadequate regularization parameters. 
 
-In Figure~\ref{Fig::realdata}, it can be seen that there were regions with negligible amount of contrast and vice versa. The regions with above average amount of contrast corresponds with high diffusivity regions in Figure~\ref{figuredti}. This suggests that the computed diffusion coefficients corresponds to these values. The ADC value in the high diffusivity regions are approximately  $1.4\times 10\sp{-3} \mathrm{mm\sp{2}/s}$, which corresponds to estimated diffusion coefficient of value $1.5\time 10\sp{-3} \mathrm{mm\sp{2}/s}$. This gives a difference of $ 46 \%$ compared to the computed values.
+
+
+In Table~\ref{Tab::Real-data}, we can see that for $\alpha=1.0\times 10\sp{-2}$ there is a clear discrepancy in the diffusion coefficients compared to other values of $\alpha$. Excluding the values with $\alpha=1.0\times 10\sp{-2}$ gives an average of $ 0.65 \mathrm{mm\sp{2}/h}$ in grey matter and $ 0.8 \mathrm{mm\sp{2}/h}$ in and white matter. Scaled to $\mathrm{mm\sp{2}/s}$ gives the corresponding values $1.8\times 10\sp{-4}\mathrm{mm\sp{2}/s}$ and $2.22\times 10\sp{-4} \mathrm{mm\sp{2}/s}$. The values are summarized in Table ~\ref{Tablesummerized}, and we obtain a difference of $42\%$ in grey matter and $ 100 \%$ in white matter compared to the estimated values using DTI.
+
+\lars{ Kent enig?: no concentration change will weight all values of diffusion coefficient equally} 
+The estimation based on DTI used uniform weighting of the voxels, but this is not the case for the optimization, which used concentration difference between observations to find the optimal diffusion coefficient. This means that static regions in the observations will be weighted less than regions with high concentrations changes. In Figure~\ref{Fig::realdata}, we see regions with negligible changes of contrast and vice versa. The regions with above average amount of contrast correlates with high diffusivity regions in Figure~\ref{figuredti}. This suggests that the computed diffusion coefficients should be closer to these values. So we investigated the upper bound of ADC value at approximately $1.4\times 10\sp{-3} \mathrm{mm\sp{2}/s}$, which corresponds to estimated diffusion coefficient of value $1.5\times 10\sp{-3} \mathrm{mm\sp{2}/s}$, which gives a difference of 46\% compared to the computed values.
 
 
 
@@ -283,28 +320,28 @@ In Figure~\ref{Fig::realdata}, it can be seen that there were regions with negli
 \hline
 Description & Model variable  & Value used in the simulation\\
 \hline
-& & \\
+
 Number of timesteps &  k	 & 24, 48	\\
-& & \\
+
 \hline
-& & \\
-Observational time points  & $\tau$ &  $\lbrace 0.00,2.0, 6 , 24, 48 \rbrace$	 \\
-& & \\
+
+Observational time points  & $\tau$ &  $\lbrace 0.0 ,2.0 , 6.0 , 24.0, 48.0 \rbrace$	 \\
+
 \hline
-& & \\
+
 Timestep & $dt$	 	   &	  1, 2 $\mathrm{hours}$	\\ 
-& & \\
+
 \hline
-& & \\
+
 Spacial Regularization & $\alpha$	   &	  $\lbrace 1.0\times10\sp{-6}, 1.0\rbrace$\\ 
-& & \\
+
 \hline
-& & \\
+
 Time Regularization   & $\beta$	   &	 $\lbrace 1.0\times10\sp{-6}, 100.0\rbrace$	\\ 
-& & \\
+
 \hline
 \end{tabular}
-\caption{Forslag}
+\caption{The table shows an overview of the parameters used in case of boundary constrained optimization with MRI data. }
 \label{model-params-overview}
 \end{table}
 
@@ -312,13 +349,14 @@ Time Regularization   & $\beta$	   &	 $\lbrace 1.0\times10\sp{-6}, 100.0\rbrace$
 \begin{table}\centering
 \begin{tabular}{|ccc|}
 \hline
-   & Estimated & Computed average\\
+& & \\[-2ex]
+ & Estimated [$\mathrm{mm\sp{2}/s}$]& Computed average [$\mathrm{mm\sp{2}/s}$]\\[1ex]
 \hline
 Grey matter  & $ 1.26\times 10\sp{-4}$   &  $1.8\times 10\sp{-4}$  \\
 White matter & $ 1.10\times 10\sp{-4}$   &  $2.22\times 10\sp{-4}$  \\
 \hline
 \end{tabular}
-\caption{Forslag}
+\caption{The table displays the DTI estimated and the computed average diffusion coefficients in gray and white matter.}
 \label{Tablesummerized}
 \end{table}
 
@@ -350,14 +388,21 @@ to diffusion for solute transportation. If we consider that the vascular system 
 %of the brain 
 and that the paravascular space presumably occupy less space. Then the 42\% increase in grey matter and 100\% in white matter that we find here seem significant and the results point towards of the glymphatic clearance.  
 
-  
+%The MRI observations describes an influx of tracer into an empty compartment filled with an porous medium. In the static state, diffusion will be dominant 
+\lars{Kent: artikkel av sharp,carara og bryn} 
+Recently,   \cite{sharp2019dispersion} (Enhancement is 5.8 times that of molecular diffusion)
+
+\lars{ Questions:
+The fluctuations caused by shear-augmented dispersion is not detected by the DTI?  (why? is it?) }
+
+
   
 \section{Insert correctly}
 (The sampling of) The observations on the boundary between CSF and the brain parenchyma suffered from the poor resolution of the T1-map, which lead to high frequency noise on the boundary. Therefore we investigates the effect of a gradient regularization parameter, Gaussian smoothing and the projecting the average concentration onto the boundary has ways to reduce the noise. 
 
-The implementation of the gradient regularization required that the boundary was decomposed to avoid the boundary values being continuous in different subdomains. We decomposed the boundary as seen in Figure ~\ref{markedboundaryvalues}, with the red and blue boundary next to the CSF. We defined the red boundary $\partial \Omega_r$ and the blue boundary $\partial \Omega_b$ as Dirichlet boundaries, while the green and yellow were Neumann boundaries. The regularization parameter $\gamma$ was added to the functional 
+The implementation of the gradient regularization required that the boundary was decomposed to avoid the boundary values being continuous over different subdomains. We decomposed the boundary as seen in Figure ~\ref{markedboundaryvalues}, with the red and blue boundary next to the CSF. We defined the red boundary $\partial \Omega_r$ and the blue boundary $\partial \Omega_b$ as Dirichlet boundaries, while the green and yellow were Neumann boundaries. The regularization parameter $\gamma$ was added to the functional 
 \begin{equation}
-\min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_{rb}} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2}  \frac{\gamma}{2}| \nabla g  \right) \mathrm{d}\Omega \mathrm{d}t  
+\min_{D,g} \quad \sum\limits_{i=1}\sp{n} \int\limits_{\Omega} |u(t_i) - u_{obs}(t_i)|\sp{2} \mathrm{d}\Omega + \int\limits_{0}\sp{T} \int\limits_{\partial \Omega_{rb}} \left( \frac{\alpha}{2} | g |\sp{2} + \frac{\beta}{2} \left| \frac{\partial g}{\partial t} \right|\sp{2}  + \frac{\gamma}{2}| \nabla g |\sp{2}  \right) \mathrm{d}\Omega \mathrm{d}t  
 \end{equation}
 The boundaries $\Omega_r$ and $\Omega_b$ have very different shapes, and using the same regularization parameter can have different effects on the two boundaries. Based on the  observations we saw that that the concentration in the lateral ventricles were more uniform than that in the SAS. Therefore, we defined $\gamma$ as
 \begin{equation}
@@ -366,9 +411,7 @@ The boundaries $\Omega_r$ and $\Omega_b$ have very different shapes, and using t
 \tilde{\gamma} \qquad \in  &\partial \Omega_{r}
 \end{cases}  
 \end{equation} 
-with $\tilde{\gamma}$ as the referenced(mentioned in the text) regularization parameter.
-
-
+with $\tilde{\gamma}$ as the referenced, i.e. mentioned in the text, regularization parameter.
 
 The results for the ventricular boundary in Figure ~\ref{VENT} and the SAS boundary in Figure ~\ref{SAS}. The corresponding estimated diffusion coefficient are shown in Figure ??. 
 We see that the gradient regularization has a great effect reducing the noise on the boundaries, but it also changed the computed diffusion coefficients.

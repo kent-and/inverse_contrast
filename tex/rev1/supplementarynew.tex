@@ -17,7 +17,7 @@ D_{\Omega_1} = 1000.0, \quad D_{\Omega_2} = 4.0, \quad D_{\Omega_3} = 8.0
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.4]{noise-12.png}  
+\includegraphics[scale=0.4]{../noise-12.png}  
 \caption{The upper row shows the manufactured observation, A) Shows the manufactured observation at time-point 24 with no noise added. B) Shows the manufactured observation after 12 hours with noise amplitude of 0.15. C) Shows the manufactures observation after 12 hours with noise amplitude of 0.3. The lower row shows the results with optimized parameter obtained with $\alpha=0.0001$, $\beta=1.0$ and $k=20$. D) Shows the resulting state given the observation in A. E)  Shows the resulting state given the observation in B .F) Shows the resulting state given the observation in C. }
 \label{12hourswithnoise}
 \end{figure}
@@ -121,6 +121,21 @@ In these equations $\lambda_i$ denotes the eigenvalues of the diffusion tensor.
 \label{figuredti} 
 \end{figure}
 
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.21]{../boundary_control.png}  
+\caption{ Displays plots over time for a selection of points at the boundary of $\Omega_1$ with different regularization parameters and number of timesteps $k$. The left panel shows the legend for the plot over time, together with the selection of points. The middle panel shows the average boundary value $g$ for different regularization parameter with $k=10$. The right panel shows the average boundary value $g$ for different regularization parameter with $k=40$.  }
+\label{boundarycontrol}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.18]{../Convergence-plot.png}   
+\caption{Convergence plots of the diffusion coefficients, boundary conditions and functional with respect to different $\alpha$ and $\beta$ values. } 
+\label{convergence}
+\end{figure}
 
 
 
