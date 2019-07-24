@@ -164,7 +164,7 @@ its implementation in FEniCS. The exposition is, however, brief and we refer to 
 
 \begin{figure}
 \includegraphics[width=0.95\textwidth]{../Zoom-PatID.png} 
-\caption{Shows the percentage change in T1 signal unit ratios from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis. The color bar was restricted to the range $(0,100)$. }
+\caption{The image shows the percentage change in T1 signal unit ratios from baseline at different observation times in the slice (marked red in the left panel) used in the subsequent analysis. The color bar was restricted to the range $(0,100)$. }
 \label{fig2} 
 \end{figure}
 Figure~\ref{fig1} shows distribution of MRI-contrast%CSF tracer
@@ -217,12 +217,12 @@ The 3 domain mesh in Figure~\ref{Fig::Mesh} A, consists of 244318 tetrahedral ce
 
 %\section{Numerical Experiments}
 The process of estimating the diffusion coefficients in terms of the PDE constrained optimization problem \eqref{Eq::PDE} is complicated as appropriate parameters, i.e. $\alpha$, $\beta$ and $\gamma$,  have 
-to be determined and robustness with respect to resolution and noise have to be assessed. Our approach was as follows. 
+to be determined and robustness with respect to resolution and noise have to be assessed. Our approach was as follows.  
 
 \textbf{Manufactored solution.}
 In order to verify our code and assess the range of parameters suitable for simulation we performed a series of 
 simulations with regularization parameters, discretization parameters and noise levels against a known manufactured solution. A total of 141 numerical experiments
-where conducted. The details of the numerical tests can be found in the Supplementary \ref{sup:manu}. 
+where conducted. The details of the numerical tests can be found in the Supplementary \ref{sup:manu}.  
 
 \textbf{MRI data.}
 It can be seen from Figure ~\ref{SAS} that the boundary condition contains high frequent noise. This may be attributed to noise and small errors in sampling the MRI-data onto the mesh. The sampling error can be caused by miss-alignment between different observations, and by inaccuracy of sampling discontinuous voxel data. In more detail, the boundary surface is constructed by smoothing voxels to avoid sharp edges, this can cause the boundary vertices to correspond to voxels outside the select range of data. Therefore, we investigated three approaches to minimize the sampling error : 
@@ -232,7 +232,7 @@ It can be seen from Figure ~\ref{SAS} that the boundary condition contains high 
 \item Gaussian smoothing 
 \end{itemize} 
  
-The implementation of the gradient regularization required that the boundary was decomposed to avoid the boundary values being continuous over different subdomains. We decomposed the boundary as seen in Figure~\ref{markedboundaryvalues}, with the red and blue boundary adjacent to the CSF. We defined the red boundary $\partial \Omega_r$ and the blue boundary $\partial \Omega_b$ as Dirichlet boundaries, while the green and yellow were Neumann boundaries. The regularization parameter $\gamma$ was subsequentally to non-zero in Eq.~\ref{\label{EQ::objf}}. We initially tested gradient regularization with the same parameter $\gamma$ on both boundaries, but the different distribution of tracers on the boundaries made it difficult to find an adequate value. It was observed that the concentration in the lateral ventricles were more uniform than that in the SAS, so we defined $\gamma$ as
+The implementation of the gradient regularization required that the boundary was decomposed to avoid the boundary values being continuous over different subdomains. We decomposed the boundary as seen in Figure~\ref{markedboundaryvalues}, with the red and blue boundary adjacent to the CSF. We defined the red boundary $\partial \Omega_r$ and the blue boundary $\partial \Omega_b$ as Dirichlet boundaries, while the green and yellow were Neumann boundaries. The regularization parameter $\gamma$ was subsequently set to be non-zero in Eq.~\ref{EQ::objf}. We initially tested gradient regularization with the same parameter $\gamma$ on both boundaries, but the different distribution of tracers on the boundaries made it difficult to find an adequate value. It was observed that the concentration in the lateral ventricles were more uniform than that in the SAS, so we defined $\gamma$ as
 \begin{equation}
 \gamma = \begin{cases}
 0.01\tilde{\gamma}  \in &\partial \Omega_{b} \\ 
@@ -241,9 +241,9 @@ The implementation of the gradient regularization required that the boundary was
 \end{equation} 
 with $\tilde{\gamma}$ as the referenced, i.e. mentioned in the text, regularization parameter.
 
-The projection method worked by selecting each boundary vertex on $\Omega_b$ and $\Omega_r$, then finding the corresponding voxel using an affine transformation. Then for each voxels, we  computed the average of all CSF segmented voxels in a two voxel vicinity. The averages was then set to be the observational value for corresponding boundary vertex in the computations.
+The projection method worked by selecting each boundary vertex on $\Omega_b$ and $\Omega_r$, then finding the corresponding voxel using an affine transformation. Then for each voxels, we  computed the average of all CSF segmented voxels in a three voxel vicinity. The averages was then set to be the observational value for corresponding boundary vertex in the computations. In order to estimate the CSF concentration, we assumed that the T1 value corresponding to CSF was 3000 ms, which is shown in Fig~\ref{figureF}] in the supplementary. 
 
-We used the Gaussian smoothing found in the python-module scipy~\cite{jones2001scipy}, and applied the smoothing to the voxel based MRI-data. The smoothing function required that standard deviation of a Gaussian distribution was specified, which was tested in the range 0.3-1.5.
+We used the Gaussian smoothing found in the python-module scipy~\cite{jones2001scipy}, and applied the smoothing to all voxel based MRI observations. The smoothing function required that standard deviation of a Gaussian distribution was specified, which was tested in the range 0.3-1.5 mm, with 1.0 mm as length of a voxel. 
 
 
  %The projection and smoothing approach changes the observations, while the gradient regularization adds additional term to the functional. Therefore a dual method can also be considered, 
@@ -259,7 +259,7 @@ We used the Gaussian smoothing found in the python-module scipy~\cite{jones2001s
 \section{Results}
 
 \subsection{Estimation of diffusion coefficients with a manufactured solution.} 
-We first ran a series of tests of different $\alpha$ and $\beta$ for the manufactured solutions where we assumed observations every 2.4 hours
+We first ran a series of tests of different $\alpha$ and $\beta$ for the manufactured solutions where we assumed observations every 2.4 hours 
 over the course of 24 hours. It was found that for $\alpha \in (10^{-6}, 10^{-2})$ and $\beta\in(10^{-6}, 10^2)$, the error in 
 the diffusion coefficients of both CSF, grey and white matter was less than 7\%. Furthermore,  
 $\alpha \in (10^{-6}, 10^{-2})$ and $\beta\in(10^{-6}, 10^{-2})$ gave errors of less than 1\%. Second, the robustness with respect noise
@@ -292,9 +292,9 @@ We selected the number of time-steps to 10 and 40, and the number of observation
 \subsection{Estimation of the diffusion coefficients from the MRI data} 
 
 \subsubsection{Results obtained when using real observations}
-The MRI data consisted of the observations at times $t_i$ distributed in the 48 hours time frame with the time $t_i=0.00$ \lars{zero?} as the first observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations the first 2 hours, therefore we used observation times listed in Table ??.
+The MRI data consisted of the observations at times $t_i$ distributed in the 48 hours time frame with the time $t_i=0.00$ as the first observation 1-2 hours after the contrast was injected. There was no significant visible change in the contrast between the observations the first 2 hours, therefore we used observation times listed in Table\ref{model-params-overview}.
 
-The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation. 
+%The estimation of contrast concentration proved difficult in the CSF compartment. Therefore the 2 domain mesh, shown in Figure~\ref{Fig::Mesh} was used in the computation. 
 
 The boundary control was set to the external boundary of both domains, and the subscript in $D_{\Omega_{GM}}$ and $D_{\Omega_{WM}}$ denotes grey and white matter diffusion coefficients. Furthermore, bounds were added to the L-BFGS-B algorithm to ensure non-negative boundary controls and the convergence criteria was adjusted so that the optimization was stopped when the $L^\infty$-norm of the projected gradient of the objective functional dropped below $6.0\times 10^{-1}$. The other specific  computational parameters are listed in Table ??.
 The results are shown in Table~\ref{Tab::Real-data}, and the observations after 12 and 48 hours were compared with the corresponding states in Figure~\ref{Fig::realdata}. From Table~\ref{Tab::Real-data}, it can be observed that $D_{\Omega_{WM}}$ has 24\% higher value on average for $\alpha =1.0\times 10^{-2}$. It can also be observed that the $D_{\Omega_{GM}}$ have a consistent increases with a decreasing $\beta$.
@@ -392,10 +392,10 @@ and that the paravascular space presumably occupy less space. Then the 42\% incr
 
 %The MRI observations describes an influx of tracer into an empty compartment filled with an porous medium. In the static state, diffusion will be dominant 
 \lars{Kent: artikkel av sharp,carara og bryn} 
-Recently,   \cite{sharp2019dispersion} (Enhancement is 5.8 times that of molecular diffusion)
+Recently, it was reported in \citet{sharp2019dispersion} that shear-augmented dispersion can contribute to an enhancement upto 5.8 times that of molecular diffusion.   
 
-\lars{ Questions:
-The fluctuations caused by shear-augmented dispersion is not detected by the DTI?  (why? is it?) }
+%\lars{ Questions:
+%The fluctuations caused by shear-augmented dispersion is not detected by the DTI?  (why? is it?) }
 
 
   
